@@ -1,20 +1,49 @@
 
+
 .boxes-container {
   display: flex;
+  width: 100%;
   gap: 16px;
-  flex-wrap: wrap;
-  padding: 20px;
+  flex-direction: row;
+  flex-wrap: nowrap;
 }
 
+
 .box {
-  width: 120px;
-  height: 120px;
-  background-color: #4f46e5;
+  flex: 1;
+  min-width: 0;
+  height: clamp(60px, 12vh, 260px);
+  background-color: #ffffff;
   color: white;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 12px;
   border-radius: 10px;
-  font-size: 18px;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.15),
+    0 8px 20px rgba(0,0,0,0.2);
+
+}
+.name {
+  font-size: clamp(6px, 1.2vw, 28px);
+  color: #8f96a1;
+  align-self: center;
+}
+.value {
+  font-size: clamp(6px, 2vw, 40px);
   font-weight: bold;
+  color: black;
+  align-self: center;
+}
+.content {
+  margin-left: 320px; /* SAME AS TOOLBAR WIDTH */
+  padding: 20px;
+  background-color: #f1ebeb;
+  font-family: "Roboto", sans-serif;
 }

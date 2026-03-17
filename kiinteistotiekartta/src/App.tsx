@@ -2,21 +2,32 @@ import { useState } from 'react'
 import Toolbar from './components/Toolbar'
 import './App.css'
 
+    const summaryBoxes = [
+      {name: "KIINTEISTÖJÄ", value: "NaN"},
+      {name: "KOKONAISPINTA-ALA", value: "NaN"},
+      {name: "TASEARVO YHTEENSÄ", value: "NaN"},
+      {name: "YLLÄPITÖKULUT/V", value: "NaN"},
+      {name: "VUOKRATULOT/V", value: "NaN"},
+    ];
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
-    <div>
-      <h1>Kiinteistösalkku</h1>
-    </div>
     <Toolbar/>
-    <div className="boxes-container">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <div key={n} className="box">
-          Box {n}
-        </div>
-      ))}
+
+    <div className="content">
+      <div>
+        <h1>Kiinteistösalkku</h1>
+      </div>
+      
+      <div className="boxes-container">
+        {summaryBoxes.map((box,i) => (
+          <div key={i} className="box">
+            <span className='name'>{box.name}</span>
+            <span className='value'>{box.value}</span>
+          </div>
+        ))}
+      </div>
     </div>
     </>
   )

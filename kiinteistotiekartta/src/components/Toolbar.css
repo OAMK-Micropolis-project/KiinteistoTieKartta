@@ -1,18 +1,19 @@
-/* Make the entire app use full height */
+
 html, body, #root {
   height: 100%;
   margin: 0;
 }
 
 .toolbar {
-  position: fixed;           /* Sticks to the left side */
+  position: fixed;
   top: 0;
   left: 0;
-  width: 320px;              /* Set your width */
-  height: 100vh;             /* FULL SCREEN HEIGHT */
-  background: #0f172a;       /* Dark blue/black */
+  width: 320px;
+  height: 100vh;      
+  background: #20242e;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   padding: 16px;
   gap: 12px;
   box-sizing: border-box;
@@ -20,18 +21,85 @@ html, body, #root {
   border-right: 1px solid #1e293b;
 }
 
-.toolbar-btn {
-  background: #1e293b;
-  border: none;
-  padding: 12px;
-  border-radius: 6px;
-  color: #e2e8f0;
-  text-align: left;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 120ms;
+.toolbarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
 }
 
-.toolbar-btn:hover {
-  background: #334155;
+.toolbarItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+
+.toolbarItem:hover {
+  background: #1e293b;
+  color: white;
+}
+
+.toolbarItem.isActive {
+  background: rgba(99, 102, 241, 0.15); 
+  color: white;
+  outline: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.toolbarIcon {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  border-radius: 6px;
+  background: #1e293b;
+  font-size: 10px;
+  color: #94a3b8; 
+}
+
+.toolbarItem.isActive .toolbarIcon {
+  background: #6366f1;
+  color: white;
+}
+
+.toolbarLabel {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.headerBlock {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #cacccf;
+  width: 100%;
+}
+
+.headerTitle {
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.headerSubtitle {
+  font-size: 16px;
+  color: #888d96;
+  margin-top: 4px;
 }

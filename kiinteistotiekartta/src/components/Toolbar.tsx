@@ -8,40 +8,34 @@ type Tool = {
 };
 
 const tools: Tool[] = [
-  { id: "home", label: "Home" },
-  { id: "search", label: "Search" },
-  { id: "add", label: "Add" },
-  { id: "settings", label: "Settings" },
-  { id: "help", label: "Help" },
+  { id: "summary", label: "Yhteenveto" },
+  { id: "analytics", label: "Analytiikka" },
+  { id: "addProperty", label: "Lisää kiinteistö" },
 ];
 
 export default function Toolbar() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [active, setActive] = useState<string>("home");
+  const [active, setActive] = useState<string>("summary");
 
   return (
-    <aside className={`toolbar ${collapsed ? "toolbar--collapsed" : ""}`}>
-      <button
-        className="toolbar__toggle"
-        aria-label={collapsed ? "Expand toolbar" : "Collapse toolbar"}
-        onClick={() => setCollapsed((c) => !c)}
-      >
-        {collapsed ? "›" : "‹"}
-      </button>
-
-      <nav className="toolbar__nav" aria-label="Primary">
+    <div className="toolbar">
+      <div className="headerBlock">
+        <span className="headerTitle">Kiinteistösalkku</span>
+        <span className="headerSubtitle">Hallintajärjestelmä</span>
+      </div>
+      
+      <nav className="toolbarNav" aria-label="Primary">
         {tools.map((tool) => (
           <button
             key={tool.id}
-            className={`toolbar__item ${active === tool.id ? "is-active" : ""}`}
+            className={`toolbarItem ${active === tool.id ? "isActive" : ""}`}
             onClick={() => setActive(tool.id)}
             aria-pressed={active === tool.id}
           >
-            <span className="toolbar__icon" aria-hidden="true">●</span>
-            <span className="toolbar__label">{tool.label}</span>
+            <span className="toolbarIcon" aria-hidden="true">●</span>
+            <span className="toolbarLabel">{tool.label}</span>
           </button>
         ))}
       </nav>
-    </aside>
+    </div>
   );
 }
