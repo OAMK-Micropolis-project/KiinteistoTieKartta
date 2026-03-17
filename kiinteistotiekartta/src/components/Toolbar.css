@@ -1,0 +1,37 @@
+/* Make the entire app use full height */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+.toolbar {
+  position: fixed;           /* Sticks to the left side */
+  top: 0;
+  left: 0;
+  width: 320px;              /* Set your width */
+  height: 100vh;             /* FULL SCREEN HEIGHT */
+  background: #0f172a;       /* Dark blue/black */
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 12px;
+  box-sizing: border-box;
+  color: #fff;
+  border-right: 1px solid #1e293b;
+}
+
+.toolbar-btn {
+  background: #1e293b;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  color: #e2e8f0;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 120ms;
+}
+
+.toolbar-btn:hover {
+  background: #334155;
+}
