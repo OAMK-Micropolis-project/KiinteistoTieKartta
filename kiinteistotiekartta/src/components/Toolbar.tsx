@@ -20,9 +20,9 @@ export default function Toolbar() {
     <div className="toolbar">
       <div className="headerBlock">
         <span className="headerTitle">Kiinteistösalkku</span>
-        <span className="headerSubtitle">Hallintajärjestelmä</span>
+        <span className="headerSubtitle">HALLINTAJÄRJESTELMÄ</span>
       </div>
-      
+      <span className="headerSubtitle">NÄKYMÄT</span>
       <nav className="toolbarNav" aria-label="Primary">
         {tools.map((tool) => (
           <button
@@ -35,6 +35,7 @@ export default function Toolbar() {
             <span className="toolbarLabel">{tool.label}</span>
           </button>
         ))}
+        <span className="headerSubtitle">KIINTEISTÖT</span>
       </nav>
     </div>
   );

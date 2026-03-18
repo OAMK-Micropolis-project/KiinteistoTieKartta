@@ -1,18 +1,19 @@
 
 
-.boxes-container {
+.boxesContainer {
   display: flex;
   width: 100%;
   gap: 16px;
   flex-direction: row;
   flex-wrap: nowrap;
+  margin-top: 20px;
 }
 
 
 .box {
   flex: 1;
   min-width: 0;
-  height: clamp(60px, 12vh, 260px);
+  height: clamp(40px, 8vh, 260px);
   background-color: #ffffff;
   color: white;
   display: flex;
@@ -42,8 +43,101 @@
   align-self: center;
 }
 .content {
-  margin-left: 320px; /* SAME AS TOOLBAR WIDTH */
-  padding: 20px;
+  margin-left: clamp(200px, 33vw, 320px); /* SAME AS TOOLBAR WIDTH */
+  padding: 16px;
   background-color: #f1ebeb;
   font-family: "Roboto", sans-serif;
+}
+.title {
+  font-size: clamp(20px, 4vw, 40px);
+  font-weight: 600;
+}
+
+.realEstatesContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%-10px;
+  background-color: #ffffff;
+  padding: 10px;
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow-x: hidden;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.15),
+    0 8px 20px rgba(0,0,0,0.2);
+}
+
+.realEstateTitle {
+  flex: 1;
+  font-size: clamp(6px, 1.2vw, 28px);
+  text-align: center;
+  color: #8f96a1;
+}
+.realEstateTitle2 {
+  flex: 2;
+  font-size: clamp(6px, 1.2vw, 28px);
+  color: #8f96a1;
+}
+
+.realEstateRowTitles {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 16px;
+  border-bottom: 2px solid #8f96a1;
+}
+.realEstateRow {
+  display: flex;
+  align-items: center;
+  background: #1f2430;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-top: clamp(8px,1vw,16px);
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.estateName {
+  flex: 2;
+  font-size: clamp(20px, 1.5vw, 40px);
+  font-weight: 600;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.portfolio,
+.estateNumber {
+  flex: 1;
+  font-size: clamp(20px, 1.3vw, 40px);
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.realEstateRow:hover {
+  filter: brightness(1.15);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.portfolioA {
+  background: #3b82f6;
+}
+
+.portfolioB {
+  background: #22c55e;
+}
+
+.portfolioC {
+  background: #eab308;
+}
+.portfolioD {
+  background: #ef4444;
+}
+.portfolioDefault {
+  background: #1f2430;
 }
