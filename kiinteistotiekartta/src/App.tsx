@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import Toolbar from './components/Toolbar'
 import './App.css'
-
+import './utils/chartSetup'
+import PortfolioLineChart from './components/charts/Linechart';
+import PointsBarChart from './components/charts/Barchart';
+import AreaPieChart from './components/charts/Piechart';
 const summaryBoxes = [
   {name: "KIINTEISTÖJÄ", value: "NaN"},
   {name: "KOKONAISPINTA-ALA", value: "NaN"},
@@ -60,8 +63,10 @@ function App() {
           </div>
         ))}
       </div>
-
+        <AreaPieChart/>
+        <PointsBarChart/>
     </div>
+    
     </>
   )
 }
