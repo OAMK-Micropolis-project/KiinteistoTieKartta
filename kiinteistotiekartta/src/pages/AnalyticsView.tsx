@@ -3,49 +3,38 @@ export default function AnalyticsView() {
     <div style={{ padding: "20px" }}>
 
       <h1 className="page-title">Analytiikka</h1>
-      <p className="page-sub">Vertailunäkymät koko kiinteistökannasta</p>
+      <p className="page-sub">Vertailunäkymät koko salkusta</p>
+      
 
-      <div className="kpi-grid">
-        <div className="kpi-card">
-          <div className="kpi-label">Kiinteistöjä</div>
-          <div className="kpi-value">—</div>
-        </div>
-
-        <div className="kpi-card">
-          <div className="kpi-label">Kokonaispinta-ala</div>
-          <div className="kpi-value">—</div>
-        </div>
-
-        <div className="kpi-card">
-          <div className="kpi-label">Tasearvo yhteensä</div>
-          <div className="kpi-value">—</div>
-        </div>
-      </div>
-
+      {/** ========== YLLÄPITOKULUT SALKUITTAIN ========== */}
       <div className="chart-grid">
         <div className="card">
           <h3 className="card-title">Ylläpitokulut salkuittain (€/v)</h3>
           <div className="chart-placeholder">Kaavio</div>
         </div>
 
+        {/** ========== PISTEIDEN JAKAUMA KRITEEREITTÄIN ========== */}
         <div className="card">
           <h3 className="card-title">Pisteiden jakauma kriteereittäin</h3>
           <div className="chart-placeholder">Kaavio</div>
         </div>
       </div>
 
+      {/** ========== YHTEENVETOTAULUKKO ========== */}
       <div className="card">
         <h3 className="card-title">Yhteenvetotaulukko</h3>
 
-        <table className="data-table">
+        <table className="data-table" id="analyticsTable">
           <thead>
             <tr>
-              <th>Nimi</th>
+              <th>Kiinteistö</th>
               <th>Salkku</th>
               <th>Pisteet</th>
-              <th>Pinta-ala</th>
-              <th>Tasearvo</th>
-              <th>Ylläpito (€)</th>
+              <th>m²</th>
+              <th>Tasearvo €</th>
+              <th>Ylläpito € / V</th>
+              <th>Käyttöaste %</th>
+              <th>RAKV.</th>
             </tr>
           </thead>
           <tbody>
