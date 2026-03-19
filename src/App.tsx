@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import AnalyticsView from "./pages/AnalyticsView";
+import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
+import AnalyticsView from "./pages/analyticsView";
 import "./style.css";
 
 function HomePage() {
@@ -17,7 +17,7 @@ function HomePage() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <Router>
 
       {/* NAVIGAATIO */}
       <nav style={{ padding: "10px", background: "#eee", marginBottom: "20px" }}>
@@ -31,7 +31,6 @@ export default function App() {
         <Route path="/analytics" element={<AnalyticsView />} />
       </Routes>
 
-    </BrowserRouter>
+    </Router>
   );
 }
-``
