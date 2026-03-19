@@ -2,8 +2,8 @@ export default function AnalyticsView() {
   return (
     <div style={{ padding: "20px" }}>
 
-      <h1 className="page-title">Analytiikka</h1>
-      <p className="page-sub">Vertailunäkymät koko salkusta</p>
+      <div className="page-title">Analytiikka</div>
+      <div className="page-sub">Vertailunäkymät koko salkusta</div>
       
 
       {/** ========== YLLÄPITOKULUT SALKUITTAIN ========== */}
@@ -15,14 +15,14 @@ export default function AnalyticsView() {
 
         {/** ========== PISTEIDEN JAKAUMA KRITEEREITTÄIN ========== */}
         <div className="card">
-          <h3 className="card-title">Pisteiden jakauma kriteereittäin</h3>
+          <div className="card-title">Pisteiden jakauma kriteereittäin</div>
           <div className="chart-placeholder">Kaavio</div>
         </div>
       </div>
 
       {/** ========== YHTEENVETOTAULUKKO ========== */}
       <div className="card">
-        <h3 className="card-title">Yhteenvetotaulukko</h3>
+        <div className="card-title">Yhteenvetotaulukko</div>
 
         <table className="data-table" id="analyticsTable">
           <thead>
@@ -31,9 +31,9 @@ export default function AnalyticsView() {
               <th>Salkku</th>
               <th>Pisteet</th>
               <th>m²</th>
-              <th>Tasearvo €</th>
-              <th>Ylläpito € / V</th>
-              <th>Käyttöaste %</th>
+              <th>Tasearvo (€)</th>
+              <th>Ylläpito (€ / V)</th>
+              <th>Käyttöaste (%)</th>
               <th>RAKV.</th>
             </tr>
           </thead>
