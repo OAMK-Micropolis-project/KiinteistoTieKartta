@@ -1,206 +1,170 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Chart from "chart.js/auto";
+import { useNavigate } from "react-router-dom";
 
-import type{ Kiinteisto } from "../types";
+import type { Kiinteisto } from "../types";
 import { INITIAL_DATA } from "../mock/initialData";
-
 import {
+    laskeKayttoaste,
     laskePisteet,
     laskeYllapito,
-    laskeKayttoaste,
-    laskeTasearvo,
+    laskeTasearvo
 } from "../utils/analyticsUtils";
 
+import { cardStyle, tableStyle, thStyle, tdStyle, sectionTitle } from "../styles";
+
 export default function AnalyticsView() {
-    const [properties] = useState<Kiinteisto[]>(INITIAL_DATA);
-    const [chartError, setChartError] = useState<string | null>(null);
+    const [properties, setProperties] = useState<Kiinteisto[]>([]);
+    const navigate = useNavigate();
 
-    const yllapitoCanvasRef = useRef<HTMLCanvasElement | null>(null);
-    const kriteeritCanvasRef = useRef<HTMLCanvasElement | null>(null);
+    useEffect(() => setProperties(INITIAL_DATA), []);
 
-    const yllapitoChartRef = useRef<Chart | null>(null);
-    const kriteeritChartRef = useRef<Chart | null>(null);
+    // =========================
+    // SORT LOGIC
+    // =========================
+    const [sortKey, setSortKey] = useState("nimi");
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-    // Tuhoaa Chart.js-instanssit, kun komponentti unmountataan
-    useEffect(() => {
-        return () => {
-            yllapitoChartRef.current?.destroy();
-            yllapitoChartRef.current = null;
+    function sortData(data: Kiinteisto[]) {
+        return [...data].sort((a, b) => {
+            let A: string | number = "";
+            let B: string | number = "";
 
-            kriteeritChartRef.current?.destroy();
-            kriteeritChartRef.current = null;
-        };
-    }, []);
+            if (sortKey === "pisteet") {
+                A = laskePisteet(a);
+                B = laskePisteet(b);
+            } else if (sortKey === "tasearvo") {
+                A = laskeTasearvo(a);
+                B = laskeTasearvo(b);
+            } else if (sortKey === "kayttoaste") {
+                A = laskeKayttoaste(a);
+                B = laskeKayttoaste(b);
+            } else if (sortKey === "yllapito") {
+                A = laskeYllapito(a);
+                B = laskeYllapito(b);
+            } else {
+                A = (a as any)[sortKey];
+                B = (b as any)[sortKey];
+            }
 
-    // ---------- YLLÄPITOKULUT KAAVIO ----------
+            if (typeof A === "string")
+                return sortDirection === "asc" ? A.localeCompare(B as string) : (B as string).localeCompare(A);
+
+            return sortDirection === "asc" ? Number(A) - Number(B) : Number(B) - Number(A);
+        });
+    }
+
+    function handleSort(key: string) {
+        if (sortKey === key) setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+        else {
+            setSortKey(key);
+            setSortDirection("asc");
+        }
+    }
+
+    // =========================
+    // CHARTS
+    // =========================
+
     useEffect(() => {
         if (!properties.length) return;
-        if (chartError) return;
 
-        const canvas = yllapitoCanvasRef.current;
-        if (!canvas) return;
-
-        try {
-            const chartData = {
+        new Chart(document.getElementById("chartYllapito") as HTMLCanvasElement, {
+            type: "bar",
+            data: {
                 labels: properties.map((p) => p.nimi),
                 datasets: [
                     {
                         label: "Ylläpitokulut (€ / v)",
-                        data: properties.map((p) => laskeYllapito(p)),
+                        data: properties.map(laskeYllapito),
                         backgroundColor: "rgba(46, 104, 166, 0.7)",
                         borderRadius: 6,
                     },
                 ],
-            };
-
-const existingChart = yllapitoChartRef.current;
-        const shouldRecreate = existingChart && !existingChart.canvas?.ownerDocument;
-
-        if (shouldRecreate) {
-            existingChart.destroy();
-            yllapitoChartRef.current = null;
-        }
-
-        if (yllapitoChartRef.current) {
-                yllapitoChartRef.current.data = chartData;
-                yllapitoChartRef.current.update();
-                return;
             }
+        });
+    }, [properties]);
 
-            yllapitoChartRef.current = new Chart(canvas, {
-                type: "bar",
-                data: chartData,
-                options: {
-                    scales: {
-                        y: { beginAtZero: true },
-                    },
-                },
-            });
-        } catch (error) {
-            // Säilytä virhe näytetään UI:ssa ja jatketaan ilman kaavioita
-            console.error("Chart rendering error (yllapito):", error);
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setChartError(String(error));
-        }
-    }, [properties, chartError]);
-
-    // ---------- PISTEIDEN JAKAUMA KAAVIO ----------
     useEffect(() => {
         if (!properties.length) return;
-        if (chartError) return;
+        const KRITEERIT = ["ika", "vesikatto", "sadevesi", "julkisivu", "ikkunat", "ovet"];
 
-        const canvas = kriteeritCanvasRef.current;
-        if (!canvas) return;
-
-        try {
-            // Valitaan 6 kriteeriä esimerkkinä
-            const KRITEERIT = ["ika", "vesikatto", "sadevesi", "julkisivu", "ikkunat", "ovet"];
-
-            const chartData = {
+        new Chart(document.getElementById("chartKriteerit") as HTMLCanvasElement, {
+            type: "bar",
+            data: {
                 labels: KRITEERIT,
-                datasets: properties.map((p, idx) => ({
+                datasets: properties.map((p, i) => ({
                     label: p.nimi,
                     data: KRITEERIT.map((k) => p.pisteet[k] ?? 0),
-                    backgroundColor: `rgba(${80 + idx * 30}, ${120 - idx * 25}, ${160 + idx * 10}, 0.7)`,
-                })),
-            };
-
-const existingChart = kriteeritChartRef.current;
-        const shouldRecreate = existingChart && !existingChart.canvas?.ownerDocument;
-
-        if (shouldRecreate) {
-            existingChart.destroy();
-            kriteeritChartRef.current = null;
-        }
-
-        if (kriteeritChartRef.current) {
-                kriteeritChartRef.current.data = chartData;
-                kriteeritChartRef.current.update();
-                return;
+                    backgroundColor: `rgba(${80 + i * 30}, ${120 - i * 20}, ${160 + i * 15}, 0.7)`
+                }))
             }
-
-            kriteeritChartRef.current = new Chart(canvas, {
-                type: "bar",
-                data: chartData,
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            min: 0,
-                            max: 5,
-                            ticks: { stepSize: 1 },
-                        },
-                    },
-                },
-            });
-        } catch (error) {
-            console.error("Chart rendering error (kriteerit):", error);
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setChartError(String(error));
-        }
-    }, [properties, chartError]);
+        });
+    }, [properties]);
 
     return (
         <div style={{ padding: "20px" }}>
             <h1>Analytiikka</h1>
-            <p>Vertailunäkymät koko salkusta</p>
+            <p style={{ color: "#7a756c" }}>Vertailunäkymät koko salkusta</p>
 
-            {/* ---------- YLLÄPITOKULUT ---------- */}
-            <section>
-                <h3>Ylläpitokulut salkuittain (€/v)</h3>
-                <canvas ref={yllapitoCanvasRef} style={{ maxHeight: "300px" }} />
-            </section>
+            {/* =================== YLLÄPITO =================== */}
+            <div style={cardStyle}>
+                <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
+                <canvas id="chartYllapito" height={130}></canvas>
+            </div>
 
-            {/* ---------- PISTEIDEN JAKAUMA ---------- */}
-            <section style={{ marginTop: "40px" }}>
-                <h3>Pisteiden jakauma kriteereittäin</h3>
-                <canvas ref={kriteeritCanvasRef} style={{ maxHeight: "300px" }} />
-            </section>
+            {/* =================== PISTEET =================== */}
+            <div style={cardStyle}>
+                <div style={sectionTitle}>Pisteiden jakauma kriteereittäin</div>
+                <canvas id="chartKriteerit" height={130}></canvas>
+            </div>
 
-            {chartError ? (
-                <section style={{ marginTop: "24px", padding: "12px", background: "#fee", border: "1px solid #f99", borderRadius: "8px" }}>
-                    <strong>Kaavioiden piirto epäonnistui:</strong>
-                    <div style={{ marginTop: "8px", fontSize: "0.9rem", color: "#333" }}>{chartError}</div>
-                    <div style={{ marginTop: "8px" }}>
-                        Tarkista selaimen konsoli tarkempia virheilmoituksia varten.
-                    </div>
-                </section>
-            ) : null}
+            {/* =================== TAULUKKO =================== */}
+            <div style={cardStyle}>
+                <div style={sectionTitle}>Yhteenvetotaulukko</div>
 
-            {/* ---------- TAULUKKO ---------- */}
-            <section style={{ marginTop: "40px" }}>
-                <h3>Yhteenvetotaulukko</h3>
-
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table style={tableStyle as React.CSSProperties}>
                     <thead>
                         <tr>
-                            <th>Kiinteistö</th>
-                            <th>Salkku</th>
-                            <th>Pisteet</th>
-                            <th>m²</th>
-                            <th>Tasearvo (€)</th>
-                            <th>Ylläpito (€ / v)</th>
-                            <th>Käyttöaste (%)</th>
-                            <th>Rakv.</th>
+                            {header("Kiinteistö", "nimi")}
+                            {header("Salkku", "oma_salkku")}
+                            {header("Pisteet", "pisteet")}
+                            {header("m²", "pinta_ala")}
+                            {header("Tasearvo (€)", "tasearvo")}
+                            {header("Ylläpito (€ / v)", "yllapito")}
+                            {header("Käyttöaste (%)", "kayttoaste")}
+                            {header("Rakv.", "rakennusvuosi")}
                         </tr>
                     </thead>
 
                     <tbody>
-                        {properties.map((p) => (
-                            <tr key={p.id}>
-                                <td>{p.nimi}</td>
-                                <td>{p.oma_salkku ?? "-"}</td>
-                                <td>{laskePisteet(p)}</td>
-                                <td>{p.pinta_ala}</td>
-                                <td>{laskeTasearvo(p)}</td>
-                                <td>{laskeYllapito(p)}</td>
-                                <td>{laskeKayttoaste(p)}%</td>
-                                <td>{p.rakennusvuosi}</td>
+                        {sortData(properties).map((p) => (
+                            <tr
+                                key={p.id}
+                                onClick={() => navigate(`/detail/${p.id}`)}
+                                style={{ cursor: "pointer" }}
+                            >
+                                <td style={tdStyle}>{p.nimi}</td>
+                                <td style={tdStyle}>{p.oma_salkku}</td>
+                                <td style={tdStyle}>{laskePisteet(p)}</td>
+                                <td style={tdStyle}>{p.pinta_ala}</td>
+                                <td style={tdStyle}>{laskeTasearvo(p)}</td>
+                                <td style={tdStyle}>{laskeYllapito(p)}</td>
+                                <td style={tdStyle}>{laskeKayttoaste(p)}%</td>
+                                <td style={tdStyle}>{p.rakennusvuosi}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
-            </section>
+            </div>
         </div>
     );
+
+    function header(label: string, key: string) {
+        return (
+            <th onClick={() => handleSort(key)} style={thStyle as React.CSSProperties}>
+                {label} {sortKey === key && (sortDirection === "asc" ? "▲" : "▼")}
+            </th>
+        );
+    }
 }

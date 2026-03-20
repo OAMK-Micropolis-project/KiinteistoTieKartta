@@ -17,7 +17,7 @@ export interface Pisteet {
 }
 
 export interface Kiinteisto {
-    id: string;
+    id: number;
     nimi: string;
     osoite: string;
     pinta_ala: number;
@@ -27,10 +27,14 @@ export interface Kiinteisto {
 
     pisteet: Pisteet;
     oma_salkku: string;
+    oma_perusteet: string;
+    toimenpiteet: { kuvaus: string; kustannukset:{} }[];
 
     yllapitokulut: YllapitoKulut;
-
     tasearvo: VuosiArvot;
     vuokrausaste_m2: VuosiArvot;
     neliövuokra: VuosiArvot;
+    sahkonkulutus: VuosiArvot;
+    lammitysenergia: VuosiArvot;
+    vedenkulutus: VuosiArvot;
 }

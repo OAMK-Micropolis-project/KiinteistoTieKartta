@@ -1,5 +1,6 @@
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import AnalyticsView from "./pages/analyticsView";
+import DetailView from "./pages/detailView";
 import "./style.css";
 
 function HomePage() {
@@ -29,6 +30,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/analytics" element={<AnalyticsView />} />
+        <Route path="/detail/:id" element={<DetailView />} />
       </Routes>
 
     </Router>
