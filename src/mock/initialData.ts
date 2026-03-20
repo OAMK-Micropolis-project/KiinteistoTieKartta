@@ -2,177 +2,271 @@ import type { Kiinteisto } from "../types";
 
 export const INITIAL_DATA: Kiinteisto[] = [
     {
-        id: "k1",
-        nimi: "Kirjastotalo",
-        osoite: "Katu 1",
-        pinta_ala: 1500,
-        kayttotarkoitus: "Julkinen rakennus",
-        rakennusvuosi: 1998,
-        suojelukohde: false,
-
-        pisteet: {
-            ika: 4,
-            vesikatto: 4,
-            sadevesi: 5,
-            julkisivu: 4,
-            ikkunat: 4,
-            ovet: 4,
-        },
-
-        oma_salkku: "A",
-
-        yllapitokulut: {
-            sahko: { "2023": 5000 },
-            lammitys: { "2023": 6200 },
-            vesi: { "2023": 2000 },
-            huolto: { "2023": 1800 },
-            vero: { "2023": 1500 },
-            laina: { "2023": 12000 },
-            muut: {},
-        },
-
-        tasearvo: { "2023": 950000 },
-        vuokrausaste_m2: { "2023": 300 },
-        neliövuokra: { "2023": 12 },
+        "id": 1,
+        "nimi": "Kiinteistö 1",
+        "osoite": "Kiinteistökuja 1",
+        "pinta_ala": 1500,
+        "kayttotarkoitus": "Yrityskiinteistö",
+        "rakennusvuosi": 2024,
+        "suojelukohde": false,
+        "pisteet": {
+            "ika": 4,
+            "vesikatto": 4,
+            "sadevesi": 5,
+            "salaoja": 5,
+            "julkisivu": 4,
+            "ikkunat": 4,
+            "ovet": 5,
+            "vaippa": 5,
+            "tontti": 4,
+            "lattia": 4,
+            "sisailma": 5,
+            "yleisilme": 5,
+            "lammitys": 5,
+            "lammlaitteet": 5,
+            "kayttovesi": 5,
+            "viemari": 5,
+            "iv": 4,
+            "peruskorjaus": 3,
+            "toimivuus": 5,
+            "kayttoaste_piste": 5,
+            "tulevaisuus": 5,
+            "investointi": 3
     },
-
-    {
-        id: "k2",
-        nimi: "Koulurakennus",
-        osoite: "Opintie 3",
-        pinta_ala: 2000,
-        kayttotarkoitus: "Julkinen rakennus",
-        rakennusvuosi: 2005,
-        suojelukohde: false,
-
-        pisteet: {
-            ika: 5,
-            vesikatto: 4,
-            sadevesi: 4,
-            julkisivu: 5,
-            ikkunat: 4,
-            ovet: 5,
-        },
-
-        oma_salkku: "A",
-
-        yllapitokulut: {
-            sahko: { "2023": 3500 },
-            lammitys: { "2023": 9500 },
-            vesi: { "2023": 2500 },
-            huolto: { "2023": 3200 },
-            vero: { "2023": 2400 },
-            laina: { "2023": 18000 },
-            muut: {},
-        },
-
-        tasearvo: { "2023": 1250000 },
-        vuokrausaste_m2: { "2023": 800 },
-        neliövuokra: { "2023": 10 },
-    },
-
-    {
-        id: "k3",
-        nimi: "Toimistokeskus",
-        osoite: "Yritystie 12",
-        pinta_ala: 1100,
-        kayttotarkoitus: "Yrityskiinteistö",
-        rakennusvuosi: 2010,
-        suojelukohde: false,
-
-        pisteet: {
-            ika: 3,
-            vesikatto: 3,
-            sadevesi: 3,
-            julkisivu: 2,
-            ikkunat: 3,
-            ovet: 3,
-        },
-
-        oma_salkku: "B",
-
-        yllapitokulut: {
-            sahko: { "2023": 4500 },
-            lammitys: { "2023": 7000 },
-            vesi: { "2023": 2100 },
-            huolto: { "2023": 1900 },
-            vero: { "2023": 900 },
-            laina: { "2023": 9000 },
-            muut: {},
-        },
-
-        tasearvo: { "2023": 800000 },
-        vuokrausaste_m2: { "2023": 650 },
-        neliövuokra: { "2023": 14 },
-    },
-
-    {
-        id: "k4",
-        nimi: "Varastohalli",
-        osoite: "Teollisuuspolku 5",
-        pinta_ala: 950,
-        kayttotarkoitus: "Varasto",
-        rakennusvuosi: 1982,
-        suojelukohde: false,
-
-        pisteet: {
-            ika: 2,
-            vesikatto: 2,
-            sadevesi: 1,
-            julkisivu: 1,
-            ikkunat: 2,
-            ovet: 2,
-        },
-
-        oma_salkku: "C",
-
-        yllapitokulut: {
-            sahko: { "2023": 3000 },
-            lammitys: { "2023": 4000 },
-            vesi: { "2023": 900 },
-            huolto: { "2023": 1000 },
-            vero: { "2023": 800 },
-            laina: { "2023": 5000 },
-            muut: {},
-        },
-
-        tasearvo: { "2023": 400000 },
-        vuokrausaste_m2: { "2023": 300 },
-        neliövuokra: { "2023": 8 },
-    },
-
+    "oma_salkku": "A",
+    "oma_perusteet": "Kiinteistön kunto ja käyttöaste on korkea, eikä siihen ole tulossa merkittäviä muutoksia lähivuosina",
+    "toimenpiteet": [
         {
-        id: "k5",
-        nimi: "Kiinteistö 5",
-        osoite: "Kiinteistötie 5",
-        pinta_ala: 1050,
-        kayttotarkoitus: "Julkinen rakennus",
-        rakennusvuosi: 1992,
-        suojelukohde: false,
-
-        pisteet: {
-            ika: 3,
-            vesikatto: 3,
-            sadevesi: 2,
-            julkisivu: 2,
-            ikkunat: 3,
-            ovet: 3,
-        },
-
-        oma_salkku: "C",
-
-        yllapitokulut: {
-            sahko: { "2023": 3000 },
-            lammitys: { "2023": 4000 },
-            vesi: { "2023": 900 },
-            huolto: { "2023": 1000 },
-            vero: { "2023": 800 },
-            laina: { "2023": 5000 },
-            muut: {},
-        },
-
-        tasearvo: { "2023": 400000 },
-        vuokrausaste_m2: { "2023": 300 },
-        neliövuokra: { "2023": 8 },
-    }
-];
+        "kuvaus": "Korkea käyttöaste, hyvä kuntoinen ei peruskorjaustarvetta seuraavaan 10 vuoteen",
+        "kustannukset": {}
+        }
+    ],
+    "yllapitokulut": {
+      "sahko": {
+        "vuosi": 2023,
+        "kulut": 5000
+      },
+      "lammitys": {
+        "vuosi": 2023,
+      "kulut": 7000
+      },
+      "vesi": {
+        "vuosi": 2023,
+      "kulut": 2000
+      },
+      "huolto": {
+        "vuosi": 2023,
+        "kulut": 2000
+      },
+      "vero": {
+        "vuosi": 2023,
+        "kulut": 1500
+      },
+      "laina": {
+        "vuosi": 2023,
+        "kulut": 25000
+      },
+      "muut": {}
+    },
+    "tasearvo": {
+      "vuosi": 2023,
+      "kulut": 1000000
+    },
+    "vuokrausaste_m2": {
+      "vuosi": 2023,
+      "kulut": 100
+    },
+    "neliövuokra": {
+      "vuosi": 2023,
+      "kulut": 10
+    },
+    "sahkonkulutus": {},
+    "lammitysenergia": {},
+    "vedenkulutus": {}
+  },
+  {
+    "id": 2,
+    "nimi": "Kiinteistö 2",
+    "osoite": "Kiinteistökuja 2",
+    "pinta_ala": 2000,
+    "kayttotarkoitus": "Yrityskiinteistö",
+    "rakennusvuosi": 2024,
+    "suojelukohde": false,
+    "pisteet": {
+      "ika": 4,
+      "vesikatto": 4,
+      "sadevesi": 4,
+      "salaoja": 4,
+      "julkisivu": 4,
+      "ikkunat": 4,
+      "ovet": 4,
+      "vaippa": 4,
+      "tontti": 4,
+      "lattia": 4,
+      "sisailma": 4,
+      "yleisilme": 4,
+      "lammitys": 4,
+      "lammlaitteet": 4,
+      "kayttovesi": 4,
+      "viemari": 4,
+      "iv": 4,
+      "peruskorjaus": 4,
+      "toimivuus": 4,
+      "kayttoaste_piste": 4,
+      "tulevaisuus": 4,
+      "investointi": 3
+    },
+    "oma_salkku": "A",
+    "oma_perusteet": "Kiinteistön kunto ja käyttöaste on korkea, eikä siihen ole tulossa merkittäviä muutoksia lähivuosina",
+    "toimenpiteet": [
+      {
+        "kuvaus": "Korkea käyttöaste, hyvä kuntoinen ei peruskorjaustarvetta seuraavaan 10 vuoteen",
+        "kustannukset": {}
+      }
+    ],
+    "yllapitokulut": {
+      "sahko": {
+        "vuosi": 2023,
+        "kulut": 3500
+      },
+      "lammitys": {
+        "vuosi": 2023,
+        "kulut": 9500
+      },
+      "vesi": {
+        "vuosi": 2023,
+        "kulut": 3000
+      },
+      "huolto": {
+        "vuosi": 2023,
+        "kulut": 2500
+      },
+      "vero": {
+        "vuosi": 2023,
+        "kulut": 2000
+      },
+      "laina": {
+        "vuosi": 2023,
+        "kulut": 21050
+      },
+      "muut": {}
+    },
+    "tasearvo": {
+      "vuosi": 2023,
+      "kulut": 750000
+    },
+    "vuokrausaste_m2": {
+      "vuosi": 2023,
+      "kulut": 422
+    },
+    "neliövuokra": {
+      "vuosi": 2023,
+      "kulut": 11
+    },
+    "sahkonkulutus": {},
+    "lammitysenergia": {},
+    "vedenkulutus": {}
+  },
+  {
+    "id": 3,
+    "nimi": "Mallikiinteistö",
+    "osoite": "Kiinteistökuja 1",
+    "pinta_ala": 1100,
+    "kayttotarkoitus": "Yrityskiinteistö",
+    "rakennusvuosi": 2024,
+    "suojelukohde": false,
+    "pisteet": {
+      "ika": 3,
+      "vesikatto": 3,
+      "sadevesi": 3,
+      "salaoja": 3,
+      "julkisivu": 2,
+      "ikkunat": 3,
+      "ovet": 3,
+      "vaippa": 2,
+      "tontti": 3,
+      "lattia": 3,
+      "sisailma": 2,
+      "yleisilme": 3,
+      "lammitys": 3,
+      "lammlaitteet": 3,
+      "kayttovesi": 3,
+      "viemari": 3,
+      "iv": 3,
+      "peruskorjaus": 3,
+      "toimivuus": 3,
+      "kayttoaste_piste": 3,
+      "tulevaisuus": 3,
+      "investointi": 3
+    },
+    "oma_salkku": "A",
+    "oma_perusteet": "",
+    "toimenpiteet": [],
+    "yllapitokulut": {
+      "sahko": {},
+      "lammitys": {},
+      "vesi": {},
+      "huolto": {},
+      "vero": {},
+      "laina": {},
+      "muut": {}
+    },
+    "tasearvo": {},
+    "vuokrausaste_m2": {},
+    "neliövuokra": {},
+    "sahkonkulutus": {},
+    "lammitysenergia": {},
+    "vedenkulutus": {}
+  },
+  {
+    "id": 4,
+    "nimi": "Kiinteistö 4",
+    "osoite": "Kiinteistökuja 4",
+    "pinta_ala": 950,
+    "kayttotarkoitus": "Yrityskiinteistö",
+    "rakennusvuosi": 1976,
+    "suojelukohde": false,
+    "pisteet": {
+      "ika": 2,
+      "vesikatto": 2,
+      "sadevesi": 1,
+      "salaoja": 1,
+      "julkisivu": 2,
+      "ikkunat": 1,
+      "ovet": 1,
+      "vaippa": 1,
+      "tontti": 2,
+      "lattia": 2,
+      "sisailma": 1,
+      "yleisilme": 1,
+      "lammitys": 2,
+      "lammlaitteet": 2,
+      "kayttovesi": 1,
+      "viemari": 3,
+      "iv": 1,
+      "peruskorjaus": 3,
+      "toimivuus": 3,
+      "kayttoaste_piste": 1,
+      "tulevaisuus": 1,
+      "investointi": 3
+    },
+    "oma_salkku": "A",
+    "oma_perusteet": "",
+    "toimenpiteet": [],
+    "yllapitokulut": {
+      "sahko": {},
+      "lammitys": {},
+      "vesi": {},
+      "huolto": {},
+      "vero": {},
+      "laina": {},
+      "muut": {}
+    },
+    "tasearvo": {},
+    "vuokrausaste_m2": {},
+    "neliövuokra": {},
+    "sahkonkulutus": {},
+    "lammitysenergia": {},
+    "vedenkulutus": {}
+  }
+]
