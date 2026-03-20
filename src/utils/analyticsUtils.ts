@@ -2,12 +2,8 @@ import type { Kiinteisto } from "../types";
 
 /**
  * Lukee arvon JSON-rakenteesta:
- *
- * Vanha malli:
- *   { "2023": 5000 }
- *
  * Uusi malli (oikea):
- *   { "vuosi": 2023, "kulut": 5000 }
+ * { "vuosi": 2023, "kulut": 5000 }
  */
 export function getValue(obj: any): number {
     if (!obj) return 0;
