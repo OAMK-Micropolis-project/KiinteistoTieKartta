@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import type { Kiinteisto } from "../types";
 import { INITIAL_DATA } from "../mock/initialData";
+
 import {
     laskeKayttoaste,
     laskePisteet,
@@ -11,7 +12,16 @@ import {
     laskeTasearvo
 } from "../utils/analyticsUtils";
 
-import { cardStyle, tableStyle, thStyle, tdStyle, sectionTitle } from "../styles";
+import {
+    cardStyle,
+    tableStyle,
+    thStyle,
+    tdStyle,
+    sectionTitle
+} from "../styles";
+
+// ✅ UUSI – Maintenance Chart -moduuli
+import { renderMaintenanceChart } from "../charts/maintenanceChart";
 
 export default function AnalyticsView() {
     const [properties, setProperties] = useState<Kiinteisto[]>([]);
@@ -19,53 +29,64 @@ export default function AnalyticsView() {
 
     useEffect(() => setProperties(INITIAL_DATA), []);
 
-    // =========================
+    // =============================
     // SORT LOGIC
-    // =========================
+    // =============================
     const [sortKey, setSortKey] = useState("nimi");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-    function sortData(data: Kiinteisto[]) {
-        return [...data].sort((a, b) => {
-            let A: string | number = "";
-            let B: string | number = "";
-
-            if (sortKey === "pisteet") {
-                A = laskePisteet(a);
-                B = laskePisteet(b);
-            } else if (sortKey === "tasearvo") {
-                A = laskeTasearvo(a);
-                B = laskeTasearvo(b);
-            } else if (sortKey === "kayttoaste") {
-                A = laskeKayttoaste(a);
-                B = laskeKayttoaste(b);
-            } else if (sortKey === "yllapito") {
-                A = laskeYllapito(a);
-                B = laskeYllapito(b);
-            } else {
-                A = (a as any)[sortKey];
-                B = (b as any)[sortKey];
-            }
-
-            if (typeof A === "string")
-                return sortDirection === "asc" ? A.localeCompare(B as string) : (B as string).localeCompare(A);
-
-            return sortDirection === "asc" ? Number(A) - Number(B) : Number(B) - Number(A);
-        });
-    }
-
     function handleSort(key: string) {
-        if (sortKey === key) setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-        else {
+        if (sortKey === key) {
+            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+        } else {
             setSortKey(key);
             setSortDirection("asc");
         }
     }
 
-    // =========================
-    // CHARTS
-    // =========================
+    function sortData(data: Kiinteisto[]) {
+        return [...data].sort((a, b) => {
+            let A: string | number;
+            let B: string | number;
 
+            switch (sortKey) {
+                case "pisteet":
+                    A = laskePisteet(a);
+                    B = laskePisteet(b);
+                    break;
+                case "tasearvo":
+                    A = laskeTasearvo(a);
+                    B = laskeTasearvo(b);
+                    break;
+                case "kayttoaste":
+                    A = laskeKayttoaste(a);
+                    B = laskeKayttoaste(b);
+                    break;
+                case "yllapito":
+                    A = laskeYllapito(a);
+                    B = laskeYllapito(b);
+                    break;
+                default:
+                    A = (a as any)[sortKey];
+                    B = (b as any)[sortKey];
+                    break;
+            }
+
+            if (typeof A === "string") {
+                return sortDirection === "asc"
+                    ? A.localeCompare(B as string)
+                    : (B as string).localeCompare(A);
+            }
+
+            return sortDirection === "asc"
+                ? Number(A) - Number(B)
+                : Number(B) - Number(A);
+        });
+    }
+
+    // =============================
+    // CHART 1: YLLÄPITOKULUT
+    // =============================
     useEffect(() => {
         if (!properties.length) return;
 
@@ -85,8 +106,12 @@ export default function AnalyticsView() {
         });
     }, [properties]);
 
+    // =============================
+    // CHART 2: KRITEERIPISTEET
+    // =============================
     useEffect(() => {
         if (!properties.length) return;
+
         const KRITEERIT = ["ika", "vesikatto", "sadevesi", "julkisivu", "ikkunat", "ovet"];
 
         new Chart(document.getElementById("chartKriteerit") as HTMLCanvasElement, {
@@ -102,24 +127,42 @@ export default function AnalyticsView() {
         });
     }, [properties]);
 
+    // =============================
+    // CHART 3: MAINTENANCE CHART
+    // =============================
+    useEffect(() => {
+        if (properties.length > 0) {
+            renderMaintenanceChart("maintenanceChart", properties);
+        }
+    }, [properties]);
+
+    // =============================
+    // RENDER
+    // =============================
     return (
         <div style={{ padding: "20px" }}>
             <h1>Analytiikka</h1>
             <p style={{ color: "#7a756c" }}>Vertailunäkymät koko salkusta</p>
 
-            {/* =================== YLLÄPITO =================== */}
+            {/* ---------------- YLLÄPITO KAAVIO ---------------- */}
             <div style={cardStyle}>
                 <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
                 <canvas id="chartYllapito" height={130}></canvas>
             </div>
 
-            {/* =================== PISTEET =================== */}
+            {/* ---------------- PISTEIDEN JAKAUMA ---------------- */}
             <div style={cardStyle}>
                 <div style={sectionTitle}>Pisteiden jakauma kriteereittäin</div>
                 <canvas id="chartKriteerit" height={130}></canvas>
             </div>
 
-            {/* =================== TAULUKKO =================== */}
+            {/* ---------------- MAINTENANCE CHART ---------------- */}
+            <div style={cardStyle}>
+                <div style={sectionTitle}>Ylläpitokulut per kiinteistö (salkkuvärit)</div>
+                <canvas id="maintenanceChart" height={130}></canvas>
+            </div>
+
+            {/* ---------------- YHTEENVETOTAULUKKO ---------------- */}
             <div style={cardStyle}>
                 <div style={sectionTitle}>Yhteenvetotaulukko</div>
 
@@ -160,6 +203,9 @@ export default function AnalyticsView() {
         </div>
     );
 
+    // =============================
+    // DYNAMIC TABLE HEADER
+    // =============================
     function header(label: string, key: string) {
         return (
             <th onClick={() => handleSort(key)} style={thStyle as React.CSSProperties}>
