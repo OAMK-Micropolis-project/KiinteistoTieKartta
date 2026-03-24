@@ -37,7 +37,7 @@ function App() {
           </div>
         ))}
       </div>
-      
+      <div className='secondRowContainer'>
       <div className="realEstatesContainer">
         <span className="realEstateTitle2">KAIKKI KIINTEISTÖT</span>
         <div className='realEstateRowTitles'>
@@ -63,8 +63,13 @@ function App() {
           </div>
         ))}
       </div>
+        <div className='chartContainer'>
         <AreaPieChart/>
+        </div>
+        <div className='chartContainer'>
         <PointsBarChart/>
+        </div>
+      </div>
     </div>
     
     </>
