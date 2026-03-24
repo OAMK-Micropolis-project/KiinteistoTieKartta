@@ -20,29 +20,27 @@ import {
     sectionTitle
 } from "../styles";
 
-// ✅ UUSI – Maintenance Chart -moduuli
+// ✅ maintenance chart
 import { renderMaintenanceChart } from "../charts/maintenanceChart";
+// ✅ criteria comparison chart (uusi)
+import { renderCriteriaComparisonChart } from "../charts/criteriaComparisonChart";
 
 export default function AnalyticsView() {
     const [properties, setProperties] = useState<Kiinteisto[]>([]);
+    const [selectedCriteria, setSelectedCriteria] = useState<string>("ika");
+
     const navigate = useNavigate();
 
-    useEffect(() => setProperties(INITIAL_DATA), []);
+    // Lataa mock-JSON (myöhemmin → fetch backendistä)
+    useEffect(() => {
+        setProperties(INITIAL_DATA);
+    }, []);
 
     // =============================
     // SORT LOGIC
     // =============================
     const [sortKey, setSortKey] = useState("nimi");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
-    function handleSort(key: string) {
-        if (sortKey === key) {
-            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-        } else {
-            setSortKey(key);
-            setSortDirection("asc");
-        }
-    }
 
     function sortData(data: Kiinteisto[]) {
         return [...data].sort((a, b) => {
@@ -84,6 +82,15 @@ export default function AnalyticsView() {
         });
     }
 
+    function handleSort(key: string) {
+        if (sortKey === key) {
+            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+        } else {
+            setSortKey(key);
+            setSortDirection("asc");
+        }
+    }
+
     // =============================
     // CHART 1: YLLÄPITOKULUT
     // =============================
@@ -96,7 +103,7 @@ export default function AnalyticsView() {
                 labels: properties.map((p) => p.nimi),
                 datasets: [
                     {
-                        label: "Ylläpitokulut (€ / v)",
+                        label: "Ylläpitokulut (€)",
                         data: properties.map(laskeYllapito),
                         backgroundColor: "rgba(46, 104, 166, 0.7)",
                         borderRadius: 6,
@@ -137,6 +144,15 @@ export default function AnalyticsView() {
     }, [properties]);
 
     // =============================
+    // CHART 4: CRITERIA COMPARISON (UUSI)
+    // =============================
+    useEffect(() => {
+        if (properties.length > 0) {
+            renderCriteriaComparisonChart("criteriaChart", properties, selectedCriteria);
+        }
+    }, [properties, selectedCriteria]);
+
+    // =============================
     // RENDER
     // =============================
     return (
@@ -144,25 +160,51 @@ export default function AnalyticsView() {
             <h1>Analytiikka</h1>
             <p style={{ color: "#7a756c" }}>Vertailunäkymät koko salkusta</p>
 
-            {/* ---------------- YLLÄPITO KAAVIO ---------------- */}
+            {/* ---------------- Ylläpitokulut ---------------- */}
             <div style={cardStyle}>
                 <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
                 <canvas id="chartYllapito" height={130}></canvas>
             </div>
 
-            {/* ---------------- PISTEIDEN JAKAUMA ---------------- */}
+            {/* ---------------- Kriteeripisteet ---------------- */}
             <div style={cardStyle}>
                 <div style={sectionTitle}>Pisteiden jakauma kriteereittäin</div>
                 <canvas id="chartKriteerit" height={130}></canvas>
             </div>
 
-            {/* ---------------- MAINTENANCE CHART ---------------- */}
+            {/* ---------------- Maintenance Chart ---------------- */}
             <div style={cardStyle}>
                 <div style={sectionTitle}>Ylläpitokulut per kiinteistö (salkkuvärit)</div>
                 <canvas id="maintenanceChart" height={130}></canvas>
             </div>
 
-            {/* ---------------- YHTEENVETOTAULUKKO ---------------- */}
+            {/* ---------------- Kriteerivertailu #7 ---------------- */}
+            <div style={cardStyle}>
+                <div style={sectionTitle}>Kriteerivertailu</div>
+
+                {/* Dropdown */}
+                <select
+                    value={selectedCriteria}
+                    onChange={(e) => setSelectedCriteria(e.target.value)}
+                    style={{
+                        padding: "6px 10px",
+                        marginBottom: "12px",
+                        borderRadius: "6px",
+                        border: "1px solid #ccc"
+                    }}
+                >
+                    {Object.keys(properties[0]?.pisteet ?? {}).map((key) => (
+                        <option key={key} value={key}>
+                            {key}
+                        </option>
+                    ))}
+                </select>
+
+                {/* Chart */}
+                <canvas id="criteriaChart" height={130}></canvas>
+            </div>
+
+            {/* ---------------- Taulukko ---------------- */}
             <div style={cardStyle}>
                 <div style={sectionTitle}>Yhteenvetotaulukko</div>
 
@@ -203,9 +245,6 @@ export default function AnalyticsView() {
         </div>
     );
 
-    // =============================
-    // DYNAMIC TABLE HEADER
-    // =============================
     function header(label: string, key: string) {
         return (
             <th onClick={() => handleSort(key)} style={thStyle as React.CSSProperties}>
