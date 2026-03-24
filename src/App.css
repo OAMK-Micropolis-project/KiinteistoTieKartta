@@ -1,60 +1,70 @@
-
-
+/* ————————————————
+   Boxes
+——————————————— */
 .boxesContainer {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
   gap: 16px;
-  flex-direction: row;
-  flex-wrap: nowrap;
   margin-top: 20px;
 }
 
-
 .box {
   flex: 1;
-  min-width: 0;
+  min-width: 180px;
   height: clamp(40px, 8vh, 260px);
   background-color: #ffffff;
-  color: white;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   flex-direction: column;
   padding: 12px;
   border-radius: 10px;
-  text-align: center;
   white-space: normal;
   overflow-wrap: break-word;
   word-break: break-word;
   box-shadow:
     0 2px 4px rgba(0,0,0,0.15),
     0 8px 20px rgba(0,0,0,0.2);
-
 }
+
 .name {
   font-size: clamp(6px, 1.2vw, 28px);
   color: #8f96a1;
   align-self: center;
 }
+
 .value {
   font-size: clamp(6px, 2vw, 40px);
   font-weight: bold;
   color: black;
   align-self: center;
 }
+
+
+/* ————————————————
+   Main content container
+——————————————— */
+/*
 .content {
-  margin-left: clamp(200px, 33vw, 320px); /* SAME AS TOOLBAR WIDTH */
+  margin-left: clamp(200px, 33vw, 320px);
   padding: 16px;
   background-color: #f1ebeb;
   font-family: "Roboto", sans-serif;
-}
+}*/
+
 .title {
   font-size: clamp(20px, 4vw, 40px);
   font-weight: 600;
 }
 
+
+/* ————————————————
+   Real estate list
+——————————————— */
 .realEstatesContainer {
   flex: 2;
+  min-width: 350px;
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
@@ -73,6 +83,7 @@
   text-align: center;
   color: #8f96a1;
 }
+
 .realEstateTitle2 {
   flex: 2;
   font-size: clamp(6px, 1.2vw, 28px);
@@ -81,19 +92,23 @@
 
 .realEstateRowTitles {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   padding: 14px 16px;
   gap: 16px;
   border-bottom: 2px solid #8f96a1;
 }
+
 .realEstateRow {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   background: #1f2430;
   padding: 14px 16px;
   border-radius: 10px;
   margin-top: clamp(8px,1vw,16px);
   gap: 16px;
+  min-width: 350px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
@@ -124,43 +139,42 @@
   transition: background 0.15s;
 }
 
-.portfolioA {
-  background: #3b82f6;
-}
 
-.portfolioB {
-  background: #22c55e;
-}
+/* ————————————————
+   Portfolios
+——————————————— */
+.portfolioA { background: #3b82f6; }
+.portfolioB { background: #22c55e; }
+.portfolioC { background: #eab308; }
+.portfolioD { background: #ef4444; }
+.portfolioDefault { background: #1f2430; }
 
-.portfolioC {
-  background: #eab308;
-}
-.portfolioD {
-  background: #ef4444;
-}
-.portfolioDefault {
-  background: #1f2430;
-}
+
+/* ————————————————
+   Second row (charts + list)
+——————————————— */
 .secondRowContainer {
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
   width: 100%;
   gap: 20px;
   align-items: flex-start;
   box-sizing: border-box;
 }
+
 .chartContainer {
   flex: 1;
+  min-width: 300px;
   background: #ffffff;
   padding: 20px;
   border-radius: 10px;
   margin-top: 20px;
   height: 350px;
   box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   box-shadow:
     0 2px 4px rgba(0,0,0,0.15),
     0 8px 20px rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
