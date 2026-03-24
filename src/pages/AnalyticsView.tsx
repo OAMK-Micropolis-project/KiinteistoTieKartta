@@ -20,9 +20,9 @@ import {
     sectionTitle
 } from "../styles";
 
-// ✅ maintenance chart
+// maintenance chart
 import { renderMaintenanceChart } from "../charts/maintenanceChart";
-// ✅ criteria comparison chart (uusi)
+// criteria comparison chart (uusi)
 import { renderCriteriaComparisonChart } from "../charts/criteriaComparisonChart";
 
 export default function AnalyticsView() {
