@@ -224,25 +224,6 @@ export default function AnalyticsView() {
                             {header("Rakv.", "rakennusvuosi")}
                         </tr>
                     </thead>
-
-                    <tbody>
-                        {sortData(properties).map((p) => (
-                            <tr
-                                key={p.id}
-                                onClick={() => navigate(`/detail/${p.id}`)}
-                                style={{ cursor: "pointer" }}
-                            >
-                                <td style={tdStyle}>{p.nimi}</td>
-                                <td style={tdStyle}>{p.oma_salkku}</td>
-                                <td style={tdStyle}>{laskePisteet(p)}</td>
-                                <td style={tdStyle}>{p.pinta_ala}</td>
-                                <td style={tdStyle}>{laskeTasearvo(p)}</td>
-                                <td style={tdStyle}>{laskeYllapito(p)}</td>
-                                <td style={tdStyle}>{laskeKayttoaste(p)}%</td>
-                                <td style={tdStyle}>{p.rakennusvuosi}</td>
-                            </tr>
-                        </thead>
-
                         <tbody>
                             {sortData(properties).map((p) => (
                                 <tr
