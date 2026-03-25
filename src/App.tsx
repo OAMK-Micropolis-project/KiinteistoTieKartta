@@ -1,13 +1,13 @@
-import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
-import AnalyticsView from "./pages/analyticsView";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import AnalyticsView from "./pages/analyticsView.tsx";
 import DetailView from "./pages/detailView";
 import Toolbar from './components/Toolbar'
 import './App.css'
 import './utils/chartSetup'
-import PortfolioLineChart from './components/charts/Linechart';
 import PointsBarChart from './components/charts/Barchart';
 import AreaPieChart from './components/charts/Piechart';
 import Layout from "./components/Layout";
+
 const summaryBoxes = [
   {name: "KIINTEISTÖJÄ", value: "NaN"},
   {name: "KOKONAISPINTA-ALA", value: "NaN"},
