@@ -1,6 +1,0 @@
-.content {
-  margin-left: clamp(200px, 33vw, 320px); 
-  padding: 16px;
-  background-color: #f1ebeb;
-  min-height: 100vh;
-}

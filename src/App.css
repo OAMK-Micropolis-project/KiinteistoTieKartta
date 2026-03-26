@@ -104,6 +104,8 @@
   align-items: center;
   flex-wrap: nowrap;
   background: #1f2430;
+  text-decoration: none;
+  color: inherit;
   padding: 14px 16px;
   border-radius: 10px;
   margin-top: clamp(8px,1vw,16px);

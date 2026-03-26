@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
 
@@ -26,6 +26,8 @@ export default function DetailView() {
     const { id } = useParams();
     const navigate = useNavigate();
 
+    const radarChartRef = useRef<Chart | null>(null);
+
     const [item, setItem] = useState<Kiinteisto | null>(null);
 
     useEffect(() => {
@@ -36,10 +38,13 @@ export default function DetailView() {
     // ---------- RADAR-CHART ----------
     useEffect(() => {
         if (!item) return;
+        if (radarChartRef.current) {
+            radarChartRef.current.destroy();
+        }
         const ctx = document.getElementById("radarChart") as HTMLCanvasElement;
         if (!ctx) return;
 
-        new Chart(ctx, {
+        radarChartRef.current = new Chart(ctx, {
             type: "radar",
             data: {
                 labels: Object.keys(item.pisteet),
@@ -59,6 +64,9 @@ export default function DetailView() {
                 }
             }
         });
+        return () => {
+            radarChartRef.current?.destroy();
+        };
     }, [item]);
 
     if (!item)

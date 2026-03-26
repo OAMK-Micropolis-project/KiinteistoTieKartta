@@ -1,4 +1,4 @@
-import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Link, NavLink } from "react-router-dom";
 import AnalyticsView from "./pages/analyticsView";
 import DetailView from "./pages/detailView";
 import Toolbar from './components/Toolbar'
@@ -16,17 +16,15 @@ const summaryBoxes = [
   {name: "VUOKRATULOT / V", value: "NaN"},
 ];
 const realEstates =[
-  {estateName: "esim 1", portfolio: "A", points: 200, area: "1000 m^2", balanceValue: "1,9M€"},
-  {estateName: "esim 2", portfolio: "B", points: 200, area: "1000 m^2", balanceValue: "1,9M€"},
-  {estateName: "esim 3", portfolio: "C", points: 200, area: "1000 m^2", balanceValue: "1,9M€"},
-  {estateName: "esim 4", portfolio: "D", points: 200, area: "1000 m^2", balanceValue: "1,9M€"},
+  {estateName: "esim 1", portfolio: "A", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/1"},
+  {estateName: "esim 2", portfolio: "B", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/2"},
+  {estateName: "esim 3", portfolio: "C", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/3"},
+  {estateName: "esim 4", portfolio: "D", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/4"},
 ];
 function HomePage() {
 
   return (
     <>
-    <Toolbar/>
-
       <span className='title'>Kiinteistösalkku</span>
       <div className="boxesContainer">
         {summaryBoxes.map((box,i) => (
@@ -47,7 +45,7 @@ function HomePage() {
           <span className='realEstateTitle'>TASEARVO</span>
         </div>
         {realEstates.map((estate,i) =>(
-          <div key={i} 
+          <NavLink key={i} to={estate.path} 
           className={`realEstateRow ${
             estate.portfolio === "A" ? "portfolioA" :
             estate.portfolio === "B" ? "portfolioB" :
@@ -59,7 +57,7 @@ function HomePage() {
             <span className='estateNumber'>{estate.points}</span>
             <span className='estateNumber'>{estate.area}</span>
             <span className='estateNumber'>{estate.balanceValue}</span>
-          </div>
+          </NavLink>
         ))}
       </div>
         <div className='chartContainer'>

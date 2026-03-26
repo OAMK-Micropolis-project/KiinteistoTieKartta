@@ -158,7 +158,7 @@ export default function AnalyticsView() {
     // =============================
     return (
         <>
-        <Toolbar/>
+        
         <div style={{ padding: "20px" }}>
             <h1>Analytiikka</h1>
             <p style={{ color: "#7a756c" }}>Vertailunäkymät koko salkusta</p>
