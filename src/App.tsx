@@ -1,5 +1,5 @@
-import { HashRouter as Router, Routes, Route, Link, NavLink } from "react-router-dom";
-import AnalyticsView from "./pages/analyticsView";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import AnalyticsView from "./pages/analyticsView.tsx";
 import DetailView from "./pages/detailView";
 import './App.css'
 import './utils/chartSetup'
