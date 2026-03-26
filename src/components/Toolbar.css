@@ -5,6 +5,8 @@ html, body, #root {
 }
 
 .toolbar {
+  all: unset;
+  font-family: "Roboto", sans-serif;
   position: fixed;
   top: 0;
   left: 0;

@@ -155,125 +155,161 @@ export default function AnalyticsView() {
     if (properties.length > 0) {
       renderMaintenanceChart("maintenanceChart", properties);
     }
-  }, [properties]);
 
-  // =============================
-  // CHART 4: criteriaComparison (external)
-  // =============================
-  useEffect(() => {
-    if (properties.length > 0) {
-      renderCriteriaComparisonChart(
-        "criteriaChart",
-        properties,
-        selectedCriteria
-      );
-    }
-  }, [properties, selectedCriteria]);
+    // =============================
+    // CHART 1: YLLÄPITOKULUT
+    // =============================
+    useEffect(() => {
+        if (!properties.length) return;
 
-  // =============================
-  // RENDER
-  // =============================
-  return (
-    <>
-      <Toolbar />
-      <div style={{ padding: "20px" }}>
-        <h1>Analytiikka</h1>
-        <p style={{ color: "#7a756c" }}>Vertailunäkymät koko salkusta</p>
+        new Chart(document.getElementById("chartYllapito") as HTMLCanvasElement, {
+            type: "bar",
+            data: {
+                labels: properties.map((p) => p.nimi),
+                datasets: [
+                    {
+                        label: "Ylläpitokulut (€)",
+                        data: properties.map(laskeYllapito),
+                        backgroundColor: "rgba(46, 104, 166, 0.7)",
+                        borderRadius: 6,
+                    },
+                ],
+            }
+        });
+    }, [properties]);
 
-        {/* Ylläpitokulut */}
-        <div style={cardStyle}>
-          <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
-          <canvas id="chartYllapito" height={130}></canvas>
-        </div>
+    // =============================
+    // CHART 2: KRITEERIPISTEET
+    // =============================
+    useEffect(() => {
+        if (!properties.length) return;
 
-        {/* Kriteeripisteet */}
-        <div style={cardStyle}>
-          <div style={sectionTitle}>Pisteiden jakauma kriteereittäin</div>
-          <canvas id="chartKriteerit" height={130}></canvas>
-        </div>
+        const KRITEERIT = ["ika", "vesikatto", "sadevesi", "julkisivu", "ikkunat", "ovet"];
 
-        {/* Maintenance Chart */}
-        <div style={cardStyle}>
-          <div style={sectionTitle}>Ylläpitokulut per kiinteistö (salkkuvärit)</div>
-          <canvas id="maintenanceChart" height={130}></canvas>
-        </div>
+        new Chart(document.getElementById("chartKriteerit") as HTMLCanvasElement, {
+            type: "bar",
+            data: {
+                labels: KRITEERIT,
+                datasets: properties.map((p, i) => ({
+                    label: p.nimi,
+                    data: KRITEERIT.map((k) => p.pisteet[k] ?? 0),
+                    backgroundColor: `rgba(${80 + i * 30}, ${120 - i * 20}, ${160 + i * 15}, 0.7)`
+                }))
+            }
+        });
+    }, [properties]);
 
-        {/* Kriteerivertailu */}
-        <div style={cardStyle}>
-          <div style={sectionTitle}>Kriteerivertailu</div>
+    // =============================
+    // CHART 3: MAINTENANCE CHART
+    // =============================
+    useEffect(() => {
+        if (properties.length > 0) {
+            renderMaintenanceChart("maintenanceChart", properties);
+        }
+    }, [properties]);
 
-          <select
-            value={selectedCriteria}
-            onChange={(e) => setSelectedCriteria(e.target.value)}
-            style={{
-              padding: "6px 10px",
-              marginBottom: "12px",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-            }}
-          >
-            {Object.keys(properties[0]?.pisteet ?? {}).map((key) => (
-              <option key={key} value={key}>
-                {key}
-              </option>
-            ))}
-          </select>
+    // =============================
+    // CHART 4: CRITERIA COMPARISON (UUSI)
+    // =============================
+    useEffect(() => {
+        if (properties.length > 0) {
+            renderCriteriaComparisonChart("criteriaChart", properties, selectedCriteria);
+        }
+    }, [properties, selectedCriteria]);
 
-          <canvas id="criteriaChart" height={130}></canvas>
-        </div>
-
-        {/* Taulukko */}
-        <div style={cardStyle}>
-          <div style={sectionTitle}>Yhteenvetotaulukko</div>
-
-          <table style={tableStyle as React.CSSProperties}>
-            <thead>
-              <tr>
-                {header("Kiinteistö", "nimi")}
-                {header("Salkku", "oma_salkku")}
-                {header("Pisteet", "pisteet")}
-                {header("m²", "pinta_ala")}
-                {header("Tasearvo (€)", "tasearvo")}
-                {header("Ylläpito (€ / v)", "yllapito")}
-                {header("Käyttöaste (%)", "kayttoaste")}
-                {header("Rakv.", "rakennusvuosi")}
-              </tr>
-            </thead>
-
-            <tbody>
-              {sortData(properties).map((p) => (
-                <tr
-                  key={p.id}
-                  onClick={() => navigate(`/detail/${p.id}`)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <td style={tdStyle}>{p.nimi}</td>
-                  <td style={tdStyle}>{p.oma_salkku}</td>
-                  <td style={tdStyle}>{laskePisteet(p)}</td>
-                  <td style={tdStyle}>{p.pinta_ala}</td>
-                  <td style={tdStyle}>{laskeTasearvo(p)}</td>
-                  <td style={tdStyle}>{laskeYllapito(p)}</td>
-                  <td style={tdStyle}>{laskeKayttoaste(p)}%</td>
-                  <td style={tdStyle}>{p.rakennusvuosi}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </>
-  );
-
-  // Header helper
-  function header(label: string, key: string) {
+    // =============================
+    // RENDER
+    // =============================
     return (
-      <th
-        onClick={() => handleSort(key)}
-        style={thStyle as React.CSSProperties}
-      >
-        {label}{" "}
-        {sortKey === key && (sortDirection === "asc" ? "▲" : "▼")}
-      </th>
+        <>
+        
+        <div style={{ padding: "20px" }}>
+            <h1>Analytiikka</h1>
+            <p style={{ color: "#7a756c" }}>Vertailunäkymät koko salkusta</p>
+
+            {/* ---------------- Ylläpitokulut ---------------- */}
+            <div style={cardStyle}>
+                <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
+                <canvas id="chartYllapito" height={130}></canvas>
+            </div>
+
+            {/* ---------------- Kriteeripisteet ---------------- */}
+            <div style={cardStyle}>
+                <div style={sectionTitle}>Pisteiden jakauma kriteereittäin</div>
+                <canvas id="chartKriteerit" height={130}></canvas>
+            </div>
+
+            {/* ---------------- Maintenance Chart ---------------- */}
+            <div style={cardStyle}>
+                <div style={sectionTitle}>Ylläpitokulut per kiinteistö (salkkuvärit)</div>
+                <canvas id="maintenanceChart" height={130}></canvas>
+            </div>
+
+            {/* ---------------- Kriteerivertailu #7 ---------------- */}
+            <div style={cardStyle}>
+                <div style={sectionTitle}>Kriteerivertailu</div>
+
+                {/* Dropdown */}
+                <select
+                    value={selectedCriteria}
+                    onChange={(e) => setSelectedCriteria(e.target.value)}
+                    style={{
+                        padding: "6px 10px",
+                        marginBottom: "12px",
+                        borderRadius: "6px",
+                        border: "1px solid #ccc"
+                    }}
+                >
+                    {Object.keys(properties[0]?.pisteet ?? {}).map((key) => (
+                        <option key={key} value={key}>
+                            {key}
+                        </option>
+                    ))}
+                </select>
+
+                {/* Chart */}
+                <canvas id="criteriaChart" height={130}></canvas>
+            </div>
+
+            {/* ---------------- Taulukko ---------------- */}
+            <div style={cardStyle}>
+                <div style={sectionTitle}>Yhteenvetotaulukko</div>
+
+                <table style={tableStyle as React.CSSProperties}>
+                    <thead>
+                        <tr>
+                            {header("Kiinteistö", "nimi")}
+                            {header("Salkku", "oma_salkku")}
+                            {header("Pisteet", "pisteet")}
+                            {header("m²", "pinta_ala")}
+                            {header("Tasearvo (€)", "tasearvo")}
+                            {header("Ylläpito (€ / v)", "yllapito")}
+                            {header("Käyttöaste (%)", "kayttoaste")}
+                            {header("Rakv.", "rakennusvuosi")}
+                        </tr>
+                    </thead>
+                        <tbody>
+                            {sortData(properties).map((p) => (
+                                <tr
+                                    key={p.id}
+                                    onClick={() => navigate(`/detail/${p.id}`)}
+                                    style={{ cursor: "pointer" }}
+                                >
+                                    <td style={tdStyle}>{p.nimi}</td>
+                                    <td style={tdStyle}>{p.oma_salkku}</td>
+                                    <td style={tdStyle}>{laskePisteet(p)}</td>
+                                    <td style={tdStyle}>{p.pinta_ala}</td>
+                                    <td style={tdStyle}>{laskeTasearvo(p)}</td>
+                                    <td style={tdStyle}>{laskeYllapito(p)}</td>
+                                    <td style={tdStyle}>{laskeKayttoaste(p)}%</td>
+                                    <td style={tdStyle}>{p.rakennusvuosi}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </>
     );
   }
 }
