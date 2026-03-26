@@ -1,3 +1,9 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #f1ebeb;
+  min-height: 100%;
+}
 /* ————————————————
    Boxes
 ——————————————— */
@@ -40,18 +46,6 @@
   color: black;
   align-self: center;
 }
-
-
-/* ————————————————
-   Main content container
-——————————————— */
-/*
-.content {
-  margin-left: clamp(200px, 33vw, 320px);
-  padding: 16px;
-  background-color: #f1ebeb;
-  font-family: "Roboto", sans-serif;
-}*/
 
 .title {
   font-size: clamp(20px, 4vw, 40px);
@@ -111,6 +105,10 @@
   margin-top: clamp(8px,1vw,16px);
   gap: 16px;
   min-width: 350px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
@@ -119,9 +117,10 @@
   font-size: clamp(20px, 1.5vw, 40px);
   font-weight: 600;
   text-align: left;
+  /*
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis;*/
 }
 
 .portfolio,
@@ -130,9 +129,10 @@
   font-size: clamp(20px, 1.3vw, 40px);
   font-weight: 600;
   text-align: center;
+  /*
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis;*/
 }
 
 .realEstateRow:hover {

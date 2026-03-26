@@ -1,13 +1,11 @@
 import { HashRouter as Router, Routes, Route, Link, NavLink } from "react-router-dom";
 import AnalyticsView from "./pages/analyticsView";
 import DetailView from "./pages/detailView";
-import Toolbar from './components/Toolbar'
 import './App.css'
 import './utils/chartSetup'
-import PortfolioLineChart from './components/charts/Linechart';
 import PointsBarChart from './components/charts/Barchart';
-import AreaPieChart from './components/charts/Piechart';
 import Layout from "./components/Layout";
+import DonutChart from "./components/charts/DonutChart";
 const summaryBoxes = [
   {name: "KIINTEISTÖJÄ", value: "NaN"},
   {name: "KOKONAISPINTA-ALA", value: "NaN"},
@@ -16,7 +14,7 @@ const summaryBoxes = [
   {name: "VUOKRATULOT / V", value: "NaN"},
 ];
 const realEstates =[
-  {estateName: "esim 1", portfolio: "A", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/1"},
+  {estateName: "esim tooooooooooooooooooooooooooooooooooooooooooodellla pitkä nimi", portfolio: "A", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/1"},
   {estateName: "esim 2", portfolio: "B", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/2"},
   {estateName: "esim 3", portfolio: "C", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/3"},
   {estateName: "esim 4", portfolio: "D", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/4"},
@@ -60,12 +58,14 @@ function HomePage() {
           </NavLink>
         ))}
       </div>
+      <div className="chartTower">
         <div className='chartContainer'>
-        <AreaPieChart/>
+        <DonutChart/>
         </div>
         <div className='chartContainer'>
         <PointsBarChart/>
         </div>
+      </div>
       </div>
     
     </>
