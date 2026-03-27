@@ -116,7 +116,7 @@ export const INITIAL_DATA: Kiinteisto[] = [
       "tulevaisuus": 4,
       "investointi": 3
     },
-    "oma_salkku": "A",
+    "oma_salkku": "B",
     "oma_perusteet": "Kiinteistön kunto ja käyttöaste on korkea, eikä siihen ole tulossa merkittäviä muutoksia lähivuosina",
     "toimenpiteet": [
       {
