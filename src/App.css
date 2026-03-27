@@ -117,10 +117,6 @@ html, body {
   font-size: clamp(20px, 1.5vw, 40px);
   font-weight: 600;
   text-align: left;
-  /*
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;*/
 }
 
 .portfolio,
@@ -129,10 +125,6 @@ html, body {
   font-size: clamp(20px, 1.3vw, 40px);
   font-weight: 600;
   text-align: center;
-  /*
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;*/
 }
 
 .realEstateRow:hover {
@@ -161,6 +153,7 @@ html, body {
   width: 100%;
   gap: 20px;
   align-items: flex-start;
+  justify-content: center;
   box-sizing: border-box;
 }
 
