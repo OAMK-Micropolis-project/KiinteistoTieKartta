@@ -3,7 +3,6 @@ import Chart from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
 import type { Kiinteisto } from "../types";
 import { INITIAL_DATA } from "../mock/initialData";
-import Toolbar from "../components/Toolbar";
 
 import {
   laskeKayttoaste,
@@ -90,71 +89,6 @@ export default function AnalyticsView() {
       setSortDirection("asc");
     }
   }
-
-  // =============================
-  // CHART 1: YLLÄPITOKULUT
-  // =============================
-  useEffect(() => {
-    if (!properties.length) return;
-    new Chart(
-      document.getElementById("chartYllapito") as HTMLCanvasElement,
-      {
-        type: "bar",
-        data: {
-          labels: properties.map((p) => p.nimi),
-          datasets: [
-            {
-              label: "Ylläpitokulut (€)",
-              data: properties.map(laskeYllapito),
-              backgroundColor: "rgba(46, 104, 166, 0.7)",
-              borderRadius: 6,
-            },
-          ],
-        },
-      }
-    );
-  }, [properties]);
-
-  // =============================
-  // CHART 2: KRITEERIT
-  // =============================
-  useEffect(() => {
-    if (!properties.length) return;
-
-    const KRITEERIT = [
-      "ika",
-      "vesikatto",
-      "sadevesi",
-      "julkisivu",
-      "ikkunat",
-      "ovet",
-    ];
-
-    new Chart(
-      document.getElementById("chartKriteerit") as HTMLCanvasElement,
-      {
-        type: "bar",
-        data: {
-          labels: KRITEERIT,
-          datasets: properties.map((p, i) => ({
-            label: p.nimi,
-            data: KRITEERIT.map((k) => p.pisteet[k] ?? 0),
-            backgroundColor: `rgba(${80 + i * 30}, ${
-              120 - i * 20
-            }, ${160 + i * 15}, 0.7)`,
-          })),
-        },
-      }
-    );
-  }, [properties]);
-
-  // =============================
-  // CHART 3: maintenanceChart (external)
-  // =============================
-  useEffect(() => {
-    if (properties.length > 0) {
-      renderMaintenanceChart("maintenanceChart", properties);
-    }
 
     // =============================
     // CHART 1: YLLÄPITOKULUT
@@ -311,5 +245,15 @@ export default function AnalyticsView() {
             </div>
         </>
     );
-  }
+  // Header helper
+  function header(label: string, key: string) {
+    return (
+      <th
+        onClick={() => handleSort(key)}
+        style={thStyle as React.CSSProperties}
+      >
+        {label}{" "}
+        {sortKey === key && (sortDirection === "asc" ? "▲" : "▼")}
+      </th>
+    );}  
 }
