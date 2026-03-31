@@ -1,8 +1,8 @@
-export interface VuosiArvot {
+interface VuosiArvot {
     [year: string]: number;
 }
 
-export interface YllapitoKulut {
+interface YllapitoKulut {
     sahko: VuosiArvot;
     lammitys: VuosiArvot;
     vesi: VuosiArvot;
@@ -12,8 +12,12 @@ export interface YllapitoKulut {
     muut: VuosiArvot;
 }
 
-export interface Pisteet {
+interface Pisteet {
     [kriteeri: string]: number;
+}
+
+interface Kustannukset {
+    ihansama: string;
 }
 
 export interface Kiinteisto {
@@ -28,7 +32,7 @@ export interface Kiinteisto {
     pisteet: Pisteet;
     oma_salkku: string;
     oma_perusteet: string;
-    toimenpiteet: { kuvaus: string; kustannukset:{} }[];
+    toimenpiteet: { kuvaus: string; kustannukset: Kustannukset }[];
 
     yllapitokulut: YllapitoKulut;
     tasearvo: VuosiArvot;
@@ -38,10 +42,3 @@ export interface Kiinteisto {
     lammitysenergia: VuosiArvot;
     vedenkulutus: VuosiArvot;
 }
-
-export type kiinteistoAction = 
-    | { type: 'SET_DATA'; payload: Kiinteisto[] }
-    | { type: 'GET_DATA_BY_ID'; id: number }
-    | { type: 'ADD_DATA'; payload: Kiinteisto }
-    | { type: 'UPDATE_DATA'; payload: Kiinteisto }
-    | { type: 'REMOVE_DATA'; payload: { id: number } };

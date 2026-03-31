@@ -6,7 +6,7 @@ import './utils/chartSetup'
 import PointsBarChart from './components/charts/Barchart';
 import Layout from "./components/Layout";
 import DonutChart from "./components/charts/DonutChart";
-import { useKiinteistot } from "./context/KiinteistoFunctions.ts";
+import { useKiinteistot } from "./context/useKiinteistot.ts";
 const summaryBoxes = [
   { name: "KIINTEISTÖJÄ", value: "NaN" },
   { name: "KOKONAISPINTA-ALA", value: "NaN" },
