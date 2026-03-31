@@ -7,6 +7,8 @@ import './utils/chartSetup'
 import PointsBarChart from './components/charts/Barchart';
 import AreaPieChart from './components/charts/Piechart';
 import Layout from "./components/Layout";
+import AddProp from "./pages/AddProp";
+import PropertyView from "./pages/PropertyView";
 
 const summaryBoxes = [
   {name: "KIINTEISTÖJÄ", value: "NaN"},
@@ -83,6 +85,8 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/analytics" element={<AnalyticsView />} />
           <Route path="/detail/:id" element={<DetailView />} />
+          <Route path="/add" element={<AddProp />} />
+          <Route path="/property/:id" element={<PropertyView />} />
         </Route>
       </Routes>
 
