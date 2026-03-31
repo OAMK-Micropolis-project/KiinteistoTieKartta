@@ -2,8 +2,15 @@ import { useEffect, useState } from "react";
 import type { Kiinteisto } from "../types";
 import { KiinteistoContext } from "./KiinteistoContext";
 
+export type KiinteistoContextType = {
+  kiinteistot: Kiinteisto[];
+  something: () => void;
+};
+
 export function KiinteistoProvider({ children }: { children: React.ReactNode }) {
   const [kiinteistot, setKiinteistot] = useState<Kiinteisto[]>([]);
+
+  function something() {}
 
   useEffect(() => {
     async function initData() {
@@ -20,7 +27,7 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   return (
-    <KiinteistoContext.Provider value={kiinteistot}>
+    <KiinteistoContext.Provider value={{kiinteistot, something}}>
       {children}
     </KiinteistoContext.Provider>
   );

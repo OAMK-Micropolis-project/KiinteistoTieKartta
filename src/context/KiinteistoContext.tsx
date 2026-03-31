@@ -1,4 +1,7 @@
 import { createContext } from 'react';
-import type { Kiinteisto } from '../types';
+import type { KiinteistoContextType } from './KiinteistoProvider';
 
-export const KiinteistoContext = createContext<Kiinteisto[]>([]);
+export const KiinteistoContext = createContext<KiinteistoContextType>({
+  kiinteistot: [],
+  something: () => {},
+});
