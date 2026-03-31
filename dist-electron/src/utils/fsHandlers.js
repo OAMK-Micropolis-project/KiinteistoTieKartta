@@ -9,7 +9,6 @@ function registerFsHandlers() {
     electron_1.ipcMain.handle('read-file', async () => {
         try {
             const data = await (0, promises_1.readFile)(targetFilePath, 'utf8');
-            console.log(data);
             return data;
         }
         catch (err) {
