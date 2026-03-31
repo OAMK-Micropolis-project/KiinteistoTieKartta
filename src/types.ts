@@ -38,3 +38,10 @@ export interface Kiinteisto {
     lammitysenergia: VuosiArvot;
     vedenkulutus: VuosiArvot;
 }
+
+export type kiinteistoAction = 
+    | { type: 'SET_DATA'; payload: Kiinteisto[] }
+    | { type: 'GET_DATA_BY_ID'; id: number }
+    | { type: 'ADD_DATA'; payload: Kiinteisto }
+    | { type: 'UPDATE_DATA'; payload: Kiinteisto }
+    | { type: 'REMOVE_DATA'; payload: { id: number } };
