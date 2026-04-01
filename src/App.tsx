@@ -1,11 +1,12 @@
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import AnalyticsView from "./pages/analyticsView.tsx";
+import { HashRouter as Router, Routes, Route, NavLink } from "react-router-dom";
+import AnalyticsView from "./pages/AnalyticsView.tsx";
 import DetailView from "./pages/detailView";
 import './App.css'
 import './utils/chartSetup'
 import PointsBarChart from './components/charts/Barchart';
 import Layout from "./components/Layout";
 import DonutChart from "./components/charts/DonutChart";
+import { useKiinteistot } from "./context/useKiinteistot.ts";
 const summaryBoxes = [
   {name: "KIINTEISTÖJÄ", value: "NaN"},
   {name: "KOKONAISPINTA-ALA", value: "NaN"},
@@ -13,13 +14,14 @@ const summaryBoxes = [
   {name: "YLLÄPITÖKULUT / V", value: "NaN"},
   {name: "VUOKRATULOT / V", value: "NaN"},
 ];
-const realEstates =[
-  {estateName: "esim tooooooooooooooooooooooooooooooooooooooooooodellla pitkä nimi", portfolio: "A", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/1"},
-  {estateName: "esim 2", portfolio: "B", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/2"},
-  {estateName: "esim 3", portfolio: "C", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/3"},
-  {estateName: "esim 4", portfolio: "D", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/4"},
-];
+// const realEstates =[
+//   {estateName: "esim tooooooooooooooooooooooooooooooooooooooooooodellla pitkä nimi", portfolio: "A", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/1"},
+//   {estateName: "esim 2", portfolio: "B", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/2"},
+//   {estateName: "esim 3", portfolio: "C", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/3"},
+//   {estateName: "esim 4", portfolio: "D", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/4"},
+// ];
 function HomePage() {
+const realEstates = useKiinteistot().kiinteistot;
 
   return (
     <>
@@ -43,18 +45,18 @@ function HomePage() {
           <span className='realEstateTitle'>TASEARVO</span>
         </div>
         {realEstates.map((estate,i) =>(
-          <NavLink key={i} to={estate.path} 
+          <NavLink key={i} to={`detail/${estate.id.toString()}`} 
           className={`realEstateRow ${
-            estate.portfolio === "A" ? "portfolioA" :
-            estate.portfolio === "B" ? "portfolioB" :
-            estate.portfolio === "C" ? "portfolioC" :
-            estate.portfolio === "D" ? "portfolioD" : "portfolioDefault"
+            estate.oma_salkku === "A" ? "portfolioA" :
+            estate.oma_salkku === "B" ? "portfolioB" :
+            estate.oma_salkku === "C" ? "portfolioC" :
+            estate.oma_salkku === "D" ? "portfolioD" : "portfolioDefault"
           }`}>
-            <span className='estateName'>{estate.estateName}</span>
-            <span className='portfolio'>{estate.portfolio}</span>
-            <span className='estateNumber'>{estate.points}</span>
-            <span className='estateNumber'>{estate.area}</span>
-            <span className='estateNumber'>{estate.balanceValue}</span>
+            <span className='estateName'>{estate.nimi}</span>
+            <span className='portfolio'>{estate.oma_salkku}</span>
+            <span className='estateNumber'>{estate.tasearvo[ 2023 ]}</span>
+            <span className='estateNumber'>{estate.pinta_ala}</span>
+            <span className='estateNumber'>{estate.tasearvo[ 2023 ]}</span>
           </NavLink>
         ))}
       </div>
