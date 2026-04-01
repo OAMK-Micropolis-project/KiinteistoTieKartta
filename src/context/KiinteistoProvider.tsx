@@ -2,15 +2,28 @@ import { useEffect, useState } from "react";
 import type { Kiinteisto } from "../types";
 import { KiinteistoContext } from "./KiinteistoContext";
 
-export type KiinteistoContextType = {
-  kiinteistot: Kiinteisto[];
-  something: () => void;
-};
-
 export function KiinteistoProvider({ children }: { children: React.ReactNode }) {
   const [kiinteistot, setKiinteistot] = useState<Kiinteisto[]>([]);
 
-  function something() {}
+  function getById(id: number) {
+    return kiinteistot.find(k => k.id === id);
+  }
+
+  function addKiinteisto(newKiinteisto: Kiinteisto) {
+    setKiinteistot(prev => [...prev, newKiinteisto]);
+  }
+
+  function updateKiinteisto(updated: Kiinteisto) {
+    setKiinteistot(prev => prev.map(k => k.id === updated.id ? updated : k));
+  }
+
+  function deleteKiinteisto(id: number) {
+    setKiinteistot(prev => prev.filter(k => k.id !== id));
+  }
+
+  function saveData() {
+    window.electronFs.writeFile(JSON.stringify(kiinteistot));
+  }
 
   useEffect(() => {
     async function initData() {
@@ -26,10 +39,18 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
     initData();
   }, []);
 
+  const store = {
+    kiinteistot,
+    getById,
+    addKiinteisto,
+    updateKiinteisto,
+    deleteKiinteisto,
+    saveData
+  }
+
   return (
-    <KiinteistoContext.Provider value={{kiinteistot, something}}>
+    <KiinteistoContext.Provider value={store}>
       {children}
     </KiinteistoContext.Provider>
   );
 }
-

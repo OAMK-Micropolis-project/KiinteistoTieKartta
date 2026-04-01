@@ -16,10 +16,6 @@ interface Pisteet {
     [kriteeri: string]: number;
 }
 
-interface Kustannukset {
-    ihansama: string;
-}
-
 export interface Kiinteisto {
     id: number;
     nimi: string;
@@ -32,7 +28,7 @@ export interface Kiinteisto {
     pisteet: Pisteet;
     oma_salkku: string;
     oma_perusteet: string;
-    toimenpiteet: { kuvaus: string; kustannukset: Kustannukset }[];
+    toimenpiteet: { kuvaus: string; kustannukset:{} }[];
 
     yllapitokulut: YllapitoKulut;
     tasearvo: VuosiArvot;
@@ -42,3 +38,12 @@ export interface Kiinteisto {
     lammitysenergia: VuosiArvot;
     vedenkulutus: VuosiArvot;
 }
+
+export type KiinteistoStore = {
+    kiinteistot: Kiinteisto[];
+    getById: (id: number) => Kiinteisto | undefined;
+    addKiinteisto: (newKiinteisto: Kiinteisto) => void;
+    updateKiinteisto: (updated: Kiinteisto) => void;
+    deleteKiinteisto: (id: number) => void;
+    saveData: () => void;
+};

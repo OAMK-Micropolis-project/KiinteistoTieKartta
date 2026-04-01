@@ -2,5 +2,7 @@ import { useContext } from "react";
 import { KiinteistoContext } from "./KiinteistoContext";
 
 export function useKiinteistot() {
-  return useContext(KiinteistoContext);
+  const context = useContext(KiinteistoContext);
+  if (!context) throw new Error("useKiinteisto must be used inside provider");
+  return context;
 }
