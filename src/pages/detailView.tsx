@@ -135,7 +135,7 @@ export default function DetailView() {
             {/* Pisteprofiili */}
             <div style={{ ...cardStyle, marginTop: "30px" }}>
                 <div style={sectionTitle}>Pisteprofiili</div>
-                <canvas id="radarChart" style={180} />
+                <canvas id="radarChart" style={180 as any} />
             </div>
         </div>
     );
