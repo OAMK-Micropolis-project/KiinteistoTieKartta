@@ -91,12 +91,6 @@ export default function DetailView() {
             {/* Salkku-badge */}
             <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>Salkku {item.oma_salkku}</span>
 
-            {/* Pisteprofiili */}
-            <div style={{ ...cardStyle, marginTop: "30px" }}>
-                <div style={sectionTitle}>Pisteprofiili</div>
-                <canvas id="radarChart" height={180} />
-            </div>
-
             {/* Perustiedot */}
             <DetailCard
                 title="Perustiedot"
@@ -137,6 +131,12 @@ export default function DetailView() {
                     ["Neliövuokra (€ / m²)", getValue(item.neliövuokra)],
                 ]}
             />
+
+            {/* Pisteprofiili */}
+            <div style={{ ...cardStyle, marginTop: "30px" }}>
+                <div style={sectionTitle}>Pisteprofiili</div>
+                <canvas id="radarChart" />
+            </div>
         </div>
     );
 }
