@@ -7,7 +7,12 @@ const electron_1 = require("electron");
 const node_path_1 = __importDefault(require("node:path"));
 const fsHandlers_1 = __importDefault(require("../src/utils/fsHandlers"));
 function createWindow() {
-    const win = new electron_1.BrowserWindow({ show: false });
+    const win = new electron_1.BrowserWindow({
+        show: false,
+        webPreferences: {
+            preload: node_path_1.default.join(__dirname, "./preload.js"),
+        }
+    });
     win.maximize();
     win.show();
     if (process.env.VITE_DEV_SERVER_URL) {
