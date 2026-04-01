@@ -8,7 +8,6 @@ export default function registerFsHandlers() {
   ipcMain.handle('read-file', async (): Promise<string> => {
     try {
       const data = await readFile(targetFilePath, 'utf8')
-      console.log(data)
       return data
     } catch (err) {
       console.error("Error reading file:", err)
