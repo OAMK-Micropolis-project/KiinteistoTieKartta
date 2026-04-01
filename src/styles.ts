@@ -43,22 +43,22 @@ export const cardStyle = {
 
 export const chartsGrid: CSSProperties = {
     display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(400px, 1fr))",
-    gap: "20px",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: "10px",
     width: "100%",
 };
 
 export const chartCard: CSSProperties = {
     ...cardStyle,
-    width: "100%",
-    display: "flex",
+    width: "auto",
+    //display: "flex",
     flexDirection: "column",
     overflow: "hidden",
     padding: "20px",
 };
 
 export const chartCanvas: CSSProperties = {
-    width: "100%",
+    width: "auto",
     height: "300px",
 };
 
@@ -77,7 +77,7 @@ export const sectionTitle = {
 };
 
 export const tableStyle: CSSProperties = {
-    width: "auto",
+    width: "100%",
     borderCollapse: "collapse",
     marginTop: "10px",
 };
