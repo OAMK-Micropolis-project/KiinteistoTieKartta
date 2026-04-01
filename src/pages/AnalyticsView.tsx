@@ -125,11 +125,11 @@ export default function AnalyticsView() {
     // RENDER
     // =============================
     return (
-      <div style={gridContainer as React.CSSProperties}>
+      <div style={gridContainer}>
         <h1 style={mainHeader}>Analytiikka</h1>
         <p style={{ color: "#030303" }}>Vertailunäkymät koko salkusta</p>
 
-        <div style={chartsGrid as React.CSSProperties}>
+        <div style={chartsGrid}>
 
             <div style={chartCard}>
                 <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
@@ -173,7 +173,7 @@ export default function AnalyticsView() {
         <div style={cardStyle}>
             <div style={sectionTitle}>Yhteenvetotaulukko</div>
 
-            <table style={tableStyle as React.CSSProperties}>
+            <table style={tableStyle}>
                 <thead>
                     <tr>
                         {header("Kiinteistö", "nimi")}
