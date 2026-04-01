@@ -1,324 +1,340 @@
 import React, { useState } from "react";
 import "./AddProp.css";
+import { useNavigate } from "react-router-dom";
 
-interface YllapitoKustannukset {
-  sahko: number;
-  lammitus: number;
-  vesi: number;
-  huolto: number;
-  kiinteistovero: number;
-  laina: number;
-}
-
-interface KuntoArvio {
-  ika: number;
-  vesikatto: number;
-  sadevesi: number;
-  salaojat: number;
-  julkisivu: number;
-  ikkunat: number;
-  ulkoovet: number;
-  uarvo: number;
-  tonttikorkeus: number;
-  lattiakorkeus: number;
-  sisailma: number;
-  yleisilme: number;
-  lammitusmuoto: number;
-  lammituslaitteet: number;
-  kayttovesi: number;
-  viemari: number;
-  ivjarjestelma: number;
-  peruskorjaus: number;
-  toimivuus: number;
-  kayttoaste_arvio: number;
-  tulevaisuus: number;
-  investointi: number;
-}
-
-interface KiinteistoForm {
-  nimi: string;
-  osoite: string;
-  kayttotarkoitus: string;
-  bruttopintaAla: number;
-  rakennusvuosi: number;
-  tasearvo: number;
-
-  vuokrattu: number;
-  neliovuokra: number;
-  suojelukohde: string;
-
-  yllapitokustannukset: YllapitoKustannukset;
-
-  kuntoarvio: KuntoArvio;
-}
+// Ryhmän providerin hook
+import { useKiinteistot } from "../context/useKiinteistot";
 
 const AddProp: React.FC = () => {
-  const [formData, setFormData] = useState<KiinteistoForm>({
+  const { kiinteistot, addKiinteisto, saveData } = useKiinteistot();
+  const navigate = useNavigate();
+
+  // Lomakedata
+  const [formData, setFormData] = useState({
     nimi: "",
     osoite: "",
     kayttotarkoitus: "",
-
-    bruttopintaAla: "" as unknown as number,
-    rakennusvuosi: "" as unknown as number,
-    tasearvo: "" as unknown as number,
-    vuokrattu: "" as unknown as number,
-    neliovuokra: "" as unknown as number,
-
+    bruttopintaAla: 0,
+    rakennusvuosi: 0,
+    tasearvo: 0,
+    vuokrattu: 0,
+    neliovuokra: 0,
     suojelukohde: "Ei",
 
-
-    yllapitokustannukset: {
-      sahko: "" as unknown as number,
-      lammitus: "" as unknown as number,
-      vesi: "" as unknown as number,
-      huolto: "" as unknown as number,
-      kiinteistovero: "" as unknown as number,
-      laina: "" as unknown as number,
+    yllapito: {
+      sahko: 0,
+      lammitus: 0,
+      vesi: 0,
+      huolto: 0,
+      kiinteistovero: 0,
+      laina: 0,
     },
 
-
-
-    kuntoarvio: {
+    kunto: {
       ika: 3,
       vesikatto: 3,
       sadevesi: 3,
-      salaojat: 3,
+      salaoja: 3,
       julkisivu: 3,
       ikkunat: 3,
-      ulkoovet: 3,
-      uarvo: 3,
-      tonttikorkeus: 3,
-      lattiakorkeus: 3,
+      ovet: 3,
+      vaippa: 3,
+      tontti: 3,
+      lattia: 3,
       sisailma: 3,
       yleisilme: 3,
-      lammitusmuoto: 3,
-      lammituslaitteet: 3,
+      lammitys: 3,
+      lammlaitteet: 3,
       kayttovesi: 3,
       viemari: 3,
-      ivjarjestelma: 3,
+      iv: 3,
       peruskorjaus: 3,
       toimivuus: 3,
-      kayttoaste_arvio: 3,
+      kayttoaste_piste: 3,
       tulevaisuus: 3,
       investointi: 3,
     },
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  // Input-käsittelijä
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
 
-    if (name.startsWith("ylläpito.")) {
-      const key = name.split(".")[1] as keyof YllapitoKustannukset;
-
+    // Ylläpitokulut
+    if (name.startsWith("yllapito.")) {
+      const key = name.split(".")[1];
       setFormData((prev) => ({
         ...prev,
-        yllapitokustannukset: {
-          ...prev.yllapitokustannukset,
-          [key]: Number(value),
-        },
+        yllapito: { ...prev.yllapito, [key]: Number(value) },
       }));
       return;
     }
 
+    // Normaalit kentät
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "nimi" || name === "osoite" || name === "kayttotarkoitus" || name === "suojelukohde"
+      [name]: name === "kayttotarkoitus" || name === "suojelukohde"
+        ? value
+        : isNaN(value)
         ? value
         : Number(value),
     }));
   };
 
-  const updateSlider = (field: keyof KuntoArvio, value: number) => {
+  // Sliderien muutos
+  const changeSlider = (field: string, val: number) => {
     setFormData((prev) => ({
       ...prev,
-      kuntoarvio: { ...prev.kuntoarvio, [field]: value },
+      kunto: { ...prev.kunto, [field]: val },
     }));
   };
 
+  // Lomakkeen lähetys
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
 
+    const newId =
+      kiinteistot.length === 0
+        ? 1
+        : Math.max(...kiinteistot.map((k) => k.id)) + 1;
 
-const handleSubmit = (e: any) => {
-  e.preventDefault();
+    // OIKEA dataformaatti providerille + DetailView:lle
+    const uusi = {
+      id: newId,
+      nimi: formData.nimi,
+      osoite: formData.osoite,
+      kayttotarkoitus: formData.kayttotarkoitus,
+      pinta_ala: formData.bruttopintaAla,
+      rakennusvuosi: formData.rakennusvuosi,
+      suojelukohde: formData.suojelukohde === "Kyllä",
+      oma_salkku: "A",
 
-  console.log("SUBMIT OK");
+      pisteet: { ...formData.kunto },
 
-  // Haetaan aiemmat arvot
-  const existing = JSON.parse(localStorage.getItem("kiinteistot") || "[]");
+      yllapitokulut: {
+        sahko: { vuosi: 2024, kulut: formData.yllapito.sahko },
+        lammitys: { vuosi: 2024, kulut: formData.yllapito.lammitus },
+        vesi: { vuosi: 2024, kulut: formData.yllapito.vesi },
+        huolto: { vuosi: 2024, kulut: formData.yllapito.huolto },
+        vero: { vuosi: 2024, kulut: formData.yllapito.kiinteistovero },
+        laina: { vuosi: 2024, kulut: formData.yllapito.laina },
+        muut: {},
+      },
 
-  // Lisätään uusi kiinteistö
-  const uusi = {
-    nimi: formData.nimi,
-    osoite: formData.osoite,
-    kayttotarkoitus: formData.kayttotarkoitus,
+      tasearvo: { vuosi: 2024, kulut: formData.tasearvo },
+      vuokrausaste_m2: { vuosi: 2024, kulut: formData.vuokrattu },
+      neliövuokra: { vuosi: 2024, kulut: formData.neliovuokra },
+
+      sahkonkulutus: {},
+      lammitysenergia: {},
+      vedenkulutus: {},
+      oma_perusteet: "",
+      toimenpiteet: [],
+    };
+
+    addKiinteisto(uusi);
+    saveData();
+
+    alert("Kiinteistö lisätty!");
+    navigate("/");
   };
 
-  existing.push(uusi);
+  return (
+    <div className="addprop-container">
+      <div className="card-container">
+        <h2>Lisää kiinteistö</h2>
 
-  // Tallennetaan
-  localStorage.setItem("kiinteistot", JSON.stringify(existing));
-  window.dispatchEvent(new Event("kiinteisto-added"));
+        <form onSubmit={handleSubmit}>
 
-  console.log("TALLENNETTU:", existing);
+          {/* --- Perustiedot --- */}
+          <div className="section-title">Perustiedot</div>
 
-  alert("Kiinteistö lisätty!");
-};
+          <div className="grid-2col">
 
-
-
-
-return (
-  <div className="addprop-container">
-
-    <div className="card-container">
-
-      <h2>Lisää kiinteistö</h2>
-
-      <form onSubmit={handleSubmit}>
-
-        <div className="section-title">Perustiedot</div>
-
-        <div className="grid-2col">
-          <div className="grid-item">
-            <label>Kiinteistön nimi *</label>
-            <input name="nimi" value={formData.nimi} onChange={handleChange} required />
-          </div>
-
-          <div className="grid-item">
-            <label>Osoite</label>
-            <input name="osoite" value={formData.osoite} onChange={handleChange} />
-          </div>
-
-          <div className="grid-item">
-            <label>Käyttötarkoitus</label>
-            <select name="kayttotarkoitus" value={formData.kayttotarkoitus} onChange={handleChange}>
-              <option value="">Valitse...</option>
-              <option>Julkinen kiinteistö</option>
-              <option>Asuinrakennus</option>
-              <option>Yrityskiinteistö</option>
-              <option>Muu</option>
-            </select>
-          </div>
-
-          <div className="grid-item">
-            <label>Bruttopinta-ala (m²)</label>
-            <input type="number" name="bruttopintaAla" value={formData.bruttopintaAla} onChange={handleChange} />
-          </div>
-
-          <div className="grid-item">
-            <label>Rakennusvuosi</label>
-            <input type="number" name="rakennusvuosi" value={formData.rakennusvuosi} onChange={handleChange} />
-          </div>
-
-          <div className="grid-item">
-            <label>Tasearvo (€)</label>
-            <input type="number" name="tasearvo" value={formData.tasearvo} onChange={handleChange} />
-          </div>
-
-          <div className="grid-item">
-            <label>Vuokralla olevat m²</label>
-            <input type="number" name="vuokrattu" value={formData.vuokrattu} onChange={handleChange} />
-          </div>
-
-          <div className="grid-item">
-            <label>Neliövuokra (€/m²)</label>
-            <input type="number" name="neliovuokra" value={formData.neliovuokra} onChange={handleChange} />
-          </div>
-
-          <div className="grid-item">
-            <label>Suojelukohde</label>
-            <select name="suojelukohde" value={formData.suojelukohde} onChange={handleChange}>
-              <option>Ei</option>
-              <option>Kyllä</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="section-title">Ylläpitokustannukset (€/v)</div>
-
-        <div className="grid-2col">
-          <div className="grid-item">
-            <label>Sähkökustannus</label>
-            <input name="ylläpito.sahko" type="number" value={formData.yllapitokustannukset.sahko} onChange={handleChange}/>
-          </div>
-
-          <div className="grid-item">
-            <label>Lämmityskustannus</label>
-            <input name="ylläpito.lammitus" type="number" value={formData.yllapitokustannukset.lammitus} onChange={handleChange}/>
-          </div>
-
-          <div className="grid-item">
-            <label>Vesikustannus</label>
-            <input name="ylläpito.vesi" type="number" value={formData.yllapitokustannukset.vesi} onChange={handleChange}/>
-          </div>
-
-          <div className="grid-item">
-            <label>Huoltokustannus</label>
-            <input name="ylläpito.huolto" type="number" value={formData.yllapitokustannukset.huolto} onChange={handleChange}/>
-          </div>
-
-          <div className="grid-item">
-            <label>Kiinteistövero</label>
-            <input name="ylläpito.kiinteistovero" type="number" value={formData.yllapitokustannukset.kiinteistovero} onChange={handleChange}/>
-          </div>
-
-          <div className="grid-item">
-            <label>Lainakustannukset</label>
-            <input name="ylläpito.laina" type="number" value={formData.yllapitokustannukset.laina} onChange={handleChange}/>
-          </div>
-        </div>
-
-        <div className="section-title">Kuntoarvio</div>
-
-        <div className="slider-grid">
-          {[
-            ["Kiinteistön ikä", "ika"],
-            ["Vesikaton kunto ja kaltevuus", "vesikatto"],
-            ["Sadevesijärjestelmät", "sadevesi"],
-            ["Salaoja ja seinänvierustat", "salaojat"],
-            ["Julkisivuverhouksen kunto", "julkisivu"],
-            ["Ikkunat – laatu ja kunto", "ikkunat"],
-            ["Ulko-ovet – laatu ja kunto", "ulkoovet"],
-            ["Rakennusvaipan U-arvo", "uarvo"],
-            ["Tontin korkeusasema ja kuivatus", "tonttikorkeus"],
-            ["Lattiapinnan korkeus maastoon nähden", "lattiakorkeus"],
-            ["Sisäilmaongelmat", "sisailma"],
-            ["Yleisilme sisätiloilta", "yleisilme"],
-            ["Lämmitysmuoto", "lammitusmuoto"],
-            ["Lämmityslaitteiden kunto", "lammituslaitteet"],
-            ["Käyttövesiputkistot", "kayttovesi"],
-            ["Viemäriputkisto", "viemari"],
-            ["IV-järjestelmä", "ivjarjestelma"],
-            ["Peruskorjaus viim. 15v", "peruskorjaus"],
-            ["Toimivuus käyttötarkoitukseen", "toimivuus"],
-            ["Rakennuksen käyttöaste", "kayttoaste_arvio"],
-            ["Tulevaisuuden käyttöaste", "tulevaisuus"],
-            ["Kannattaako investoida", "investointi"],
-          ].map(([label, field]) => (
-            <div className="slider-item" key={field}>
-              <label>{label}</label>
+            <div className="grid-item">
+              <label>Kiinteistön nimi *</label>
               <input
-                type="range"
-                min={1}
-                max={5}
-                value={(formData.kuntoarvio as any)[field]}
-                onChange={(e) => updateSlider(field as keyof KuntoArvio, Number(e.target.value))}
+                name="nimi"
+                value={formData.nimi}
+                onChange={handleChange}
+                required
               />
-              <span>{(formData.kuntoarvio as any)[field]}</span>
             </div>
-          ))}
-        </div>
 
-        <button className="save-button" type="submit">Tallenna</button>
-      
+            <div className="grid-item">
+              <label>Osoite</label>
+              <input
+                name="osoite"
+                value={formData.osoite}
+                onChange={handleChange}
+              />
+            </div>
 
-      </form>
+            <div className="grid-item">
+              <label>Käyttötarkoitus</label>
+              <select
+                name="kayttotarkoitus"
+                value={formData.kayttotarkoitus}
+                onChange={handleChange}
+              >
+                <option value="">Valitse...</option>
+                <option value="Julkinen kiinteistö">Julkinen kiinteistö</option>
+                <option value="Asuinrakennus">Asuinrakennus</option>
+                <option value="Yrityskiinteistö">Yrityskiinteistö</option>
+                <option value="Muu">Muu</option>
+              </select>
+            </div>
 
-    </div> 
+            <div className="grid-item">
+              <label>Bruttopinta-ala (m²)</label>
+              <input
+                type="number"
+                name="bruttopintaAla"
+                value={formData.bruttopintaAla}
+                onChange={handleChange}
+              />
+            </div>
 
-  </div>   
-);
-}
+            <div className="grid-item">
+              <label>Rakennusvuosi</label>
+              <input
+                type="number"
+                name="rakennusvuosi"
+                value={formData.rakennusvuosi}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="grid-item">
+              <label>Tasearvo (€)</label>
+              <input
+                type="number"
+                name="tasearvo"
+                value={formData.tasearvo}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="grid-item">
+              <label>Vuokralla olevat m²</label>
+              <input
+                type="number"
+                name="vuokrattu"
+                value={formData.vuokrattu}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="grid-item">
+              <label>Neliövuokra (€/m²)</label>
+              <input
+                type="number"
+                name="neliovuokra"
+                value={formData.neliovuokra}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="grid-item">
+              <label>Suojelukohde</label>
+              <select
+                name="suojelukohde"
+                value={formData.suojelukohde}
+                onChange={handleChange}
+              >
+                <option value="Ei">Ei</option>
+                <option value="Kyllä">Kyllä</option>
+              </select>
+            </div>
+          </div>
+
+          {/* --- Ylläpitokustannukset --- */}
+          <div className="section-title">Ylläpitokustannukset (€/v)</div>
+
+          <div className="grid-2col">
+            <div className="grid-item">
+              <label>Sähkökustannus</label>
+              <input name="yllapito.sahko" type="number" value={formData.yllapito.sahko} onChange={handleChange} />
+            </div>
+
+            <div className="grid-item">
+              <label>Lämmityskustannus</label>
+              <input name="yllapito.lammitus" type="number" value={formData.yllapito.lammitus} onChange={handleChange} />
+            </div>
+
+            <div className="grid-item">
+              <label>Vesikustannus</label>
+              <input name="yllapito.vesi" type="number" value={formData.yllapito.vesi} onChange={handleChange} />
+            </div>
+
+            <div className="grid-item">
+              <label>Huoltokustannus</label>
+              <input name="yllapito.huolto" type="number" value={formData.yllapito.huolto} onChange={handleChange} />
+            </div>
+
+            <div className="grid-item">
+              <label>Kiinteistövero</label>
+              <input name="yllapito.kiinteistovero" type="number" value={formData.yllapito.kiinteistovero} onChange={handleChange} />
+            </div>
+
+            <div className="grid-item">
+              <label>Lainakustannukset</label>
+              <input name="yllapito.laina" type="number" value={formData.yllapito.laina} onChange={handleChange} />
+            </div>
+          </div>
+
+          {/* --- Kuntoarvio --- */}
+<div className="section-title">Kuntoarvio</div>
+
+<div className="slider-grid">
+
+  {[
+    ["Kiinteistön ikä", "ika"],
+    ["Vesikaton kunto ja kaltevuus", "vesikatto"],
+    ["Sadevesijärjestelmät", "sadevesi"],
+    ["Salaoja ja seinänvierustat", "salaoja"],
+    ["Julkisivuverhouksen kunto", "julkisivu"],
+    ["Ikkunat – laatu ja kunto", "ikkunat"],
+    ["Ulko-ovet – laatu ja kunto", "ovet"],
+    ["Rakennusvaipan U-arvo", "vaippa"],
+    ["Tontin korkeusasema ja kuivatus", "tontti"],
+    ["Lattiapinnan korkeus maastoon nähden", "lattia"],
+    ["Sisäilmaongelmat", "sisailma"],
+    ["Yleisilme sisätiloilta", "yleisilme"],
+    ["Lämmitysmuoto", "lammitys"],
+    ["Lämmityslaitteiden kunto", "lammlaitteet"],
+    ["Käyttövesiputkistot", "kayttovesi"],
+    ["Viemäriputkisto", "viemari"],
+    ["IV-järjestelmä", "iv"],
+    ["Peruskorjaus viim. 15v", "peruskorjaus"],
+    ["Toimivuus käyttötarkoitukseen", "toimivuus"],
+    ["Rakennuksen käyttöaste", "kayttoaste_piste"],
+    ["Tulevaisuuden käyttöaste", "tulevaisuus"],
+    ["Kannattaako investoida", "investointi"],
+  ].map(([label, field]) => (
+    <div className="slider-item" key={field}>
+      <label>{label}</label>
+      <input
+        type="range"
+        min={1}
+        max={5}
+        value={(formData.kunto as any)[field]}
+        onChange={(e) => changeSlider(field, Number(e.target.value))}
+      />
+      <span>{(formData.kunto as any)[field]}</span>
+    </div>
+  ))}
+
+</div>
+
+<button className="save-button" type="submit">
+  Tallenna
+</button>
+
+        </form>
+      </div>
+    </div>
+  );
+};
 
 export default AddProp;
