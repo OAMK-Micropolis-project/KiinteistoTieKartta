@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
 
@@ -19,12 +19,17 @@ import {
     tdStyle,
     sectionTitle,
     badgeStyle,
-    backButton
+    backButton,
+    chartsGrid,
+    chartCard,
+    gridContainer
 } from "../styles";
 
 export default function DetailView() {
     const { id } = useParams();
     const navigate = useNavigate();
+
+    const radarChartRef = useRef<Chart | null>(null);
 
     const [item, setItem] = useState<Kiinteisto | null>(null);
 
@@ -36,10 +41,13 @@ export default function DetailView() {
     // ---------- RADAR-CHART ----------
     useEffect(() => {
         if (!item) return;
+        if (radarChartRef.current) {
+            radarChartRef.current.destroy();
+        }
         const ctx = document.getElementById("radarChart") as HTMLCanvasElement;
         if (!ctx) return;
 
-        new Chart(ctx, {
+        radarChartRef.current = new Chart(ctx, {
             type: "radar",
             data: {
                 labels: Object.keys(item.pisteet),
@@ -59,6 +67,9 @@ export default function DetailView() {
                 }
             }
         });
+        return () => {
+            radarChartRef.current?.destroy();
+        };
     }, [item]);
 
     if (!item)
@@ -69,8 +80,7 @@ export default function DetailView() {
         );
 
     return (
-        <div style={{ padding: "20px", maxWidth: "900px", margin: "0 auto" }}>
-
+        <>
             {/* Takaisin */}
             <button style={backButton} onClick={() => navigate(-1)}>
                 ← Takaisin
@@ -83,62 +93,66 @@ export default function DetailView() {
             {/* Salkku-badge */}
             <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>Salkku {item.oma_salkku}</span>
 
-            {/* Pisteprofiili */}
-            <div style={{ ...cardStyle, marginTop: "30px" }}>
-                <div style={sectionTitle}>Pisteprofiili</div>
-                <canvas id="radarChart" height={180} />
+            <div style={gridContainer}>
+                <div style={chartsGrid}>
+                    {/* Perustiedot */}
+                    <DetailCard
+                        title="Perustiedot"
+                        rows={[
+                            ["Kiinteistön nimi", item.nimi],
+                            ["Osoite", item.osoite],
+                            ["Pinta-ala (m²)", item.pinta_ala],
+                            ["Rakennusvuosi", item.rakennusvuosi],
+                            ["Käyttötarkoitus", item.kayttotarkoitus],
+                        ]}
+                    />
+
+                    {/* Laskennalliset tiedot */}
+                    <DetailCard
+                        title="Laskennalliset tiedot"
+                        rows={[
+                            ["Tasearvo (€)", laskeTasearvo(item)],
+                            ["Ylläpitokustannukset (€ / v)", laskeYllapito(item)],
+                            ["Käyttöaste (%)", laskeKayttoaste(item) + "%"],
+                            ["Pisteet yhteensä", laskePisteet(item)],
+                        ]}
+                    />
+
+                    {/* Ylläpitokustannukset */}
+                    <DetailCard
+                        title="Ylläpitokustannusten erittely"
+                        rows={Object.entries(item.yllapitokulut).map(([key, val]) => [
+                            key,
+                            getValue(val) // OIKEIN — EI enää vuotta
+                        ])}
+                    />
+
+                    {/* Vuokraustiedot */}
+                    <DetailCard
+                        title="Vuokraustiedot"
+                        rows={[
+                            ["Vuokrattu m²", getValue(item.vuokrausaste_m2)],
+                            ["Neliövuokra (€ / m²)", getValue(item.neliövuokra)],
+                        ]}
+                    />
+                </div>
+
+                {/* Pisteprofiili */}
+                <div style={{ ...cardStyle, marginTop: "20px" }}>
+                    <div style={sectionTitle}>Pisteprofiili</div>
+                    <canvas id="radarChart" />
+                </div>
             </div>
-
-            {/* Perustiedot */}
-            <DetailCard
-                title="Perustiedot"
-                rows={[
-                    ["Kiinteistön nimi", item.nimi],
-                    ["Osoite", item.osoite],
-                    ["Pinta-ala (m²)", item.pinta_ala],
-                    ["Rakennusvuosi", item.rakennusvuosi],
-                    ["Käyttötarkoitus", item.kayttotarkoitus],
-                ]}
-            />
-
-            {/* Laskennalliset tiedot */}
-            <DetailCard
-                title="Laskennalliset tiedot"
-                rows={[
-                    ["Tasearvo (€)", laskeTasearvo(item)],
-                    ["Ylläpitokustannukset (€ / v)", laskeYllapito(item)],
-                    ["Käyttöaste (%)", laskeKayttoaste(item) + "%"],
-                    ["Pisteet yhteensä", laskePisteet(item)],
-                ]}
-            />
-
-            {/* Ylläpitokustannukset */}
-            <DetailCard
-                title="Ylläpitokustannusten erittely"
-                rows={Object.entries(item.yllapitokulut).map(([key, val]) => [
-                    key,
-                    getValue(val) // OIKEIN — EI enää vuotta
-                ])}
-            />
-
-            {/* Vuokraustiedot */}
-            <DetailCard
-                title="Vuokraustiedot"
-                rows={[
-                    ["Vuokrattu m²", getValue(item.vuokrausaste_m2)],
-                    ["Neliövuokra (€ / m²)", getValue(item.neliövuokra)],
-                ]}
-            />
-        </div>
+        </>
     );
 }
 
 /* Yleinen detail-korttikomponentti */
 function DetailCard({ title, rows }: { title: string; rows: [string, any][] }) {
     return (
-        <div style={cardStyle}>
+        <div style={chartCard}>
             <div style={sectionTitle}>{title}</div>
-            <table style={tableStyle as React.CSSProperties}>
+            <table style={tableStyle}>
                 <tbody>
                     {rows.map(([label, value], idx) => (
                         <tr key={idx}>

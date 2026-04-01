@@ -12,7 +12,7 @@ export const theme = {
 
         // Salkut
         salkku: {
-            A: { bg: "#e8f0e7", color: "#2d5a27" },
+            A: { bg: "#e8f0e7", color: "#325c2c" },
             B: { bg: "#e4edf7", color: "#1a4a7a" },
             C: { bg: "#f5e9d5", color: "#8a4f00" },
             D: { bg: "#f5e0e0", color: "#8a1a1a" }

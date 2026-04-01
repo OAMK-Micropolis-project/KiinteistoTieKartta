@@ -1,8 +1,8 @@
-export interface VuosiArvot {
+interface VuosiArvot {
     [year: string]: number;
 }
 
-export interface YllapitoKulut {
+interface YllapitoKulut {
     sahko: VuosiArvot;
     lammitys: VuosiArvot;
     vesi: VuosiArvot;
@@ -12,7 +12,7 @@ export interface YllapitoKulut {
     muut: VuosiArvot;
 }
 
-export interface Pisteet {
+interface Pisteet {
     [kriteeri: string]: number;
 }
 
@@ -38,3 +38,12 @@ export interface Kiinteisto {
     lammitysenergia: VuosiArvot;
     vedenkulutus: VuosiArvot;
 }
+
+export type KiinteistoStore = {
+    kiinteistot: Kiinteisto[];
+    getById: (id: number) => Kiinteisto | undefined;
+    addKiinteisto: (newKiinteisto: Kiinteisto) => void;
+    updateKiinteisto: (updated: Kiinteisto) => void;
+    deleteKiinteisto: (id: number) => void;
+    saveData: () => void;
+};

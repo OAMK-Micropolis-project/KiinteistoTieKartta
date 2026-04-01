@@ -1,8 +1,14 @@
 import { app, BrowserWindow } from "electron";
 import path from "node:path";
+import registerFsHandlers from "../src/utils/fsHandlers";
 
 function createWindow() {
-  const win = new BrowserWindow({ show: false});
+  const win = new BrowserWindow({ 
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, "./preload.js"),
+    }
+  });
     win.maximize();
     win.show();
 
@@ -13,4 +19,7 @@ function createWindow() {
   }
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  registerFsHandlers();
+  createWindow()
+});
