@@ -1,6 +1,7 @@
 
 import { NavLink } from "react-router-dom";
 import "./Toolbar.css";
+import FileButton from "./Pathfinderbutton";
 
 const tools = [
   { id: "summary", label: "Yhteenveto", path: "/" },
@@ -53,6 +54,7 @@ export default function Toolbar() {
                   </NavLink>
                 ))}
       </nav>
+      <FileButton/>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import './utils/chartSetup'
 import PointsBarChart from './components/charts/Barchart';
 import Layout from "./components/Layout";
 import DonutChart from "./components/charts/DonutChart";
+import { useEffect } from "react";
 const summaryBoxes = [
   {name: "KIINTEISTÖJÄ", value: "NaN"},
   {name: "KOKONAISPINTA-ALA", value: "NaN"},
@@ -28,7 +29,14 @@ const realEstates =[
   {estateName: "esim 4", portfolio: "D", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/4"},
 ];
 function HomePage() {
+  useEffect(() => {
+  async function load() {
+    const settings = await window.settings.load();
+    console.log("Last opened file:", settings.lastFilePath);
+  }
 
+  load();
+}, []);
   return (
     <>
       <span className='title'>Kiinteistösalkku</span>
