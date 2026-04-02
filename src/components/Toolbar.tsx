@@ -1,22 +1,16 @@
-
+import React from "react";
 import { NavLink } from "react-router-dom";
 import "./Toolbar.css";
 import { useKiinteistot } from "../context/useKiinteistot";
 
-const tools = [
-  { id: "summary", label: "Yhteenveto", path: "/" },
-  { id: "analytics", label: "Analytiikka", path: "/analytics" },
-  { id: "addProperty", label: "Lisää kiinteistö", path: "/add-property" },
-];
-// const estates= [
-//   { id: "1", label: "kiinteistö 1", path: "/detail/1" },
-//   { id: "2", label: "kiinteistö 2", path: "/detail/2" },
-//   { id: "3", label: "kiinteistö 3", path: "/detail/3" },
-//   { id: "4", label: "kiinteistö 4", path: `/detail/4` },
-// ];
-
 export default function Toolbar() {
-  const estates = useKiinteistot().kiinteistot
+  const { kiinteistot } = useKiinteistot();
+
+  const tools = [
+    { id: "summary", label: "Yhteenveto", path: "/" },
+    { id: "analytics", label: "Analytiikka", path: "/analytics" },
+    { id: "addProperty", label: "Lisää kiinteistö", path: "/add" },
+  ];
 
   return (
     <div className="toolbar">
@@ -36,26 +30,30 @@ export default function Toolbar() {
               `toolbarItem ${isActive ? "isActive" : ""}`
             }
           >
-            <span className="toolbarIcon" aria-hidden="true">●</span>
+            <span className="toolbarIcon">●</span>
             <span className="toolbarLabel">{tool.label}</span>
           </NavLink>
         ))}
       </nav>
-        <span className="headerSubtitle">KIINTEISTÖT</span>
-              <nav className="toolbarNav" aria-label="Primary">
-                {estates.map((estate) => (
-                  <NavLink
-                    key={estate.id}
-                    to={`/detail/${estate.id}`}
-                    className={({ isActive }) =>
-                      `toolbarItem ${isActive ? "isActive" : ""}`
-                    }
-                  >
-                    <span className="toolbarIcon" aria-hidden="true">●</span>
-                    <span className="toolbarLabel">{estate.nimi}</span>
-                  </NavLink>
-                ))}
-      </nav>
+
+      <span className="headerSubtitle">KIINTEISTÖT</span>
+
+      {kiinteistot.length === 0 && (
+        <div className="toolbarItem">
+          <span className="toolbarLabel">Ei kiinteistöjä</span>
+        </div>
+      )}
+
+      {/* 🔥 Näytetään kaikki kiinteistöt providerista */}
+      {kiinteistot.map((k) => (
+        <NavLink
+          key={k.id}
+          to={`/detail/${k.id}`}
+          className="toolbarItem"
+        >
+          <span className="toolbarLabel">{k.nimi}</span>
+        </NavLink>
+      ))}
     </div>
   );
 }

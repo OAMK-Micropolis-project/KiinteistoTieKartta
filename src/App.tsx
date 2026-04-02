@@ -1,18 +1,19 @@
 import { HashRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import AnalyticsView from "./pages/AnalyticsView.tsx";
 import DetailView from "./pages/detailView";
-import './App.css'
-import './utils/chartSetup'
-import PointsBarChart from './components/charts/Barchart';
+import "./App.css";
+import "./utils/chartSetup";
+import PointsBarChart from "./components/charts/Barchart";
 import Layout from "./components/Layout";
+import AddProp from "./pages/AddProp";
 import DonutChart from "./components/charts/DonutChart";
 import { useKiinteistot } from "./context/useKiinteistot.ts";
 const summaryBoxes = [
-  {name: "KIINTEISTÖJÄ", value: "NaN"},
-  {name: "KOKONAISPINTA-ALA", value: "NaN"},
-  {name: "TASEARVO YHTEENSÄ", value: "NaN"},
-  {name: "YLLÄPITÖKULUT / V", value: "NaN"},
-  {name: "VUOKRATULOT / V", value: "NaN"},
+  { name: "KIINTEISTÖJÄ", value: "NaN" },
+  { name: "KOKONAISPINTA-ALA", value: "NaN" },
+  { name: "TASEARVO YHTEENSÄ", value: "NaN" },
+  { name: "YLLÄPITÖKULUT / V", value: "NaN" },
+  { name: "VUOKRATULOT / V", value: "NaN" },
 ];
 // const realEstates =[
 //   {estateName: "esim tooooooooooooooooooooooooooooooooooooooooooodellla pitkä nimi", portfolio: "A", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/1"},
@@ -21,71 +22,68 @@ const summaryBoxes = [
 //   {estateName: "esim 4", portfolio: "D", points: 200, area: "1000 m^2", balanceValue: "1,9M€", path: "detail/4"},
 // ];
 function HomePage() {
-const realEstates = useKiinteistot().kiinteistot;
+  const realEstates = useKiinteistot().kiinteistot;
 
   return (
     <>
-      <span className='title'>Kiinteistösalkku</span>
+      <span className="title">Kiinteistösalkku</span>
       <div className="boxesContainer">
-        {summaryBoxes.map((box,i) => (
+        {summaryBoxes.map((box, i) => (
           <div key={i} className="box">
-            <span className='name'>{box.name}</span>
-            <span className='value'>{box.value}</span>
+            <span className="name">{box.name}</span>
+            <span className="value">{box.value}</span>
           </div>
         ))}
       </div>
-      <div className='secondRowContainer'>
-      <div className="realEstatesContainer">
-        <span className="realEstateTitle2">KAIKKI KIINTEISTÖT</span>
-        <div className='realEstateRowTitles'>
-          <span className='realEstateTitle2'>NIMI</span>
-          <span className='realEstateTitle'>SALKKU</span>
-          <span className='realEstateTitle'>PISTEET</span>
-          <span className='realEstateTitle'>PINTA-ALA</span>
-          <span className='realEstateTitle'>TASEARVO</span>
+      <div className="secondRowContainer">
+        <div className="realEstatesContainer">
+          <span className="realEstateTitle2">KAIKKI KIINTEISTÖT</span>
+          <div className="realEstateRowTitles">
+            <span className="realEstateTitle2">NIMI</span>
+            <span className="realEstateTitle">SALKKU</span>
+            <span className="realEstateTitle">PISTEET</span>
+            <span className="realEstateTitle">PINTA-ALA</span>
+            <span className="realEstateTitle">TASEARVO</span>
+          </div>
         </div>
-        {realEstates.map((estate,i) =>(
-          <NavLink key={i} to={`detail/${estate.id.toString()}`} 
-          className={`realEstateRow ${
-            estate.oma_salkku === "A" ? "portfolioA" :
-            estate.oma_salkku === "B" ? "portfolioB" :
-            estate.oma_salkku === "C" ? "portfolioC" :
-            estate.oma_salkku === "D" ? "portfolioD" : "portfolioDefault"
-          }`}>
+        {realEstates.map((estate, i) => (
+          <NavLink key={i} to={`detail/${estate.id.toString()}`}
+            className={`realEstateRow ${estate.oma_salkku === "A" ? "portfolioA" :
+                estate.oma_salkku === "B" ? "portfolioB" :
+                  estate.oma_salkku === "C" ? "portfolioC" :
+                    estate.oma_salkku === "D" ? "portfolioD" : "portfolioDefault"
+              }`}>
             <span className='estateName'>{estate.nimi}</span>
             <span className='portfolio'>{estate.oma_salkku}</span>
-            <span className='estateNumber'>{estate.tasearvo[ 2023 ]}</span>
+            <span className='estateNumber'>{estate.tasearvo[2023]}</span>
             <span className='estateNumber'>{estate.pinta_ala}</span>
-            <span className='estateNumber'>{estate.tasearvo[ 2023 ]}</span>
+            <span className='estateNumber'>{estate.tasearvo[2023]}</span>
           </NavLink>
         ))}
       </div>
       <div className="chartTower">
         <div className='chartContainer'>
-        <DonutChart/>
+          <DonutChart />
         </div>
         <div className='chartContainer'>
-        <PointsBarChart/>
+          <PointsBarChart />
         </div>
       </div>
-      </div>
-    
     </>
-  )
+  );
 }
 
 export default function App() {
   return (
     <Router>
-      {/* SIVUALUE */}
       <Routes>
-        <Route element={<Layout/>}>
+        <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/analytics" element={<AnalyticsView />} />
           <Route path="/detail/:id" element={<DetailView />} />
+          <Route path="/add" element={<AddProp />} />
         </Route>
       </Routes>
-
     </Router>
   );
 }
