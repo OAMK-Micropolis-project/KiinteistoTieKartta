@@ -1,9 +1,6 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
-
-import type { Kiinteisto } from "../types";
-import { INITIAL_DATA } from "../mock/initialData";
 
 import {
     getValue,
@@ -24,6 +21,7 @@ import {
     chartCard,
     gridContainer
 } from "../styles";
+import { useKiinteistot } from "../context/useKiinteistot";
 
 export default function DetailView() {
     const { id } = useParams();
@@ -31,12 +29,7 @@ export default function DetailView() {
 
     const radarChartRef = useRef<Chart | null>(null);
 
-    const [item, setItem] = useState<Kiinteisto | null>(null);
-
-    useEffect(() => {
-        const found = INITIAL_DATA.find(k => String(k.id) === String(id));
-        setItem(found ?? null);
-    }, [id]);
+    const item = useKiinteistot().getById(Number(id));
 
     // ---------- RADAR-CHART ----------
     useEffect(() => {

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { Kiinteisto } from "../types";
-import { INITIAL_DATA } from "../mock/initialData";
 
 import {
     laskeKayttoaste,
