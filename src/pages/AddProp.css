@@ -1,0 +1,86 @@
+.addprop-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  background-color: #2e2e3f;
+  color: white;
+  padding: 8px 14px;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 40px;
+  margin-bottom: 20px;
+}
+
+.grid-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-item label {
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.grid-item input,
+.grid-item select {
+  padding: 6px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
+
+.slider-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px 50px;
+  margin-bottom: 30px;
+}
+
+.slider-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.slider-item label {
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.slider-item input[type="range"] {
+  width: 100%;
+}
+
+.save-button {
+  margin-top: 20px;
+  padding: 10px 22px;
+  background-color: #2e2e3f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #464663;
+}
+
+
+.card-container {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 25px 35px;
+  margin-top: 20px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.10);
+  border: 1px solid #e0e0e0;
+}

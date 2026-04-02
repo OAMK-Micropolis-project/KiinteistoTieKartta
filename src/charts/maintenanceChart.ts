@@ -3,12 +3,16 @@ import type { Kiinteisto } from "../types";
 import { laskeYllapito } from "../utils/analyticsUtils";
 import { theme } from "../theme";
 
+let maintenanceChart: Chart | null = null;
+
 export function renderMaintenanceChart(
     canvasId: string,
     properties: Kiinteisto[]
 ) {
     const ctx = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!ctx) return;
+
+    if (maintenanceChart) maintenanceChart.destroy();
 
     const label = properties.map(k => k.nimi);
     const values = properties.map(k => laskeYllapito(k));

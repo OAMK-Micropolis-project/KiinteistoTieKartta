@@ -19,7 +19,10 @@ import {
     tdStyle,
     sectionTitle,
     badgeStyle,
-    backButton
+    backButton,
+    chartsGrid,
+    chartCard,
+    gridContainer
 } from "../styles";
 
 export default function DetailView() {
@@ -77,8 +80,7 @@ export default function DetailView() {
         );
 
     return (
-        <div style={{ padding: "20px", maxWidth: "900px", margin: "0 auto" }}>
-
+        <>
             {/* Takaisin */}
             <button style={backButton} onClick={() => navigate(-1)}>
                 ← Takaisin
@@ -91,109 +93,75 @@ export default function DetailView() {
             {/* Salkku-badge */}
             <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>Salkku {item.oma_salkku}</span>
 
-            {/* Perustiedot */}
-            <DetailCard
-                title="Perustiedot"
-                tabs={{2026:[
-                    ["Kiinteistön nimi", item.nimi],
-                    ["Osoite", item.osoite],
-                    ["Pinta-ala (m²)", item.pinta_ala],
-                    ["Rakennusvuosi", item.rakennusvuosi],
-                    ["Käyttötarkoitus", item.kayttotarkoitus],
-                ],
-                2027:[],
-            }}
-            />
+            <div style={gridContainer}>
+                <div style={chartsGrid}>
+                    {/* Perustiedot */}
+                    <DetailCard
+                        title="Perustiedot"
+                        rows={[
+                            ["Kiinteistön nimi", item.nimi],
+                            ["Osoite", item.osoite],
+                            ["Pinta-ala (m²)", item.pinta_ala],
+                            ["Rakennusvuosi", item.rakennusvuosi],
+                            ["Käyttötarkoitus", item.kayttotarkoitus],
+                        ]}
+                    />
 
-            {/* Laskennalliset tiedot */}
-            <DetailCard
-                title="Laskennalliset tiedot"
-                tabs={{ 2025:[
-                    ["Tasearvo (€)", laskeTasearvo(item)],
-                    ["Ylläpitokustannukset (€ / v)", laskeYllapito(item)],
-                    ["Käyttöaste (%)", laskeKayttoaste(item) + "%"],
-                    ["Pisteet yhteensä", laskePisteet(item)],
-                ],
-                2027:[],
-            }}
-            />
+                    {/* Laskennalliset tiedot */}
+                    <DetailCard
+                        title="Laskennalliset tiedot"
+                        rows={[
+                            ["Tasearvo (€)", laskeTasearvo(item)],
+                            ["Ylläpitokustannukset (€ / v)", laskeYllapito(item)],
+                            ["Käyttöaste (%)", laskeKayttoaste(item) + "%"],
+                            ["Pisteet yhteensä", laskePisteet(item)],
+                        ]}
+                    />
 
-            {/* Ylläpitokustannukset */}
-            <DetailCard
-                title="Ylläpitokustannusten erittely"
-                tabs={{2026:Object.entries(item.yllapitokulut).map(([key, val]) => [
-                    key,
-                    getValue(val) // OIKEIN — EI enää vuotta
-                ])}}
-            />
+                    {/* Ylläpitokustannukset */}
+                    <DetailCard
+                        title="Ylläpitokustannusten erittely"
+                        rows={Object.entries(item.yllapitokulut).map(([key, val]) => [
+                            key,
+                            getValue(val) // OIKEIN — EI enää vuotta
+                        ])}
+                    />
 
-            {/* Vuokraustiedot */}
-            <DetailCard
-                title="Vuokraustiedot"
-                tabs={{
-                    2026:[
-                    ["Vuokrattu m²", getValue(item.vuokrausaste_m2)],
-                    ["Neliövuokra (€ / m²)", getValue(item.neliövuokra)],
-                ]}}
-            />
+                    {/* Vuokraustiedot */}
+                    <DetailCard
+                        title="Vuokraustiedot"
+                        rows={[
+                            ["Vuokrattu m²", getValue(item.vuokrausaste_m2)],
+                            ["Neliövuokra (€ / m²)", getValue(item.neliövuokra)],
+                        ]}
+                    />
+                </div>
 
-            {/* Pisteprofiili */}
-            <div style={{ ...cardStyle, marginTop: "30px" }}>
-                <div style={sectionTitle}>Pisteprofiili</div>
-                <canvas id="radarChart" />
+                {/* Pisteprofiili */}
+                <div style={{ ...cardStyle, marginTop: "20px" }}>
+                    <div style={sectionTitle}>Pisteprofiili</div>
+                    <canvas id="radarChart" />
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
 /* Yleinen detail-korttikomponentti */
-function DetailCard({
-  title,
-  tabs
-}: {
-  title: string;
-  tabs: Record<string, [string, any][]>;
-}) {
-  const tabKeys = Object.keys(tabs);
-  const [activeTab, setActiveTab] = useState(tabKeys[0]);
-
-  return (
-    <div style={cardStyle}>
-      <div style={{ ...sectionTitle, marginBottom: "10px" }}>
-        {title}
-      </div>
-
-      {/* --- TAB BUTTONS --- */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
-        {tabKeys.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            style={{
-              padding: "6px 12px",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-              backgroundColor:
-                activeTab === tab ? "#dadada" : "#f5f5f5",
-              cursor: "pointer"
-            }}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* --- ACTIVE TAB TABLE --- */}
-      <table style={tableStyle as React.CSSProperties}>
-        <tbody>
-          {tabs[activeTab].map(([label, value], idx) => (
-            <tr key={idx}>
-              <td style={{ ...tdStyle, fontWeight: 600 }}>{label}</td>
-              <td style={{ ...tdStyle, textAlign: "right" }}>{value}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+function DetailCard({ title, rows }: { title: string; rows: [string, any][] }) {
+    return (
+        <div style={chartCard}>
+            <div style={sectionTitle}>{title}</div>
+            <table style={tableStyle}>
+                <tbody>
+                    {rows.map(([label, value], idx) => (
+                        <tr key={idx}>
+                            <td style={{ ...tdStyle, fontWeight: 600 }}>{label}</td>
+                            <td style={{ ...tdStyle, textAlign: "right" }}>{value}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
 }
