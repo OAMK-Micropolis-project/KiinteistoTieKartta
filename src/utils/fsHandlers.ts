@@ -3,7 +3,6 @@ import { join } from "path";
 import { readFile, writeFile} from "fs/promises";
 
 const settingsFile = join(app.getPath("userData"), "settings.json");
-const targetFilePath = join(__dirname, '../../../../tmpdata.json')
 
 export default function registerFsHandlers() {
 
