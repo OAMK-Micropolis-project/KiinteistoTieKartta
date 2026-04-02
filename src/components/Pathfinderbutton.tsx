@@ -1,3 +1,4 @@
+import './Pathfinderbutton.css';
 export default function FileButton() {
 
   const handleClick = async () => {
@@ -6,21 +7,18 @@ export default function FileButton() {
 
     console.log("Selected file:", filePath);
 
-    // Load existing settings
     const settings = await window.settings.load();
 
-    // Update
     settings.lastFilePath = filePath;
 
-    // Save back to disk
     await window.settings.save(settings);
 
     console.log("Path saved:", settings.lastFilePath);
   };
 
   return (
-    <button onClick={handleClick}>
-      Open File Explorer
+    <button className="fileButton" onClick={handleClick}>
+      Aseta polku
     </button>
   );
 }

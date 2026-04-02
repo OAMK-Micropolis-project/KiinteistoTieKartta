@@ -54,7 +54,9 @@ export default function Toolbar() {
                   </NavLink>
                 ))}
       </nav>
-      <FileButton/>
+      <div className="toolbarBottom">
+        <FileButton/>
+      </div>
     </div>
   );
 }
