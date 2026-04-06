@@ -18,6 +18,7 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
   }
 
   function addKiinteisto(newKiinteisto: Kiinteisto) {
+    newKiinteisto.id = kiinteistot.length > 0 ? Math.max(...kiinteistot.map(k => k.id)) + 1 : 1;
     const newList = [...kiinteistot, newKiinteisto];
     setKiinteistot(newList);
     persistKiinteistot(newList);
