@@ -82,7 +82,7 @@ function HomePage() {
           {realEstates.map((estate, i) => (
             <NavLink
               key={i}
-              to={estate.id.toString()}
+              to={"detail/" + estate.id.toString()}
               className={`realEstateRow ${
                 estate.oma_salkku === "A"
                   ? "portfolioA"
