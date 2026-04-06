@@ -5,24 +5,34 @@ import { KiinteistoContext } from "./KiinteistoContext";
 export function KiinteistoProvider({ children }: { children: React.ReactNode }) {
   const [kiinteistot, setKiinteistot] = useState<Kiinteisto[]>([]);
 
+  function getAll() {
+    return [...kiinteistot];
+  }
+
+  function persistKiinteistot(kiinteistot: Kiinteisto[]) {
+    void window.electronFs.writeFile(JSON.stringify(kiinteistot));
+  }
+
   function getById(id: number) {
     return kiinteistot.find(k => k.id === id);
   }
 
   function addKiinteisto(newKiinteisto: Kiinteisto) {
-    setKiinteistot(prev => [...prev, newKiinteisto]);
+    const newList = [...kiinteistot, newKiinteisto];
+    setKiinteistot(newList);
+    persistKiinteistot(newList);
   }
 
   function updateKiinteisto(updated: Kiinteisto) {
-    setKiinteistot(prev => prev.map(k => k.id === updated.id ? updated : k));
+    const newList = kiinteistot.map(k => k.id === updated.id ? updated : k);
+    setKiinteistot(newList);
+    persistKiinteistot(newList);
   }
 
   function deleteKiinteisto(id: number) {
-    setKiinteistot(prev => prev.filter(k => k.id !== id));
-  }
-
-  function saveData() {
-    window.electronFs.writeFile(JSON.stringify(kiinteistot));
+    const newList = kiinteistot.filter(k => k.id !== id);
+    setKiinteistot(newList);
+    persistKiinteistot(newList);
   }
 
   useEffect(() => {
@@ -40,12 +50,11 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const store = {
-    kiinteistot,
+    kiinteistot: getAll(),
     getById,
     addKiinteisto,
     updateKiinteisto,
     deleteKiinteisto,
-    saveData
   }
 
   return (

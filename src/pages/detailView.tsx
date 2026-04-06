@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
+import { useKiinteistot } from "../context/useKiinteistot";
 
 import {
     getValue,
@@ -21,7 +22,6 @@ import {
     chartCard,
     gridContainer
 } from "../styles";
-import { useKiinteistot } from "../context/useKiinteistot";
 
 export default function DetailView() {
     const { id } = useParams();

@@ -133,7 +133,6 @@ const AddProp: React.FC = () => {
     };
 
     addKiinteisto(uusi);
-    saveData();
 
     alert("Kiinteistö lisätty!");
     navigate("/");

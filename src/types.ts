@@ -45,5 +45,4 @@ export type KiinteistoStore = {
     addKiinteisto: (newKiinteisto: Kiinteisto) => void;
     updateKiinteisto: (updated: Kiinteisto) => void;
     deleteKiinteisto: (id: number) => void;
-    saveData: () => void;
 };
