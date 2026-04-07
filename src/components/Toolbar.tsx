@@ -1,6 +1,9 @@
-import React from "react";
+
 import { NavLink } from "react-router-dom";
 import "./Toolbar.css";
+import FileButton from "./Pathfinderbutton";
+
+// tuodaan ryhmän provider-hook
 import { useKiinteistot } from "../context/useKiinteistot";
 
 export default function Toolbar() {
@@ -54,6 +57,9 @@ export default function Toolbar() {
           <span className="toolbarLabel">{k.nimi}</span>
         </NavLink>
       ))}
+      <div className="toolbarBottom">
+        <FileButton/>
+      </div>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import Layout from "./components/Layout";
 import AddProp from "./pages/AddProp";
 import DonutChart from "./components/charts/DonutChart";
 import { useKiinteistot } from "./context/useKiinteistot.ts";
+import { useEffect } from "react";
 
 const summaryBoxes = [
   { name: "KIINTEISTÖJÄ", value: "NaN" },
@@ -19,6 +20,14 @@ const summaryBoxes = [
 
 function HomePage() {
   const realEstates = useKiinteistot().kiinteistot;
+  useEffect(() => {
+  async function load() {
+    const settings = await window.settings.load();
+    console.log("Last opened file:", settings.lastFilePath);
+  }
+
+  load();
+}, []);
   return (
     <>
       <span className="title">Kiinteistösalkku</span>
