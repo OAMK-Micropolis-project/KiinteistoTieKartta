@@ -17,41 +17,6 @@ const summaryBoxes = [
   { name: "VUOKRATULOT / V", value: "NaN" },
 ];
 
-// const realEstates = [
-//   {
-//     estateName: "esim todella pitkä nimi",
-//     portfolio: "A",
-//     points: 200,
-//     area: "1000 m²",
-//     balanceValue: "1,9M€",
-//     path: "detail/1",
-//   },
-//   {
-//     estateName: "esim 2",
-//     portfolio: "B",
-//     points: 200,
-//     area: "1000 m²",
-//     balanceValue: "1,9M€",
-//     path: "detail/2",
-//   },
-//   {
-//     estateName: "esim 3",
-//     portfolio: "C",
-//     points: 200,
-//     area: "1000 m²",
-//     balanceValue: "1,9M€",
-//     path: "detail/3",
-//   },
-//   {
-//     estateName: "esim 4",
-//     portfolio: "D",
-//     points: 200,
-//     area: "1000 m²",
-//     balanceValue: "1,9M€",
-//     path: "detail/4",
-//   },
-// ];
-
 function HomePage() {
   const realEstates = useKiinteistot().kiinteistot;
   return (
