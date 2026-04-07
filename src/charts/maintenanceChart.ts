@@ -3,7 +3,7 @@ import type { Kiinteisto } from "../types";
 import { laskeYllapito } from "../utils/analyticsUtils";
 import { theme } from "../theme";
 
-let maintenanceChart: Chart | null = null;
+const maintenanceChart: Chart | null = null;
 
 export function renderMaintenanceChart(
     canvasId: string,

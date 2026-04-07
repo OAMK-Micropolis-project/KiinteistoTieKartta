@@ -2,6 +2,7 @@
 import Chart from "chart.js/auto";
 import type { Kiinteisto } from "../types";
 import { laskeYllapito } from "../utils/analyticsUtils";
+import { theme } from "../theme";
 
 let yllapitoChart: Chart | null = null;
 
@@ -11,6 +12,10 @@ export function renderYllapitoChart(canvasId: string, properties: Kiinteisto[]) 
 
     if (yllapitoChart) yllapitoChart.destroy();
 
+    const colors = properties.map(
+            (k) => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
+        );
+
     yllapitoChart = new Chart(ctx, {
         type: "bar",
         data: {
@@ -19,7 +24,7 @@ export function renderYllapitoChart(canvasId: string, properties: Kiinteisto[]) 
                 {
                     label: "Ylläpitokulut (€)",
                     data: properties.map(laskeYllapito),
-                    backgroundColor: "rgba(46, 104, 166, 0.7)",
+                    backgroundColor: colors,
                     borderRadius: 6,
                 }
             ]
