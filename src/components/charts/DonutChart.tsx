@@ -24,7 +24,20 @@ export default function DonutChart() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
+        title: {
+            display: true,
+            text: "Salkkujakauma",
+            font: {
+                size: 20,
+                weight: "600",
+            },
+            color: "2c2c2c",
+            padding: {
+                top: 10,
+                bottom: 10,
+            },
+        },
+        legend: {
         position: "bottom" as const,
         labels: {
           color: "#333",

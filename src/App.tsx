@@ -7,6 +7,7 @@ import PointsBarChart from "./components/charts/Barchart";
 import Layout from "./components/Layout";
 import AddProp from "./pages/AddProp";
 import DonutChart from "./components/charts/DonutChart";
+import { useEffect } from "react";
 
 const summaryBoxes = [
   { name: "KIINTEISTÖJÄ", value: "NaN" },
@@ -52,6 +53,14 @@ const realEstates = [
 ];
 
 function HomePage() {
+  useEffect(() => {
+  async function load() {
+    const settings = await window.settings.load();
+    console.log("Last opened file:", settings.lastFilePath);
+  }
+
+  load();
+}, []);
   return (
     <>
       <span className="title">Kiinteistösalkku</span>
