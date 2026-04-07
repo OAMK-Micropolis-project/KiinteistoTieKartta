@@ -133,17 +133,17 @@ export default function AnalyticsView() {
 
             <div style={chartCard}>
                 <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
-                <canvas id="chartYllapito" style={chartCanvas as any} />
+                <canvas id="chartYllapito" style={chartCanvas} />
             </div>
 
             <div style={chartCard}>
                 <div style={sectionTitle}>Pisteiden jakauma kriteereittäin</div>
-                <canvas id="chartKriteerit" style={chartCanvas as any} />
+                <canvas id="chartKriteerit" style={chartCanvas} />
             </div>
 
             <div style={chartCard}>
                 <div style={sectionTitle}>Ylläpitokulut per kiinteistö (salkkuvärit)</div>
-                <canvas id="maintenanceChart" style={chartCanvas as any} />
+                <canvas id="maintenanceChart" style={chartCanvas} />
             </div>
 
             <div style={chartCard}>
@@ -164,7 +164,7 @@ export default function AnalyticsView() {
                     ))}
                 </select>
 
-                <canvas id="criteriaChart" style={chartCanvas as any} />
+                <canvas id="criteriaChart" style={chartCanvas} />
             </div>
 
         </div>

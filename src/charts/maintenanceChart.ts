@@ -20,7 +20,7 @@ export function renderMaintenanceChart(
         k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
     );
 
-    return new Chart(ctx, {
+    maintenanceChart = new Chart(ctx, {
         type: "bar",
         data: {
             labels: label,
@@ -51,4 +51,6 @@ export function renderMaintenanceChart(
             }
         }
     });
+
+    return maintenanceChart;
 }

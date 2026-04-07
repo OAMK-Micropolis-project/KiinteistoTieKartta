@@ -6,7 +6,6 @@ import type { Kiinteisto } from "../types";
 import { INITIAL_DATA } from "../mock/initialData";
 
 import {
-    getValue,
     laskeKayttoaste,
     laskePisteet,
     laskeYllapito,
@@ -22,7 +21,8 @@ import {
     backButton,
     chartsGrid,
     chartCard,
-    gridContainer
+    gridContainer,
+    // thStyle
 } from "../styles";
 
 export default function DetailView() {
@@ -119,20 +119,17 @@ export default function DetailView() {
                     />
 
                     {/* Ylläpitokustannukset */}
-                    <DetailCard
+                    <KustannuksetCard
                         title="Ylläpitokustannusten erittely"
-                        rows={Object.entries(item.yllapitokulut).map(([key, val]) => [
-                            key,
-                            getValue(val) // OIKEIN — EI enää vuotta
-                        ])}
-                    />
+                        item={item}
+                        />
 
                     {/* Vuokraustiedot */}
                     <DetailCard
                         title="Vuokraustiedot"
                         rows={[
-                            ["Vuokrattu m²", getValue(item.vuokrausaste_m2)],
-                            ["Neliövuokra (€ / m²)", getValue(item.neliövuokra)],
+                            ["Vuokrattu m²", item.talous[0].YllapitoKulut.Vuokrausaste_m2],
+                            ["Neliövuokra (€ / m²)", item.talous[0].YllapitoKulut.Neliövuokra],
                         ]}
                     />
                 </div>
@@ -148,7 +145,7 @@ export default function DetailView() {
 }
 
 /* Yleinen detail-korttikomponentti */
-function DetailCard({ title, rows }: { title: string; rows: [string, any][] }) {
+function DetailCard({ title, rows }: { title: string; rows: [string, number | string][] }) {
     return (
         <div style={chartCard}>
             <div style={sectionTitle}>{title}</div>
@@ -162,6 +159,86 @@ function DetailCard({ title, rows }: { title: string; rows: [string, any][] }) {
                     ))}
                 </tbody>
             </table>
+        </div>
+    );
+}
+/* Yleinen KustannuksetCard-korttikomponentti */
+function KustannuksetCard({ title, item }: { title: string; item: Kiinteisto }) {
+    const [yearOffset, setYearOffset] = useState(0);
+
+    // Collect all unique years and cost keys
+    const allYears = [...new Set(item.talous.map(t => t.Vuosi))].sort((a, b) => a - b); // Ascending (oldest first)
+    const costKeys = [...new Set(item.talous.flatMap(t => Object.keys(t.YllapitoKulut)))].sort();
+
+    // Get the 3 years to display
+    const displayYears = allYears.slice(yearOffset, yearOffset + 3);
+    const canGoBack = yearOffset > 0;
+    const canGoForward = yearOffset + 3 < allYears.length;
+
+    return (
+        <div style={chartCard}>
+            <div style={sectionTitle}>{title}</div>
+            {item.talous.length === 0 ? (
+                <p>Ei kustannustietoja saatavilla.</p>
+            ) : (
+                <>
+                    {/* Navigation buttons */}
+                    <div style={{ marginBottom: "12px", display: "flex", gap: "8px" }}>
+                        <button
+                            onClick={() => setYearOffset(Math.max(0, yearOffset - 1))}
+                            disabled={!canGoBack}
+                            style={{
+                                padding: "6px 12px",
+                                cursor: canGoBack ? "pointer" : "not-allowed",
+                                opacity: canGoBack ? 1 : 0.5,
+                            }}
+                        >
+                            ← Vanhemmat
+                        </button>
+                        <span style={{ alignSelf: "center", fontSize: "12px", color: "#666" }}>
+                            {displayYears[0]} - {displayYears[displayYears.length - 1]}
+                        </span>
+                        <button
+                            onClick={() => setYearOffset(yearOffset + 1)}
+                            disabled={!canGoForward}
+                            style={{
+                                padding: "6px 12px",
+                                cursor: canGoForward ? "pointer" : "not-allowed",
+                                opacity: canGoForward ? 1 : 0.5,
+                            }}
+                        >
+                            Uudemmat →
+                        </button>
+                    </div>
+
+                    <table style={tableStyle}>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                {displayYears.map(year => (
+                                    <th key={year} style={tdStyle}>{year}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {costKeys.map(costKey => (
+                                <tr key={costKey}>
+                                    <td style={{ ...tdStyle, fontWeight: 600 }}>{costKey}</td>
+                                    {displayYears.map(year => {
+                                        const talousRecord = item.talous.find(t => t.Vuosi === year);
+                                        const value = talousRecord?.YllapitoKulut[costKey as keyof typeof talousRecord.YllapitoKulut] ?? 0;
+                                        return (
+                                            <td key={year} style={{ ...tdStyle, textAlign: "center" }}>
+                                                {value}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </>
+            )}
         </div>
     );
 }

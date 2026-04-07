@@ -38,51 +38,101 @@ export const INITIAL_DATA: Kiinteisto[] = [
     "toimenpiteet": [
         {
         "kuvaus": "Korkea käyttöaste, hyvä kuntoinen ei peruskorjaustarvetta seuraavaan 10 vuoteen",
-        "kustannukset": {}
+        "kustannukset": ""
         }
     ],
-    "yllapitokulut": {
-      "sahko": {
-        "vuosi": 2023,
-        "kulut": 5000
+    "talous": [
+      {
+        "Vuosi": 2023,
+        "YllapitoKulut": {
+        "Tasearvo": 1000000,
+        "Vuokrausaste_m2": 100,
+        "Neliövuokra": 10,
+        "Sahkonkulutus": 5000,
+        "Lammitysenergia": 7000,
+        "Vedenkulutus": 2000,
+        "sahko": 3500,
+        "lammitys": 5000,
+        "vesi": 1500,
+        "huolto": 2000,
+        "vero": 3000,
+        "laina": 25000,
+        "muut": 1000
+        }
       },
-      "lammitys": {
-        "vuosi": 2023,
-      "kulut": 7000
+      {
+        "Vuosi": 2022,
+        "YllapitoKulut": {
+        "Tasearvo": 900000,
+        "Vuokrausaste_m2": 100,
+        "Neliövuokra": 10,
+        "Sahkonkulutus": 5000,
+        "Lammitysenergia": 7000,
+        "Vedenkulutus": 2000,
+        "sahko": 3500,
+        "lammitys": 5000,
+        "vesi": 1500,
+        "huolto": 2000,
+        "vero": 3000,
+        "laina": 25000,
+        "muut": 1000
+        }
       },
-      "vesi": {
-        "vuosi": 2023,
-      "kulut": 2000
+      {
+        "Vuosi": 2021,
+        "YllapitoKulut": {
+        "Tasearvo": 800000,
+        "Vuokrausaste_m2": 100,
+        "Neliövuokra": 10,
+        "Sahkonkulutus": 5000,
+        "Lammitysenergia": 7000,
+        "Vedenkulutus": 2000,
+        "sahko": 3500,
+        "lammitys": 5000,
+        "vesi": 1500,
+        "huolto": 2000,
+        "vero": 3000,
+        "laina": 25000,
+        "muut": 1000
+        }
       },
-      "huolto": {
-        "vuosi": 2023,
-        "kulut": 2000
+      {
+        "Vuosi": 2020,
+        "YllapitoKulut": {
+        "Tasearvo": 700000,
+        "Vuokrausaste_m2": 100,
+        "Neliövuokra": 10,
+        "Sahkonkulutus": 5000,
+        "Lammitysenergia": 7000,
+        "Vedenkulutus": 2000,
+        "sahko": 3500,
+        "lammitys": 5000,
+        "vesi": 1500,
+        "huolto": 2000,
+        "vero": 3000,
+        "laina": 25000,
+        "muut": 1000
+        }
       },
-      "vero": {
-        "vuosi": 2023,
-        "kulut": 1500
-      },
-      "laina": {
-        "vuosi": 2023,
-        "kulut": 25000
-      },
-      "muut": {}
-    },
-    "tasearvo": {
-      "vuosi": 2023,
-      "kulut": 1000000
-    },
-    "vuokrausaste_m2": {
-      "vuosi": 2023,
-      "kulut": 100
-    },
-    "neliövuokra": {
-      "vuosi": 2023,
-      "kulut": 10
-    },
-    "sahkonkulutus": {},
-    "lammitysenergia": {},
-    "vedenkulutus": {}
+      {
+        "Vuosi": 2019,
+        "YllapitoKulut": {
+        "Tasearvo": 600000,
+        "Vuokrausaste_m2": 100,
+        "Neliövuokra": 10,
+        "Sahkonkulutus": 5000,
+        "Lammitysenergia": 7000,
+        "Vedenkulutus": 2000,
+        "sahko": 3500,
+        "lammitys": 5000,
+        "vesi": 1500,
+        "huolto": 2000,
+        "vero": 3000,
+        "laina": 25000,
+        "muut": 1000
+        }
+      }
+    ]      
   },
   {
     "id": 2,
@@ -121,51 +171,29 @@ export const INITIAL_DATA: Kiinteisto[] = [
     "toimenpiteet": [
       {
         "kuvaus": "Korkea käyttöaste, hyvä kuntoinen ei peruskorjaustarvetta seuraavaan 10 vuoteen",
-        "kustannukset": {}
+        "kustannukset": ""
       }
     ],
-    "yllapitokulut": {
-      "sahko": {
-        "vuosi": 2023,
-        "kulut": 3500
-      },
-      "lammitys": {
-        "vuosi": 2023,
-        "kulut": 9500
-      },
-      "vesi": {
-        "vuosi": 2023,
-        "kulut": 3000
-      },
-      "huolto": {
-        "vuosi": 2023,
-        "kulut": 2500
-      },
-      "vero": {
-        "vuosi": 2023,
-        "kulut": 2000
-      },
-      "laina": {
-        "vuosi": 2023,
-        "kulut": 21050
-      },
-      "muut": {}
-    },
-    "tasearvo": {
-      "vuosi": 2023,
-      "kulut": 750000
-    },
-    "vuokrausaste_m2": {
-      "vuosi": 2023,
-      "kulut": 422
-    },
-    "neliövuokra": {
-      "vuosi": 2023,
-      "kulut": 11
-    },
-    "sahkonkulutus": {},
-    "lammitysenergia": {},
-    "vedenkulutus": {}
+    "talous": [
+      {
+        "Vuosi": 2023,
+        "YllapitoKulut": {
+          "Tasearvo": 1000000,
+          "Vuokrausaste_m2": 100,
+          "Neliövuokra": 10,
+          "Sahkonkulutus": 5000,
+          "Lammitysenergia": 7000,
+          "Vedenkulutus": 2000,
+          "sahko": 3500,
+          "lammitys": 5000,
+          "vesi": 1500,
+          "huolto": 2000,
+          "vero": 3000,
+          "laina": 25000,
+          "muut": 1000,
+        }
+      }
+    ]
   },
   {
     "id": 3,
@@ -202,21 +230,7 @@ export const INITIAL_DATA: Kiinteisto[] = [
     "oma_salkku": "A",
     "oma_perusteet": "",
     "toimenpiteet": [],
-    "yllapitokulut": {
-      "sahko": {},
-      "lammitys": {},
-      "vesi": {},
-      "huolto": {},
-      "vero": {},
-      "laina": {},
-      "muut": {}
-    },
-    "tasearvo": {},
-    "vuokrausaste_m2": {},
-    "neliövuokra": {},
-    "sahkonkulutus": {},
-    "lammitysenergia": {},
-    "vedenkulutus": {}
+    "talous": [],
   },
   {
     "id": 4,
@@ -253,20 +267,6 @@ export const INITIAL_DATA: Kiinteisto[] = [
     "oma_salkku": "A",
     "oma_perusteet": "",
     "toimenpiteet": [],
-    "yllapitokulut": {
-      "sahko": {},
-      "lammitys": {},
-      "vesi": {},
-      "huolto": {},
-      "vero": {},
-      "laina": {},
-      "muut": {}
-    },
-    "tasearvo": {},
-    "vuokrausaste_m2": {},
-    "neliövuokra": {},
-    "sahkonkulutus": {},
-    "lammitysenergia": {},
-    "vedenkulutus": {}
+    "talous": [],
   }
 ]
