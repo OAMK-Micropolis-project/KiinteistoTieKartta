@@ -46,7 +46,7 @@ export default function Toolbar() {
           <span className="toolbarLabel">Ei kiinteistöjä</span>
         </div>
       )}
-
+      <div className="propertyScroll">
       {/* 🔥 Näytetään kaikki kiinteistöt providerista */}
       {kiinteistot.map((k) => (
         <NavLink
@@ -57,6 +57,7 @@ export default function Toolbar() {
           <span className="toolbarLabel">{k.nimi}</span>
         </NavLink>
       ))}
+      </div>
       <div className="toolbarBottom">
         <FileButton/>
       </div>

@@ -27,6 +27,7 @@ html, body, #root {
   color: #fff;
 
   border-right: 1px solid #1e293b;
+  overflow: hidden;
 }
 
 .toolbarBottom {
@@ -43,6 +44,20 @@ html, body, #root {
   flex-direction: column;
   gap: 8px;
   width: 100%;
+}
+.propertyScroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #20242e;
+}
+.propertyScroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.propertyScroll::-webkit-scrollbar-thumb {
+  background: #444c5a;
+  border-radius: 4px;
 }
 
 /* ---------------------------
