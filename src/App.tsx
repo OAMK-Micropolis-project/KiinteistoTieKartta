@@ -22,9 +22,9 @@ function HomePage() {
 }, []);
 
 const summaryBoxes = [
-  { name: "KIINTEISTÖJÄ", value: "NaN" /*realEstates.length*/ },
-  { name: "KOKONAISPINTA-ALA", value: "NaN" /*realEstates.reduce( (sum, k) => sum + (k.pinta_ala ?? 0), 0) +" m²"*/ },
-  { name: "TASEARVO YHTEENSÄ", value: "NaN" /*realEstates.reduce((sum,k) => sum + (k.pinta_ala ?? 0),0)*/ },
+  { name: "KIINTEISTÖJÄ", value: realEstates.length },
+  { name: "KOKONAISPINTA-ALA", value: realEstates.reduce( (sum, k) => sum + (k.pinta_ala ?? 0), 0) +" m²" },
+  { name: "TASEARVO YHTEENSÄ", value: realEstates.reduce((sum,k) => sum + ((k.talous.length > 0 ? k.talous.reduce((latest, current) => current.Vuosi ? current : latest).YllapitoKulut.Tasearvo) ?? 0),0) },
   { name: "YLLÄPITÖKULUT / V", value: "NaN" },
   { name: "VUOKRATULOT / V", value: "NaN" },
 ];
