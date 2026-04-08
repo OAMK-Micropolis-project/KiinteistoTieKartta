@@ -37,8 +37,7 @@ html, body, #root {
 }
 .propertyHeader {
   display: flex;
-  align-items: center;          /* vertical centering */
-  /*justify-content: space-between; /* label left, buttons right */
+  align-items: center;
   gap: 8px;
 
   width: 100%;
@@ -199,3 +198,13 @@ html, body, #root {
 .filterBtn:active {
   transform: scale(0.92);
 }
+
+.filterBtn.portfolioA { background: rgba(59,130,246,0.15); color: #3b82f6; }
+.filterBtn.portfolioB { background: rgba(34,197,94,0.15);  color: #22c55e; }
+.filterBtn.portfolioC { background: rgba(234,179,8,0.15);  color: #eab308; }
+.filterBtn.portfolioD { background: rgba(239,68,68,0.15);  color: #ef4444; }
+
+.filterBtn.active.portfolioA { background: #3b82f6; color: white; }
+.filterBtn.active.portfolioB { background: #22c55e; color: white; }
+.filterBtn.active.portfolioC { background: #eab308; color: #1f2937; }
+.filterBtn.active.portfolioD { background: #ef4444; color: white; }

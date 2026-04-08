@@ -61,12 +61,24 @@ export default function Toolbar() {
             
             {(["A", "B", "C", "D"] as const).map(s => (
               <button
+
                 key={s}
-                className={`filterBtn ${activeSalkut.has(s) ? "active" : ""}`}
                 onClick={() => toggleSalkku(s)}
                 title={`Salkku ${s}`}
+                className={`filterBtn ${
+                  s === "A"
+                    ? "portfolioA"
+                    : s === "B"
+                    ? "portfolioB"
+                    : s === "C"
+                    ? "portfolioC"
+                    : s === "D"
+                    ? "portfolioD"
+                    : "portfolioDefault"
+                } ${activeSalkut.has(s) ? "active" : ""}`}
               >
                 {s}
+
               </button>
             ))}
         </div>
