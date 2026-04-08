@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useKiinteistot } from "../context/useKiinteistot";
 
 const AddProp: React.FC = () => {
-  const { kiinteistot, addKiinteisto, saveData } = useKiinteistot();
+  const { kiinteistot, addKiinteisto } = useKiinteistot();
   const navigate = useNavigate();
 
   // Lomakedata
@@ -133,7 +133,6 @@ const AddProp: React.FC = () => {
     };
 
     addKiinteisto(uusi);
-    saveData();
 
     alert("Kiinteistö lisätty!");
     navigate("/");
