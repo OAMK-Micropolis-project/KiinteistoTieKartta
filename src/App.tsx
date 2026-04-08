@@ -7,6 +7,7 @@ import PointsBarChart from "./components/charts/Barchart";
 import Layout from "./components/Layout";
 import AddProp from "./pages/AddProp";
 import DonutChart from "./components/charts/DonutChart";
+import { useKiinteistot } from "./context/useKiinteistot.ts";
 import { useEffect } from "react";
 
 const summaryBoxes = [
@@ -17,42 +18,8 @@ const summaryBoxes = [
   { name: "VUOKRATULOT / V", value: "NaN" },
 ];
 
-const realEstates = [
-  {
-    estateName: "esim todella pitkä nimi",
-    portfolio: "A",
-    points: 200,
-    area: "1000 m²",
-    balanceValue: "1,9M€",
-    path: "detail/1",
-  },
-  {
-    estateName: "esim 2",
-    portfolio: "B",
-    points: 200,
-    area: "1000 m²",
-    balanceValue: "1,9M€",
-    path: "detail/2",
-  },
-  {
-    estateName: "esim 3",
-    portfolio: "C",
-    points: 200,
-    area: "1000 m²",
-    balanceValue: "1,9M€",
-    path: "detail/3",
-  },
-  {
-    estateName: "esim 4",
-    portfolio: "D",
-    points: 200,
-    area: "1000 m²",
-    balanceValue: "1,9M€",
-    path: "detail/4",
-  },
-];
-
 function HomePage() {
+  const realEstates = useKiinteistot().kiinteistot;
   useEffect(() => {
   async function load() {
     const settings = await window.settings.load();
@@ -89,24 +56,24 @@ function HomePage() {
           {realEstates.map((estate, i) => (
             <NavLink
               key={i}
-              to={estate.path}
+              to={"detail/" + estate.id.toString()}
               className={`realEstateRow ${
-                estate.portfolio === "A"
+                estate.oma_salkku === "A"
                   ? "portfolioA"
-                  : estate.portfolio === "B"
+                  : estate.oma_salkku === "B"
                   ? "portfolioB"
-                  : estate.portfolio === "C"
+                  : estate.oma_salkku === "C"
                   ? "portfolioC"
-                  : estate.portfolio === "D"
+                  : estate.oma_salkku === "D"
                   ? "portfolioD"
                   : "portfolioDefault"
               }`}
             >
-              <span className="estateName">{estate.estateName}</span>
-              <span className="portfolio">{estate.portfolio}</span>
-              <span className="estateNumber">{estate.points}</span>
-              <span className="estateNumber">{estate.area}</span>
-              <span className="estateNumber">{estate.balanceValue}</span>
+              <span className="estateName">{estate.nimi}</span>
+              <span className="portfolio">{estate.oma_salkku}</span>
+              <span className="estateNumber">{estate.tasearvo[2023]}</span>
+              <span className="estateNumber">{estate.pinta_ala} m²</span>
+              <span className="estateNumber">{estate.tasearvo["2023"]}</span>
             </NavLink>
           ))}
         </div>

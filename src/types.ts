@@ -9,12 +9,12 @@ interface YllapitoKulut {
 }
 
 interface VuokraKulut {
-		tasearvo: number;
-		vuokrausaste_m2: number;
-		neliövuokra: number;
-		sahkonkulutus: number;
-		lammitysenergia: number;
-		vedenkulutus: number;
+    tasearvo: number;
+    vuokrausaste_m2: number;
+    neliövuokra: number;
+    sahkonkulutus: number;
+    lammitysenergia: number;
+    vedenkulutus: number;
 }
 
 interface Pisteet {
@@ -22,9 +22,9 @@ interface Pisteet {
 }
 
 interface Toimenpide {
-		kuvaus: string;
-		kustannukset: string;
-		tila: boolean;
+    kuvaus: string;
+    kustannukset: string;
+    tila: boolean;
 }
 
 export interface Kiinteisto {
@@ -42,7 +42,7 @@ export interface Kiinteisto {
     toimenpiteet: Toimenpide[];
 
     yllapitokulut: { [key: number]: YllapitoKulut[] };
-		vuokrakulut: { [key: number]: VuokraKulut[] };
+    vuokrakulut: { [key: number]: VuokraKulut[] };
 }
 
 export type KiinteistoStore = {
