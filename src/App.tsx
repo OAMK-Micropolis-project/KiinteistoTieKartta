@@ -20,10 +20,11 @@ function HomePage() {
 
   load();
 }, []);
+
 const summaryBoxes = [
-  { name: "KIINTEISTÖJÄ", value: realEstates.length },
-  { name: "KOKONAISPINTA-ALA", value: realEstates.reduce( (sum, k) => sum + (k.pinta_ala ?? 0), 0) +" m²" },
-  { name: "TASEARVO YHTEENSÄ", value: realEstates.reduce((sum,k) => sum + (k.pinta_ala ?? 0),0) },
+  { name: "KIINTEISTÖJÄ", value: "NaN" /*realEstates.length*/ },
+  { name: "KOKONAISPINTA-ALA", value: "NaN" /*realEstates.reduce( (sum, k) => sum + (k.pinta_ala ?? 0), 0) +" m²"*/ },
+  { name: "TASEARVO YHTEENSÄ", value: "NaN" /*realEstates.reduce((sum,k) => sum + (k.pinta_ala ?? 0),0)*/ },
   { name: "YLLÄPITÖKULUT / V", value: "NaN" },
   { name: "VUOKRATULOT / V", value: "NaN" },
 ];
@@ -71,9 +72,9 @@ const summaryBoxes = [
             >
               <span className="estateName">{estate.nimi}</span>
               <span className="portfolio">{estate.oma_salkku}</span>
-              <span className="estateNumber">{estate.tasearvo[2023]}</span>
+              <span className="estateNumber">{/*estate.tasearvo["2023"]*/}</span>
               <span className="estateNumber">{estate.pinta_ala} m²</span>
-              <span className="estateNumber">{estate.tasearvo["2023"]}</span>
+              <span className="estateNumber">{/*estate.tasearvo["2023"]*/}</span>
             </NavLink>
           ))}
         </div>
