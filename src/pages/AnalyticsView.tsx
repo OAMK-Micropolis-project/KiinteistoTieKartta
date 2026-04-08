@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { Kiinteisto } from "../types";
-import { INITIAL_DATA } from "../mock/initialData";
 
 import {
     laskeKayttoaste,
@@ -30,21 +29,15 @@ import { renderYllapitoChart } from "../charts/chartYllapito";
 import { renderKriteeritChart } from "../charts/chartKriteerit";
 import { renderMaintenanceChart } from "../charts/maintenanceChart";
 import { renderCriteriaComparisonChart } from "../charts/criteriaComparisonChart";
+import { useKiinteistot } from "../context/useKiinteistot";
 
 export default function AnalyticsView() {
-    const [properties, setProperties] = useState<Kiinteisto[]>([]);
+    const properties = useKiinteistot().kiinteistot;
     const [selectedCriteria, setSelectedCriteria] = useState<string>("ika");
     const [sortKey, setSortKey] = useState("nimi");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
     const navigate = useNavigate();
-
-    // =============================
-    // DATA LOAD 
-    // =============================
-    useEffect(() => {
-        setProperties(INITIAL_DATA);
-    }, []);
 
     // =============================
     // SORT LOGIC 
