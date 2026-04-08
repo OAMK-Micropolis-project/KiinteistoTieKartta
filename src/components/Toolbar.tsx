@@ -3,6 +3,23 @@ import { NavLink } from "react-router-dom";
 import "./Toolbar.css";
 import FileButton from "./Pathfinderbutton";
 import {useState, useMemo} from "react";
+import {
+  toolbar,
+  headerBlock,
+  headerTitle,
+  headerSubtitle,
+  toolbarNav,
+  toolbarItem,
+  toolbarLabel,
+  toolbarIcon,
+  toolbarItemActive,
+  propertyHeader,
+  filterButtons,
+  filterBtn,
+  filterBtnPortfolio,
+  propertyScroll,
+  toolbarBottom,
+} from "./Toolbar.styles";
 
 // tuodaan ryhmän provider-hook
 import { useKiinteistot } from "../context/useKiinteistot";
