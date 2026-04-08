@@ -41,8 +41,8 @@ export interface Kiinteisto {
     oma_perusteet: string;
     toimenpiteet: Toimenpide[];
 
-    yllapitokulut: { [key: number]: YllapitoKulut[] };
-    vuokrakulut: { [key: number]: VuokraKulut[] };
+    yllapitokulut: { [key: number]: YllapitoKulut };
+    vuokrakulut: { [key: number]: VuokraKulut };
 }
 
 export type KiinteistoStore = {
