@@ -10,14 +10,6 @@ import DonutChart from "./components/charts/DonutChart";
 import { useKiinteistot } from "./context/useKiinteistot.ts";
 import { useEffect } from "react";
 
-const summaryBoxes = [
-  { name: "KIINTEISTÖJÄ", value: "NaN" },
-  { name: "KOKONAISPINTA-ALA", value: "NaN" },
-  { name: "TASEARVO YHTEENSÄ", value: "NaN" },
-  { name: "YLLÄPITÖKULUT / V", value: "NaN" },
-  { name: "VUOKRATULOT / V", value: "NaN" },
-];
-
 function HomePage() {
   const realEstates = useKiinteistot().kiinteistot;
   useEffect(() => {
@@ -28,6 +20,14 @@ function HomePage() {
 
   load();
 }, []);
+const summaryBoxes = [
+  { name: "KIINTEISTÖJÄ", value: realEstates.length },
+  { name: "KOKONAISPINTA-ALA", value: realEstates.reduce( (sum, k) => sum + (k.pinta_ala ?? 0), 0) +" m²" },
+  { name: "TASEARVO YHTEENSÄ", value: realEstates.reduce((sum,k) => sum + (k.pinta_ala ?? 0),0) },
+  { name: "YLLÄPITÖKULUT / V", value: "NaN" },
+  { name: "VUOKRATULOT / V", value: "NaN" },
+];
+
   return (
     <>
       <span className="title">Kiinteistösalkku</span>
