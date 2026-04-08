@@ -2,18 +2,35 @@
 import { NavLink } from "react-router-dom";
 import "./Toolbar.css";
 import FileButton from "./Pathfinderbutton";
+import {useState, useMemo} from "react";
 
 // tuodaan ryhmän provider-hook
 import { useKiinteistot } from "../context/useKiinteistot";
 
 export default function Toolbar() {
   const { kiinteistot } = useKiinteistot();
-
   const tools = [
     { id: "summary", label: "Yhteenveto", path: "/" },
     { id: "analytics", label: "Analytiikka", path: "/analytics" },
     { id: "addProperty", label: "Lisää kiinteistö", path: "/add" },
   ];
+  const [activeSalkut, setActiveSalkut] = useState<
+    Set<"A" | "B" | "C" | "D">
+    >(new Set(["A","B","C","D"]));
+
+  function toggleSalkku(salkku: "A" | "B" | "C" | "D") {
+    setActiveSalkut(prev => {
+      const next = new Set(prev);
+      next.has(salkku) ? next.delete(salkku) : next.add(salkku);
+      return next;
+    });
+  }
+  const filteredKiinteistot = useMemo(() => {
+    return kiinteistot.filter(k =>
+      activeSalkut.has(k.oma_salkku)
+    );
+  }, [kiinteistot, activeSalkut]);
+
 
   return (
     <div className="toolbar">
@@ -38,21 +55,37 @@ export default function Toolbar() {
           </NavLink>
         ))}
       </nav>
+      <div className="propertyHeader">
+        <span className="headerSubtitle">KIINTEISTÖT</span>
+        <div className="filterButtons">
+            
+            {(["A", "B", "C", "D"] as const).map(s => (
+              <button
+                key={s}
+                className={`filterBtn ${activeSalkut.has(s) ? "active" : ""}`}
+                onClick={() => toggleSalkku(s)}
+                title={`Salkku ${s}`}
+              >
+                {s}
+              </button>
+            ))}
+        </div>
+      </div>
 
-      <span className="headerSubtitle">KIINTEISTÖT</span>
-
-      {kiinteistot.length === 0 && (
+      {filteredKiinteistot.length === 0 && (
         <div className="toolbarItem">
           <span className="toolbarLabel">Ei kiinteistöjä</span>
         </div>
       )}
       <div className="propertyScroll">
       {/* 🔥 Näytetään kaikki kiinteistöt providerista */}
-      {kiinteistot.map((k) => (
+      {filteredKiinteistot.map((k) => (
         <NavLink
           key={k.id}
           to={`/detail/${k.id}`}
-          className="toolbarItem"
+          className={({ isActive }) => 
+            `toolbarItem ${isActive ? "isActive" : ""}`
+          }
         >
           <span className="toolbarLabel">{k.nimi}</span>
         </NavLink>
