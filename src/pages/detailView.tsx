@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
 import { useKiinteistot } from "../context/useKiinteistot";
@@ -22,6 +22,7 @@ import {
     gridContainer,
     // thStyle
 } from "../styles";
+import type { Kiinteisto } from "../types";
 
 export default function DetailView() {
     const { id } = useParams();
@@ -121,8 +122,8 @@ export default function DetailView() {
                     <DetailCard
                         title="Vuokraustiedot"
                         rows={[
-                            ["Vuokrattu m²", item.talous[0].YllapitoKulut.Vuokrausaste_m2],
-                            ["Neliövuokra (€ / m²)", item.talous[0].YllapitoKulut.Neliövuokra],
+                            ["Vuokrattu m²", item.talous[0]?.YllapitoKulut.Vuokrausaste_m2],
+                            ["Neliövuokra (€ / m²)", item.talous[0]?.YllapitoKulut.Neliövuokra],
                         ]}
                     />
                 </div>

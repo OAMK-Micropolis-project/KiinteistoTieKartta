@@ -9,6 +9,12 @@ import AddProp from "./pages/AddProp";
 import DonutChart from "./components/charts/DonutChart";
 import { useKiinteistot } from "./context/useKiinteistot.ts";
 import { useEffect } from "react";
+import {
+    laskeKayttoaste,
+    laskePisteet,
+    laskeYllapito,
+    laskeTasearvo,
+} from "./utils/analyticsUtils";
 
 const summaryBoxes = [
   { name: "KIINTEISTÖJÄ", value: "NaN" },
@@ -71,9 +77,9 @@ function HomePage() {
             >
               <span className="estateName">{estate.nimi}</span>
               <span className="portfolio">{estate.oma_salkku}</span>
-              <span className="estateNumber">{estate.tasearvo[2023]}</span>
+              <span className="estateNumber">{laskePisteet(estate)}</span>
               <span className="estateNumber">{estate.pinta_ala} m²</span>
-              <span className="estateNumber">{estate.tasearvo["2023"]}</span>
+              <span className="estateNumber">{laskeTasearvo(estate)}</span>
             </NavLink>
           ))}
         </div>
