@@ -4,7 +4,6 @@ import Chart from "chart.js/auto";
 import { useKiinteistot } from "../context/useKiinteistot";
 
 import {
-    getValue,
     laskeKayttoaste,
     laskePisteet,
     laskeYllapito,
@@ -30,6 +29,10 @@ export default function DetailView() {
     const radarChartRef = useRef<Chart | null>(null);
 
     const item = useKiinteistot().getById(Number(id));
+    const year = Math.max(
+        ...Object.keys(item?.yllapitokulut || {}).map(Number),
+        ...Object.keys(item?.vuokrakulut || {}).map(Number),
+    );
 
     // ---------- RADAR-CHART ----------
     useEffect(() => {
@@ -104,9 +107,9 @@ export default function DetailView() {
                     <DetailCard
                         title="Laskennalliset tiedot"
                         rows={[
-                            ["Tasearvo (€)", laskeTasearvo(item)],
-                            ["Ylläpitokustannukset (€ / v)", laskeYllapito(item)],
-                            ["Käyttöaste (%)", laskeKayttoaste(item) + "%"],
+                            ["Tasearvo (€)", laskeTasearvo(item, year)],
+                            ["Ylläpitokustannukset (€ / v)", laskeYllapito(item, year)],
+                            ["Käyttöaste (%)", laskeKayttoaste(item, year) + "%"],
                             ["Pisteet yhteensä", laskePisteet(item)],
                         ]}
                     />
@@ -114,9 +117,9 @@ export default function DetailView() {
                     {/* Ylläpitokustannukset */}
                     <DetailCard
                         title="Ylläpitokustannusten erittely"
-                        rows={Object.entries(item.yllapitokulut).map(([key, val]) => [
+                        rows={Object.entries(item.yllapitokulut[year] ?? {}).map(([key, val]) => [
                             key,
-                            getValue(val) // OIKEIN — EI enää vuotta
+                            (val ?? 0) // OIKEIN — EI enää vuotta
                         ])}
                     />
 
@@ -124,8 +127,8 @@ export default function DetailView() {
                     <DetailCard
                         title="Vuokraustiedot"
                         rows={[
-                            ["Vuokrattu m²", getValue(item.vuokrausaste_m2)],
-                            ["Neliövuokra (€ / m²)", getValue(item.neliövuokra)],
+                            ["Vuokrattu m²", (item.vuokrakulut[year]?.vuokrausaste_m2 ?? 0)],
+                            ["Neliövuokra (€ / m²)", (item.vuokrakulut[year]?.neliövuokra ?? 0)],
                         ]}
                     />
                 </div>
@@ -141,7 +144,7 @@ export default function DetailView() {
 }
 
 /* Yleinen detail-korttikomponentti */
-function DetailCard({ title, rows }: { title: string; rows: [string, any][] }) {
+function DetailCard({ title, rows }: { title: string; rows: [string, string | number][] }) {
     return (
         <div style={chartCard}>
             <div style={sectionTitle}>{title}</div>
