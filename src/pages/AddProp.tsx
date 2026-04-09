@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 // Ryhmän providerin hook
 import { useKiinteistot } from "../context/useKiinteistot";
+import type { Kiinteisto } from "../types";
 
 const AddProp: React.FC = () => {
   const { kiinteistot, addKiinteisto } = useKiinteistot();
@@ -57,7 +58,7 @@ const AddProp: React.FC = () => {
   });
 
   // Input-käsittelijä
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     // Ylläpitokulut
@@ -75,9 +76,9 @@ const AddProp: React.FC = () => {
       ...prev,
       [name]: name === "kayttotarkoitus" || name === "suojelukohde"
         ? value
-        : isNaN(value)
-        ? value
-        : Number(value),
+        : isNaN(Number(value))
+          ? value
+          : Number(value),
     }));
   };
 
@@ -90,8 +91,10 @@ const AddProp: React.FC = () => {
   };
 
   // Lomakkeen lähetys
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const year = new Date().getFullYear();
 
     const newId =
       kiinteistot.length === 0
@@ -99,7 +102,7 @@ const AddProp: React.FC = () => {
         : Math.max(...kiinteistot.map((k) => k.id)) + 1;
 
     // OIKEA dataformaatti providerille + DetailView:lle
-    const uusi = {
+    const uusi: Kiinteisto = {
       id: newId,
       nimi: formData.nimi,
       osoite: formData.osoite,
@@ -112,22 +115,28 @@ const AddProp: React.FC = () => {
       pisteet: { ...formData.kunto },
 
       yllapitokulut: {
-        sahko: { vuosi: 2024, kulut: formData.yllapito.sahko },
-        lammitys: { vuosi: 2024, kulut: formData.yllapito.lammitus },
-        vesi: { vuosi: 2024, kulut: formData.yllapito.vesi },
-        huolto: { vuosi: 2024, kulut: formData.yllapito.huolto },
-        vero: { vuosi: 2024, kulut: formData.yllapito.kiinteistovero },
-        laina: { vuosi: 2024, kulut: formData.yllapito.laina },
-        muut: {},
+        [year]: {
+          sahko: formData.yllapito.sahko,
+          lammitys: formData.yllapito.lammitus,
+          vesi: formData.yllapito.vesi,
+          huolto: formData.yllapito.huolto,
+          vero: formData.yllapito.kiinteistovero,
+          laina: formData.yllapito.laina,
+          muut: 0,
+        },
       },
 
-      tasearvo: { vuosi: 2024, kulut: formData.tasearvo },
-      vuokrausaste_m2: { vuosi: 2024, kulut: formData.vuokrattu },
-      neliövuokra: { vuosi: 2024, kulut: formData.neliovuokra },
+      vuokrakulut: {
+        [year]: {
+          tasearvo: formData.tasearvo,
+          vuokrausaste_m2: formData.vuokrattu,
+          neliövuokra: formData.neliovuokra,
+          sahkonkulutus: 0,
+          lammitysenergia: 0,
+          vedenkulutus: 0,
+        },
+      },
 
-      sahkonkulutus: {},
-      lammitysenergia: {},
-      vedenkulutus: {},
       oma_perusteet: "",
       toimenpiteet: [],
     };
@@ -283,52 +292,52 @@ const AddProp: React.FC = () => {
           </div>
 
           {/* --- Kuntoarvio --- */}
-<div className="section-title">Kuntoarvio</div>
+          <div className="section-title">Kuntoarvio</div>
 
-<div className="slider-grid">
+          <div className="slider-grid">
 
-  {[
-    ["Kiinteistön ikä", "ika"],
-    ["Vesikaton kunto ja kaltevuus", "vesikatto"],
-    ["Sadevesijärjestelmät", "sadevesi"],
-    ["Salaoja ja seinänvierustat", "salaoja"],
-    ["Julkisivuverhouksen kunto", "julkisivu"],
-    ["Ikkunat – laatu ja kunto", "ikkunat"],
-    ["Ulko-ovet – laatu ja kunto", "ovet"],
-    ["Rakennusvaipan U-arvo", "vaippa"],
-    ["Tontin korkeusasema ja kuivatus", "tontti"],
-    ["Lattiapinnan korkeus maastoon nähden", "lattia"],
-    ["Sisäilmaongelmat", "sisailma"],
-    ["Yleisilme sisätiloilta", "yleisilme"],
-    ["Lämmitysmuoto", "lammitys"],
-    ["Lämmityslaitteiden kunto", "lammlaitteet"],
-    ["Käyttövesiputkistot", "kayttovesi"],
-    ["Viemäriputkisto", "viemari"],
-    ["IV-järjestelmä", "iv"],
-    ["Peruskorjaus viim. 15v", "peruskorjaus"],
-    ["Toimivuus käyttötarkoitukseen", "toimivuus"],
-    ["Rakennuksen käyttöaste", "kayttoaste_piste"],
-    ["Tulevaisuuden käyttöaste", "tulevaisuus"],
-    ["Kannattaako investoida", "investointi"],
-  ].map(([label, field]) => (
-    <div className="slider-item" key={field}>
-      <label>{label}</label>
-      <input
-        type="range"
-        min={1}
-        max={5}
-        value={(formData.kunto as any)[field]}
-        onChange={(e) => changeSlider(field, Number(e.target.value))}
-      />
-      <span>{(formData.kunto as any)[field]}</span>
-    </div>
-  ))}
+            {[
+              ["Kiinteistön ikä", "ika"],
+              ["Vesikaton kunto ja kaltevuus", "vesikatto"],
+              ["Sadevesijärjestelmät", "sadevesi"],
+              ["Salaoja ja seinänvierustat", "salaoja"],
+              ["Julkisivuverhouksen kunto", "julkisivu"],
+              ["Ikkunat – laatu ja kunto", "ikkunat"],
+              ["Ulko-ovet – laatu ja kunto", "ovet"],
+              ["Rakennusvaipan U-arvo", "vaippa"],
+              ["Tontin korkeusasema ja kuivatus", "tontti"],
+              ["Lattiapinnan korkeus maastoon nähden", "lattia"],
+              ["Sisäilmaongelmat", "sisailma"],
+              ["Yleisilme sisätiloilta", "yleisilme"],
+              ["Lämmitysmuoto", "lammitys"],
+              ["Lämmityslaitteiden kunto", "lammlaitteet"],
+              ["Käyttövesiputkistot", "kayttovesi"],
+              ["Viemäriputkisto", "viemari"],
+              ["IV-järjestelmä", "iv"],
+              ["Peruskorjaus viim. 15v", "peruskorjaus"],
+              ["Toimivuus käyttötarkoitukseen", "toimivuus"],
+              ["Rakennuksen käyttöaste", "kayttoaste_piste"],
+              ["Tulevaisuuden käyttöaste", "tulevaisuus"],
+              ["Kannattaako investoida", "investointi"],
+            ].map(([label, field]) => (
+              <div className="slider-item" key={field}>
+                <label>{label}</label>
+                <input
+                  type="range"
+                  min={1}
+                  max={5}
+                  value={(formData.kunto as { [key: string]: number })[field]}
+                  onChange={(e) => changeSlider(field, Number(e.target.value))}
+                />
+                <span>{(formData.kunto as { [key: string]: number })[field]}</span>
+              </div>
+            ))}
 
-</div>
+          </div>
 
-<button className="save-button" type="submit">
-  Tallenna
-</button>
+          <button className="save-button" type="submit">
+            Tallenna
+          </button>
 
         </form>
       </div>

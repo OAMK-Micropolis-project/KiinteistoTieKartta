@@ -31,6 +31,10 @@ export default function DetailView() {
     const radarChartRef = useRef<Chart | null>(null);
 
     const item = useKiinteistot().getById(Number(id));
+    const year = Math.max(
+        ...Object.keys(item?.yllapitokulut || {}).map(Number),
+        ...Object.keys(item?.vuokrakulut || {}).map(Number),
+    );
 
     // ---------- RADAR-CHART ----------
     useEffect(() => {
@@ -105,9 +109,9 @@ export default function DetailView() {
                     <DetailCard
                         title="Laskennalliset tiedot"
                         rows={[
-                            ["Tasearvo (€)", laskeTasearvo(item)],
-                            ["Ylläpitokustannukset (€ / v)", laskeYllapito(item)],
-                            ["Käyttöaste (%)", laskeKayttoaste(item) + "%"],
+                            ["Tasearvo (€)", laskeTasearvo(item, year)],
+                            ["Ylläpitokustannukset (€ / v)", laskeYllapito(item, year)],
+                            ["Käyttöaste (%)", laskeKayttoaste(item, year) + "%"],
                             ["Pisteet yhteensä", laskePisteet(item)],
                         ]}
                     />
