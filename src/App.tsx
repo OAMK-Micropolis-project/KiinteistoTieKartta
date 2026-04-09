@@ -20,6 +20,13 @@ const summaryBoxes = [
 
 function HomePage() {
   const realEstates = useKiinteistot().kiinteistot;
+  const year = Math.max(
+    ...realEstates.flatMap(k => [
+      ...Object.keys(k.yllapitokulut).map(Number),
+      ...Object.keys(k.vuokrakulut).map(Number)
+    ])
+  );
+
   useEffect(() => {
   async function load() {
     const settings = await window.settings.load();
@@ -71,9 +78,9 @@ function HomePage() {
             >
               <span className="estateName">{estate.nimi}</span>
               <span className="portfolio">{estate.oma_salkku}</span>
-              <span className="estateNumber">{estate.vuokrakulut[2023]?.tasearvo ?? 0}</span>
+              <span className="estateNumber">{estate.vuokrakulut[year]?.tasearvo ?? 0}</span>
               <span className="estateNumber">{estate.pinta_ala} m²</span>
-              <span className="estateNumber">{estate.vuokrakulut[2023]?.vuokrausaste_m2 ?? 0}</span>
+              <span className="estateNumber">{estate.vuokrakulut[year]?.vuokrausaste_m2 ?? 0}</span>
             </NavLink>
           ))}
         </div>
