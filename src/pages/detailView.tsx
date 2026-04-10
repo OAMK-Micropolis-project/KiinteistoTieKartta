@@ -126,8 +126,8 @@ export default function DetailView() {
                     <DetailCard
                         title="Vuokraustiedot"
                         rows={[
-                            ["Vuokrattu m²", item.vuokrakulut[2023]?.vuokrausaste_m2 ?? 0],
-                            ["Neliövuokra (€ / m²)", item.vuokrakulut[2023]?.neliövuokra],
+                            ["Vuokrattu m²", item.vuokrakulut[year]?.vuokrausaste_m2 ?? 0],
+                            ["Neliövuokra (€ / m²)", item.vuokrakulut[year]?.neliövuokra],
                         ]}
                     />
                 </div>
