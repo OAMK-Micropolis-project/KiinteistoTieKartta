@@ -13,6 +13,11 @@ export function renderYllapitoChart(canvasId: string, properties: Kiinteisto[]) 
 
         if (yllapitoChart) yllapitoChart.destroy();
 
+        // Calculate the most recent year from all properties
+        const year = Math.max(
+            ...properties.flatMap(k => Object.keys(k.yllapitokulut).map(Number))
+        );
+
         const colors = properties.map(
                 k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
             );
@@ -24,7 +29,7 @@ export function renderYllapitoChart(canvasId: string, properties: Kiinteisto[]) 
                 datasets: [
                     {
                         label: "Ylläpitokulut (€)",
-                        data: properties.map(laskeYllapito),
+                        data: properties.map(p => laskeYllapito(p, year)),
                         backgroundColor: colors,
                         borderRadius: 6,
                     }
