@@ -1,19 +1,4 @@
-interface Pisteet {
-    [kriteeri: string]: number;
-}
-
-interface Talous {
-    Vuosi: number;
-    YllapitoKulut: YllapitoKulut;
-}
-
 interface YllapitoKulut {
-    Tasearvo: number;
-    Vuokrausaste_m2: number;
-    Neliövuokra: number;
-    Sahkonkulutus: number;
-    Lammitysenergia: number;
-    Vedenkulutus: number;
     sahko: number;
     lammitys: number;
     vesi: number;
@@ -21,6 +6,25 @@ interface YllapitoKulut {
     vero: number;
     laina: number;
     muut: number;
+}
+
+interface VuokraKulut {
+    tasearvo: number;
+    vuokrausaste_m2: number;
+    neliövuokra: number;
+    sahkonkulutus: number;
+    lammitysenergia: number;
+    vedenkulutus: number;
+}
+
+interface Pisteet {
+    [kriteeri: string]: number;
+}
+
+interface Toimenpide {
+    kuvaus: string;
+    kustannukset: string;
+    tila: boolean;
 }
 
 export interface Kiinteisto {
@@ -35,8 +39,10 @@ export interface Kiinteisto {
     pisteet: Pisteet;
     oma_salkku: string;
     oma_perusteet: string;
-    toimenpiteet: { kuvaus: string; kustannukset: string }[];
-    talous: Talous[];
+    toimenpiteet: Toimenpide[];
+
+    yllapitokulut: { [key: number]: YllapitoKulut };
+    vuokrakulut: { [key: number]: VuokraKulut };
 }
 
 export type KiinteistoStore = {

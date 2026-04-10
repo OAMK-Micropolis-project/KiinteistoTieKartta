@@ -15,7 +15,7 @@ export function renderMaintenanceChart(
     if (maintenanceChart) maintenanceChart.destroy();
 
     const label = properties.map(k => k.nimi);
-    const values = properties.map(k => laskeYllapito(k));
+    const values = properties.map(k => laskeYllapito(k, Math.max(...Object.keys(k.yllapitokulut).map(Number))));
     const colors = properties.map(
         k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
     );
