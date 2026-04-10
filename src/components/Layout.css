@@ -1,5 +1,8 @@
 .content {
   margin-left: clamp(200px, 33vw, 320px);
+  height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
   padding: 16px;
   background-color: #f1ebeb;
   font-family: "Roboto", sans-serif;
