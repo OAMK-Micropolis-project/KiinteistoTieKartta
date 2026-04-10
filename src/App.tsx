@@ -32,6 +32,13 @@ import {
 
 function HomePage() {
   const realEstates = useKiinteistot().kiinteistot;
+  const year = Math.max(
+    ...realEstates.flatMap(k => [
+      ...Object.keys(k.yllapitokulut).map(Number),
+      ...Object.keys(k.vuokrakulut).map(Number)
+    ])
+  );
+
   useEffect(() => {
   async function load() {
     const settings = await window.settings.load();
