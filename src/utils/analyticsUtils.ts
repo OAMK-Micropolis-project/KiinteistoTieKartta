@@ -33,6 +33,5 @@ export function laskeKayttoaste(k: Kiinteisto, year: number): number {
     const vuokrattu = (k.vuokrakulut[year]?.vuokrausaste_m2 ?? 0);
     if (!k.pinta_ala || k.pinta_ala === 0) return 0;
 
-    // return Math.round((vuokrattu / k.pinta_ala) * 100);
-    return 0;
+    return Math.round((vuokrattu / k.pinta_ala) * 100);
 }

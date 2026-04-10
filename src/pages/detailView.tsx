@@ -126,8 +126,8 @@ export default function DetailView() {
                     <DetailCard
                         title="Vuokraustiedot"
                         rows={[
-                            ["Vuokrattu m²", item.talous[0]?.YllapitoKulut.Vuokrausaste_m2],
-                            ["Neliövuokra (€ / m²)", item.talous[0]?.YllapitoKulut.Neliövuokra],
+                            ["Vuokrattu m²", item.vuokrakulut[2023]?.vuokrausaste_m2 ?? 0],
+                            ["Neliövuokra (€ / m²)", item.vuokrakulut[2023]?.neliövuokra],
                         ]}
                     />
                 </div>
@@ -164,9 +164,13 @@ function DetailCard({ title, rows }: { title: string; rows: [string, number | st
 function KustannuksetCard({ title, item }: { title: string; item: Kiinteisto }) {
     const [yearOffset, setYearOffset] = useState(0);
 
-    // Collect all unique years and cost keys
-    const allYears = [...new Set(item.talous.map(t => t.Vuosi))].sort((a, b) => a - b); // Ascending (oldest first)
-    const costKeys = [...new Set(item.talous.flatMap(t => Object.keys(t.YllapitoKulut)))].sort();
+    // Convert object to array of years from yllapitokulut
+    const allYears = [...new Set(Object.keys(item.yllapitokulut ?? {}).map(Number))].sort((a: number, b: number) => a - b);
+
+    // Extract cost keys from yllapitokulut
+    const costKeys = allYears.length > 0 
+      ? [...new Set(Object.values(item.yllapitokulut ?? {}).flatMap((costs) => Object.keys(costs as unknown as Record<string, number>)))].sort()
+      : [];
 
     // Get the 3 years to display
     const displayYears = allYears.slice(yearOffset, yearOffset + 3);
@@ -176,7 +180,7 @@ function KustannuksetCard({ title, item }: { title: string; item: Kiinteisto }) 
     return (
         <div style={chartCard}>
             <div style={sectionTitle}>{title}</div>
-            {item.talous.length === 0 ? (
+            {allYears.length === 0 ? (
                 <p>Ei kustannustietoja saatavilla.</p>
             ) : (
                 <>
@@ -194,7 +198,7 @@ function KustannuksetCard({ title, item }: { title: string; item: Kiinteisto }) 
                             ← Vanhemmat
                         </button>
                         <span style={{ alignSelf: "center", fontSize: "12px", color: "#666" }}>
-                            {displayYears[0]} - {displayYears[displayYears.length - 1]}
+                            {displayYears[0] ?? ""} - {displayYears[displayYears.length - 1] ?? ""}
                         </span>
                         <button
                             onClick={() => setYearOffset(yearOffset + 1)}
@@ -213,21 +217,21 @@ function KustannuksetCard({ title, item }: { title: string; item: Kiinteisto }) 
                         <thead>
                             <tr>
                                 <th></th>
-                                {displayYears.map(year => (
+                                {displayYears.map((year) => (
                                     <th key={year} style={tdStyle}>{year}</th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody>
-                            {costKeys.map(costKey => (
+                            {costKeys.map((costKey) => (
                                 <tr key={costKey}>
                                     <td style={{ ...tdStyle, fontWeight: 600 }}>{costKey}</td>
-                                    {displayYears.map(year => {
-                                        const talousRecord = item.talous.find(t => t.Vuosi === year);
-                                        const value = talousRecord?.YllapitoKulut[costKey as keyof typeof talousRecord.YllapitoKulut] ?? 0;
+                                    {displayYears.map((year) => {
+                                        const costs = item.yllapitokulut?.[year] as unknown as Record<string, number> | undefined;
+                                        const value = costs?.[costKey] ?? 0;
                                         return (
                                             <td key={year} style={{ ...tdStyle, textAlign: "center" }}>
-                                                {value}
+                                                {String(value)}
                                             </td>
                                         );
                                     })}
