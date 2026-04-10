@@ -12,12 +12,14 @@ export const toolbar: CSSProperties = {
   position: "fixed",
   top: 0,
   left: 0,
+  minWidth: 0,
+  minHeight: 0,
+  display: "flex",
+  flexDirection: "column",
   width: "clamp(200px, 33vw, 320px)",
   height: "100vh",
 
   background: "#20242e",
-  display: "flex",
-  flexDirection: "column",
 
   boxSizing: "border-box",
   padding: "16px",
@@ -47,6 +49,7 @@ export const propertyHeader: CSSProperties = {
   paddingRight: "4px",
 
   boxSizing: "border-box",
+  minWidth: 0,
 };
 
 /* =========================
@@ -58,6 +61,9 @@ export const toolbarNav: CSSProperties = {
   flexDirection: "column",
   gap: "8px",
   width: "100%",
+  minWidth: 0,
+  minHeight: 0,
+  flexShrink: 1,
 };
 
 /* Scrollable property list */
@@ -66,6 +72,8 @@ export const propertyScroll: CSSProperties = {
   overflowY: "auto",
   overflowX: "hidden",
   background: "#20242e",
+  minWidth: 0,
+  minHeight: 0,
 };
 
 /* =========================
@@ -201,7 +209,34 @@ export const filterBtnActive: CSSProperties = {
   //background: "#6366f1",
   //color: "#ffffff",
 };
+/* =========================
+   SEARCH BAR
+========================= */
 
+export const searchContainer: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "6px",
+  width: "100%",
+  background: "#1f2430",
+  borderRadius: "8px",
+  padding: "6px 10px",
+  boxSizing: "border-box",
+};
+
+export const searchInput: CSSProperties = {
+  flex: 1,
+  background: "transparent",
+  border: "none",
+  color: "#e2e8f0",
+  fontSize: "14px",
+  outline: "none",
+};
+
+export const searchIcon: CSSProperties = {
+  color: "#64748b",
+  fontSize: "14px",
+};
 
 /* =========================
    PORTFOLIO FILTER COLORS
@@ -222,4 +257,4 @@ export function filterBtnPortfolio(
     background: active ? base.solid : base.bg,
     color: active ? "#ffffff" : base.solid,
   };
-}
+};

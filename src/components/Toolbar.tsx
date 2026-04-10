@@ -21,11 +21,15 @@ import {
   filterBtnPortfolio,
   propertyScroll,
   toolbarBottom,
+  searchContainer,
+  searchIcon,
+  searchInput,
 } from "./Toolbar.styles";
 
 export default function Toolbar() {
   const { kiinteistot } = useKiinteistot();
   const [hoverId, setHoverId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const tools = [
     { id: "summary", label: "Yhteenveto", path: "/" },
     { id: "analytics", label: "Analytiikka", path: "/analytics" },
@@ -45,8 +49,9 @@ export default function Toolbar() {
   }
 
   const filteredKiinteistot = useMemo(() => {
-    return kiinteistot.filter(k => activeSalkut.has(k.oma_salkku));
-  }, [kiinteistot, activeSalkut]);
+    return kiinteistot.filter(k => activeSalkut.has(k.oma_salkku))
+    .filter((k) => k.nimi.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [kiinteistot, activeSalkut, searchQuery]);
 
   return (
     <div style={toolbar}>
@@ -98,7 +103,17 @@ export default function Toolbar() {
           ))}
         </div>
       </div>
-
+      {/* SEARCH FIELD */}
+      <div style={searchContainer}>
+        <span style={searchIcon}>🔍</span>
+        <input
+          type="text"
+          placeholder="Hae kiinteistöjä…"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={searchInput}
+        />
+      </div>
       {/* PROPERTY LIST */}
       {filteredKiinteistot.length === 0 && (
         <div style={toolbarItem}>

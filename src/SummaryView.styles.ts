@@ -151,8 +151,7 @@ export function portfolioRowStyle(
 }
 export function portfolioItemHover() : CSSProperties{
     return {
-        background: "rgba(99, 102, 241, 0.15)",
-        color: "#ffffff",
+        filter: "brightness(1.3)",
     };
 }
 
