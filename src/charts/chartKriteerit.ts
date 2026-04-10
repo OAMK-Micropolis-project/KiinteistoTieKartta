@@ -6,29 +6,33 @@ import { theme } from "../theme";
 let kriteeritChart: Chart | null = null;
 
 export function renderKriteeritChart(canvasId: string, properties: Kiinteisto[]) {
-    const ctx = document.getElementById(canvasId) as HTMLCanvasElement;
-    if (!ctx) return;
+    try {
+        const ctx = document.getElementById(canvasId) as HTMLCanvasElement;
+        if (!ctx) return;
 
-    if (kriteeritChart) kriteeritChart.destroy();
+        if (kriteeritChart) kriteeritChart.destroy();
 
-    const KRITEERIT = ["ika", "vesikatto", "sadevesi", "julkisivu", "ikkunat", "ovet"];
+        const KRITEERIT = ["ika", "vesikatto", "sadevesi", "julkisivu", "ikkunat", "ovet"];
 
-    const colors = properties.map(
-            k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
-        );
+        const colors = properties.map(
+                k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
+            );
 
-    kriteeritChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: KRITEERIT,
-            datasets: properties.map((p, i) => ({
-                label: p.nimi,
-                data: KRITEERIT.map(k => p.pisteet[k] ?? 0),
-                backgroundColor: colors[i]
-            })),
-        },
-        options: {
-            responsive: true
-        }
-    });
+        kriteeritChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: KRITEERIT,
+                datasets: properties.map((p, i) => ({
+                    label: p.nimi,
+                    data: KRITEERIT.map(k => p.pisteet[k] ?? 0),
+                    backgroundColor: colors[i]
+                })),
+            },
+            options: {
+                responsive: true
+            }
+        });
+    } catch (error) {
+        console.error("Error rendering Kriteerit chart:", error);
+    }
 }

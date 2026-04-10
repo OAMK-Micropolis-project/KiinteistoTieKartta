@@ -107,16 +107,24 @@ export default function AnalyticsView() {
     // CHART CALLS (kiinteistötiedot -> chartit)
     // =============================
     useEffect(() => {
-        if (properties.length === 0) return;
+        try {
+            if (properties.length === 0) return;
 
-        renderYllapitoChart("chartYllapito", properties);
-        renderKriteeritChart("chartKriteerit", properties);
-        renderMaintenanceChart("maintenanceChart", properties);
+            renderYllapitoChart("chartYllapito", properties);
+            renderKriteeritChart("chartKriteerit", properties);
+            renderMaintenanceChart("maintenanceChart", properties);
+        } catch (error) {
+            console.error("Error rendering charts:", error);
+        }
     }, [properties]);
 
     useEffect(() => {
-        if (properties.length > 0) {
+        try {
+            if (properties.length === 0) return;
+
             renderCriteriaComparisonChart("criteriaChart", properties, selectedCriteria);
+        } catch (error) {
+            console.error("Error rendering criteria comparison chart:", error);
         }
     }, [properties, selectedCriteria]);
 
