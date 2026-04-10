@@ -32,12 +32,11 @@ import {
 
 function HomePage() {
   const realEstates = useKiinteistot().kiinteistot;
-  const year = Math.max(
-    ...realEstates.flatMap(k => [
-      ...Object.keys(k.yllapitokulut).map(Number),
-      ...Object.keys(k.vuokrakulut).map(Number)
-    ])
-  );
+  function getNewestYear(obj: Record<string, any>): number | null {
+    const years = Object.keys(obj).map(Number);
+    if (years.length === 0) return null;
+    return Math.max(...years);
+  };
 
   useEffect(() => {
   async function load() {
@@ -49,37 +48,72 @@ function HomePage() {
 }, []);
 const [hoverId, setHoverId] = useState<string | null>(null);
 
-type TalousEntry = {
-  Vuosi: number;
-  YllapitoKulut: Record<string, number>;
-};
-
-function getYllapitoKulutNewest(
-  talous: TalousEntry[]
-): Record<string, number> | null {
-  if (talous.length === 0) return null;
-
-  const newest = talous.reduce((latest, current) =>
-    current.Vuosi > latest.Vuosi ? current : latest
-  );
-
-  return newest.YllapitoKulut;
+function getPisteetSum(pisteet: Record<string, number>): number {
+  return Object.values(pisteet).reduce((sum, v) => sum + v, 0);
 }
-function sumYllapitoKulutExceptTasearvo(
-  yllapitokulut: Record<string, number>
+function getNewestTasearvo(
+  vuokrakulut: Record<string, any>
 ): number {
-  return Object.entries(yllapitokulut)
+  const years = Object.keys(vuokrakulut).map(Number);
+  if (years.length === 0) return 0;
+
+  const newestYear = Math.max(...years);
+  return vuokrakulut[newestYear]?.tasearvo ?? 0;
+}
+function getNewestYllapitoKulut(k: any): Record<string, number> | null {
+  const year = getNewestYear(k.yllapitokulut);
+  if (!year) return null;
+  return k.yllapitokulut[year];
+}
+function getNewestVuokrakulut(k: any): Record<string, number> | null {
+  const year = getNewestYear(k.vuokrakulut);
+  if (!year) return null;
+  return k.vuokrakulut[year];
+}
+function sumYllapitoKulutExceptTasearvo(obj: Record<string, number>): number {
+  return Object.entries(obj)
     .filter(([key]) => key !== "Tasearvo")
     .reduce((sum, [, value]) => sum + value, 0);
 }
 const summaryBoxes = [
-  { name: "KIINTEISTÖJÄ", value: realEstates.length },
-  { name: "KOKONAISPINTA-ALA", value: realEstates.reduce( (sum, k) => sum + (k.pinta_ala ?? 0), 0) +" m²" },
-  { name: "TASEARVO YHTEENSÄ", value: "NaN" /*realEstates.reduce((sum,k) => sum + ((getYllapitoKulutNewest(k)).Tasearvo) ?? 0),0) */},
-  { name: "YLLÄPITÖKULUT / V", value: "NaN" /*realEstates.reduce((sum,k) => sum + ((sumYllapitoKulutExceptTasearvo(getYllapitoKulutNewest(k))) ?? 0),0) */},
-  { name: "VUOKRATULOT / V", value: "NaN" },
-];
+  {
+    name: "KIINTEISTÖJÄ",
+    value: realEstates.length
+  },
 
+  {
+    name: "KOKONAISPINTA-ALA",
+    value:
+      realEstates.reduce((sum, k) => sum + (k.pinta_ala ?? 0), 0) + " m²"
+  },
+
+  {
+    name: "TASEARVO YHTEENSÄ",
+    value: realEstates.reduce((sum, k) => {
+      const newest = getNewestVuokrakulut(k);
+      return sum + (newest?.tasearvo ?? 0);
+    }, 0) + "€"
+  },
+
+  {
+    name: "YLLÄPITÖKULUT / V",
+    value: realEstates.reduce((sum, k) => {
+      const newest = getNewestYllapitoKulut(k);
+      return sum + (newest ? sumYllapitoKulutExceptTasearvo(newest) : 0);
+    }, 0) + "€"
+  },
+
+  {
+    name: "VUOKRATULOT / V",
+    value: realEstates.reduce((sum, k) => {
+      const newest = getNewestVuokrakulut(k);
+      if (!newest) return sum;
+
+      // Example calculation: neliövuokra * pinta_ala
+      return sum + (newest.neliövuokra ?? 0) * (k.pinta_ala ?? 0);
+    }, 0) + "€"
+  }
+];
 return (
   <>
     <span style={boxTitle}>Kiinteistösalkku</span>
@@ -122,9 +156,9 @@ return (
           >
             <span style={estateName}>{estate.nimi}</span>
             <span style={portfolioCell}>{estate.oma_salkku}</span>
-            <span style={estateNumber}></span>
+            <span style={estateNumber}>{getPisteetSum(estate.pisteet)}</span>
             <span style={estateNumber}>{estate.pinta_ala} m²</span>
-            <span style={estateNumber}></span>
+            <span style={estateNumber}>{getNewestTasearvo(estate.vuokrakulut)}</span>
           </NavLink>
         ))}
       </div>
