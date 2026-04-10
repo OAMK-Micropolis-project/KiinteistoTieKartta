@@ -120,7 +120,7 @@ export default function AnalyticsView() {
     return (
       <div style={gridContainer}>
         <h1 style={mainHeader}>Analytiikka</h1>
-        <p style={{ color: "#030303" }}>Vertailunäkymät koko salkusta</p>
+        <p style={sectionTitle}>Vertailunäkymät koko salkusta</p>
 
         <div style={chartsGrid}>
 
