@@ -126,23 +126,23 @@ export default function AnalyticsView() {
     return (
       <div style={gridContainer}>
         <h1 style={mainHeader}>Analytiikka</h1>
-        <p style={{ color: "#030303" }}>Vertailunäkymät koko salkusta</p>
+        <p style={sectionTitle}>Vertailunäkymät koko salkusta</p>
 
         <div style={chartsGrid}>
 
             <div style={chartCard}>
                 <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
-                <canvas id="chartYllapito" style={chartCanvas as React.CSSProperties} />
+                <canvas id="chartYllapito" style={chartCanvas} />
             </div>
 
             <div style={chartCard}>
                 <div style={sectionTitle}>Pisteiden jakauma kriteereittäin</div>
-                <canvas id="chartKriteerit" style={chartCanvas as React.CSSProperties} />
+                <canvas id="chartKriteerit" style={chartCanvas} />
             </div>
 
             <div style={chartCard}>
                 <div style={sectionTitle}>Ylläpitokulut per kiinteistö (salkkuvärit)</div>
-                <canvas id="maintenanceChart" style={chartCanvas as React.CSSProperties} />
+                <canvas id="maintenanceChart" style={chartCanvas} />
             </div>
 
             <div style={chartCard}>
@@ -163,7 +163,7 @@ export default function AnalyticsView() {
                     ))}
                 </select>
 
-                <canvas id="criteriaChart" style={chartCanvas as React.CSSProperties} />
+                <canvas id="criteriaChart" style={chartCanvas} />
             </div>
 
         </div>
