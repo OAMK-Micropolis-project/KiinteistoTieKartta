@@ -1,6 +1,6 @@
 // toolbarStyles.ts
 import type { CSSProperties } from "react";
-import { theme } from "./theme";
+import { theme } from "../theme";
 
 /* =========================
    TOOLBAR LAYOUT
@@ -186,8 +186,8 @@ export const filterBtn: CSSProperties = {
   justifyContent: "center",
 
   borderRadius: "6px",
-  background: "#1e293b",
-  color: "#94a3b8",
+  //background: "#1e293b",
+  //color: "#94a3b8",
 
   fontSize: "13px",
   fontWeight: 600,
@@ -198,9 +198,10 @@ export const filterBtn: CSSProperties = {
 };
 
 export const filterBtnActive: CSSProperties = {
-  background: "#6366f1",
-  color: "#ffffff",
+  //background: "#6366f1",
+  //color: "#ffffff",
 };
+
 
 /* =========================
    PORTFOLIO FILTER COLORS
@@ -211,10 +212,10 @@ export function filterBtnPortfolio(
   active: boolean
 ): CSSProperties {
   const base = {
-    A: { bg: "rgba(59,130,246,0.15)", solid: "#3b82f6" },
-    B: { bg: "rgba(34,197,94,0.15)", solid: "#22c55e" },
-    C: { bg: "rgba(234,179,8,0.15)", solid: "#eab308" },
-    D: { bg: "rgba(239,68,68,0.15)", solid: "#ef4444" },
+  A: { bg: "rgba(34,197,94,0.15)", solid: "#22c55e",},
+  B: { bg: "rgba(234,179,8,0.15)", solid: "#eab308",},
+  C: { bg: "rgba(249,115,22,0.15)", solid: "#f97316",},
+  D: { bg: "rgba(239,68,68,0.15)", solid: "#ef4444",},
   }[salkku];
 
   return {

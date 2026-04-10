@@ -1,8 +1,9 @@
-
 import { NavLink } from "react-router-dom";
-import "./Toolbar.css";
+import { useState, useMemo } from "react";
 import FileButton from "./Pathfinderbutton";
-import {useState, useMemo} from "react";
+
+import { useKiinteistot } from "../context/useKiinteistot";
+
 import {
   toolbar,
   headerBlock,
@@ -13,6 +14,7 @@ import {
   toolbarLabel,
   toolbarIcon,
   toolbarItemActive,
+  toolbarItemHover,
   propertyHeader,
   filterButtons,
   filterBtn,
@@ -21,19 +23,18 @@ import {
   toolbarBottom,
 } from "./Toolbar.styles";
 
-// tuodaan ryhmän provider-hook
-import { useKiinteistot } from "../context/useKiinteistot";
-
 export default function Toolbar() {
   const { kiinteistot } = useKiinteistot();
+  const [hoverId, setHoverId] = useState<string | null>(null);
   const tools = [
     { id: "summary", label: "Yhteenveto", path: "/" },
     { id: "analytics", label: "Analytiikka", path: "/analytics" },
     { id: "addProperty", label: "Lisää kiinteistö", path: "/add" },
   ];
+
   const [activeSalkut, setActiveSalkut] = useState<
     Set<"A" | "B" | "C" | "D">
-    >(new Set(["A","B","C","D"]));
+  >(new Set(["A", "B", "C", "D"]));
 
   function toggleSalkku(salkku: "A" | "B" | "C" | "D") {
     setActiveSalkut(prev => {
@@ -42,86 +43,90 @@ export default function Toolbar() {
       return next;
     });
   }
+
   const filteredKiinteistot = useMemo(() => {
-    return kiinteistot.filter(k =>
-      activeSalkut.has(k.oma_salkku)
-    );
+    return kiinteistot.filter(k => activeSalkut.has(k.oma_salkku));
   }, [kiinteistot, activeSalkut]);
 
-
   return (
-    <div className="toolbar">
-      <div className="headerBlock">
-        <span className="headerTitle">Kiinteistösalkku</span>
-        <span className="headerSubtitle">HALLINTAJÄRJESTELMÄ</span>
+    <div style={toolbar}>
+      {/* HEADER */}
+      <div style={headerBlock}>
+        <span style={headerTitle}>Kiinteistösalkku</span>
+        <span style={headerSubtitle}>HALLINTAJÄRJESTELMÄ</span>
       </div>
 
-      <span className="headerSubtitle">NÄKYMÄT</span>
+      {/* NAVIGATION */}
+      <span style={headerSubtitle}>NÄKYMÄT</span>
 
-      <nav className="toolbarNav" aria-label="Primary">
-        {tools.map((tool) => (
+      <nav style={toolbarNav} aria-label="Primary">
+        {tools.map(tool => (
           <NavLink
             key={tool.id}
             to={tool.path}
-            className={({ isActive }) =>
-              `toolbarItem ${isActive ? "isActive" : ""}`
-            }
+            style={({ isActive }) => ({
+              ...toolbarItem,
+              ...(isActive ? toolbarItemActive : {}),
+              ...(hoverId === tool.id ? toolbarItemHover() : {}),
+            })}
+            onMouseEnter={() => setHoverId(tool.id)}
+            onMouseLeave={() => setHoverId(null)}
           >
-            <span className="toolbarIcon">●</span>
-            <span className="toolbarLabel">{tool.label}</span>
+            <span style={toolbarIcon}>●</span>
+            <span style={toolbarLabel}>{tool.label}</span>
           </NavLink>
         ))}
       </nav>
-      <div className="propertyHeader">
-        <span className="headerSubtitle">KIINTEISTÖT</span>
-        <div className="filterButtons">
-            
-            {(["A", "B", "C", "D"] as const).map(s => (
-              <button
 
-                key={s}
-                onClick={() => toggleSalkku(s)}
-                title={`Salkku ${s}`}
-                className={`filterBtn ${
-                  s === "A"
-                    ? "portfolioA"
-                    : s === "B"
-                    ? "portfolioB"
-                    : s === "C"
-                    ? "portfolioC"
-                    : s === "D"
-                    ? "portfolioD"
-                    : "portfolioDefault"
-                } ${activeSalkut.has(s) ? "active" : ""}`}
-              >
-                {s}
+      {/* PROPERTY HEADER + FILTERS */}
+      <div style={propertyHeader}>
+        <span style={headerSubtitle}>KIINTEISTÖT</span>
 
-              </button>
-            ))}
+        <div style={filterButtons}>
+          {(["A", "B", "C", "D"] as const).map(s => (
+            <button
+              key={s}
+              onClick={() => toggleSalkku(s)}
+              title={`Salkku ${s}`}
+              style={{
+                ...filterBtn,
+                ...filterBtnPortfolio(s, activeSalkut.has(s)),
+              }}
+            >
+              {s}
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* PROPERTY LIST */}
       {filteredKiinteistot.length === 0 && (
-        <div className="toolbarItem">
-          <span className="toolbarLabel">Ei kiinteistöjä</span>
+        <div style={toolbarItem}>
+          <span style={toolbarLabel}>Ei kiinteistöjä</span>
         </div>
       )}
-      <div className="propertyScroll">
-      {/* 🔥 Näytetään kaikki kiinteistöt providerista */}
-      {filteredKiinteistot.map((k) => (
-        <NavLink
-          key={k.id}
-          to={`/detail/${k.id}`}
-          className={({ isActive }) => 
-            `toolbarItem ${isActive ? "isActive" : ""}`
-          }
-        >
-          <span className="toolbarLabel">{k.nimi}</span>
-        </NavLink>
-      ))}
+
+      <div style={propertyScroll}>
+        {filteredKiinteistot.map(k => (
+          <NavLink
+            key={k.id}
+            to={`/detail/${k.id}`}
+            style={({ isActive }) => ({
+              ...toolbarItem,
+              ...(isActive ? toolbarItemActive : {}),
+              ...(hoverId === String(k.id) ? toolbarItemHover() : {}),
+            })}
+            onMouseEnter={() => setHoverId(String(k.id))}
+            onMouseLeave={() => setHoverId(null)}
+          >
+            <span style={toolbarLabel}>{k.nimi}</span>
+          </NavLink>
+        ))}
       </div>
-      <div className="toolbarBottom">
-        <FileButton/>
+
+      {/* BOTTOM BUTTON */}
+      <div style={toolbarBottom}>
+        <FileButton />
       </div>
     </div>
   );

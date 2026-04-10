@@ -149,6 +149,12 @@ export function portfolioRowStyle(
       return { background: "#1f2430" };
   }
 }
+export function portfolioItemHover() : CSSProperties{
+    return {
+        background: "rgba(99, 102, 241, 0.15)",
+        color: "#ffffff",
+    };
+}
 
 /* ========================
    SECOND ROW (CHARTS + LIST)

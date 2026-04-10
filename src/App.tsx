@@ -8,7 +8,7 @@ import Layout from "./components/Layout";
 import AddProp from "./pages/AddProp";
 import DonutChart from "./components/charts/DonutChart";
 import { useKiinteistot } from "./context/useKiinteistot.ts";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   boxesContainer,
   box,
@@ -26,6 +26,7 @@ import {
   portfolioCell,
   chartContainer,
   portfolioRowStyle,
+  portfolioItemHover,
 } from "./SummaryView.styles";
 
 
@@ -39,6 +40,7 @@ function HomePage() {
 
   load();
 }, []);
+const [hoverId, setHoverId] = useState<string | null>(null);
 
 type TalousEntry = {
   Vuosi: number;
@@ -106,7 +108,10 @@ return (
             style={{
               ...realEstateRow,
               ...portfolioRowStyle(estate.oma_salkku),
+              ...(hoverId === String(estate.id) ? portfolioItemHover() : {})
             }}
+            onMouseEnter={() => setHoverId(String(estate.id))}
+            onMouseLeave={() => setHoverId(null)}
           >
             <span style={estateName}>{estate.nimi}</span>
             <span style={portfolioCell}>{estate.oma_salkku}</span>
