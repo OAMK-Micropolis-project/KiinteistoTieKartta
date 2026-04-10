@@ -1,10 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
 import { useKiinteistot } from "../context/useKiinteistot";
 
 import {
-    getValue,
     laskeKayttoaste,
     laskePisteet,
     laskeYllapito,
@@ -20,8 +19,10 @@ import {
     backButton,
     chartsGrid,
     chartCard,
-    gridContainer
+    gridContainer,
+    // thStyle
 } from "../styles";
+import type { Kiinteisto } from "../types";
 
 export default function DetailView() {
     const { id } = useParams();
@@ -30,6 +31,10 @@ export default function DetailView() {
     const radarChartRef = useRef<Chart | null>(null);
 
     const item = useKiinteistot().getById(Number(id));
+    const year = Math.max(
+        ...Object.keys(item?.yllapitokulut || {}).map(Number),
+        ...Object.keys(item?.vuokrakulut || {}).map(Number),
+    );
 
     // ---------- RADAR-CHART ----------
     useEffect(() => {
@@ -104,28 +109,25 @@ export default function DetailView() {
                     <DetailCard
                         title="Laskennalliset tiedot"
                         rows={[
-                            ["Tasearvo (€)", laskeTasearvo(item)],
-                            ["Ylläpitokustannukset (€ / v)", laskeYllapito(item)],
-                            ["Käyttöaste (%)", laskeKayttoaste(item) + "%"],
+                            ["Tasearvo (€)", laskeTasearvo(item, year)],
+                            ["Ylläpitokustannukset (€ / v)", laskeYllapito(item, year)],
+                            ["Käyttöaste (%)", laskeKayttoaste(item, year) + "%"],
                             ["Pisteet yhteensä", laskePisteet(item)],
                         ]}
                     />
 
                     {/* Ylläpitokustannukset */}
-                    <DetailCard
+                    <KustannuksetCard
                         title="Ylläpitokustannusten erittely"
-                        rows={Object.entries(item.yllapitokulut).map(([key, val]) => [
-                            key,
-                            getValue(val) // OIKEIN — EI enää vuotta
-                        ])}
-                    />
+                        item={item}
+                        />
 
                     {/* Vuokraustiedot */}
                     <DetailCard
                         title="Vuokraustiedot"
                         rows={[
-                            ["Vuokrattu m²", getValue(item.vuokrausaste_m2)],
-                            ["Neliövuokra (€ / m²)", getValue(item.neliövuokra)],
+                            ["Vuokrattu m²", item.vuokrakulut[year]?.vuokrausaste_m2 ?? 0],
+                            ["Neliövuokra (€ / m²)", item.vuokrakulut[year]?.neliövuokra],
                         ]}
                     />
                 </div>
@@ -141,7 +143,7 @@ export default function DetailView() {
 }
 
 /* Yleinen detail-korttikomponentti */
-function DetailCard({ title, rows }: { title: string; rows: [string, any][] }) {
+function DetailCard({ title, rows }: { title: string; rows: [string, number | string][] }) {
     return (
         <div style={chartCard}>
             <div style={sectionTitle}>{title}</div>
@@ -155,6 +157,90 @@ function DetailCard({ title, rows }: { title: string; rows: [string, any][] }) {
                     ))}
                 </tbody>
             </table>
+        </div>
+    );
+}
+/* Yleinen KustannuksetCard-korttikomponentti */
+function KustannuksetCard({ title, item }: { title: string; item: Kiinteisto }) {
+    const [yearOffset, setYearOffset] = useState(0);
+
+    // Convert object to array of years from yllapitokulut
+    const allYears = [...new Set(Object.keys(item.yllapitokulut ?? {}).map(Number))].sort((a: number, b: number) => a - b);
+
+    // Extract cost keys from yllapitokulut
+    const costKeys = allYears.length > 0 
+      ? [...new Set(Object.values(item.yllapitokulut ?? {}).flatMap((costs) => Object.keys(costs as unknown as Record<string, number>)))].sort()
+      : [];
+
+    // Get the 3 years to display
+    const displayYears = allYears.slice(yearOffset, yearOffset + 3);
+    const canGoBack = yearOffset > 0;
+    const canGoForward = yearOffset + 3 < allYears.length;
+
+    return (
+        <div style={chartCard}>
+            <div style={sectionTitle}>{title}</div>
+            {allYears.length === 0 ? (
+                <p>Ei kustannustietoja saatavilla.</p>
+            ) : (
+                <>
+                    {/* Navigation buttons */}
+                    <div style={{ marginBottom: "12px", display: "flex", gap: "8px" }}>
+                        <button
+                            onClick={() => setYearOffset(Math.max(0, yearOffset - 1))}
+                            disabled={!canGoBack}
+                            style={{
+                                padding: "6px 12px",
+                                cursor: canGoBack ? "pointer" : "not-allowed",
+                                opacity: canGoBack ? 1 : 0.5,
+                            }}
+                        >
+                            ← Vanhemmat
+                        </button>
+                        <span style={{ alignSelf: "center", fontSize: "12px", color: "#666" }}>
+                            {displayYears[0] ?? ""} - {displayYears[displayYears.length - 1] ?? ""}
+                        </span>
+                        <button
+                            onClick={() => setYearOffset(yearOffset + 1)}
+                            disabled={!canGoForward}
+                            style={{
+                                padding: "6px 12px",
+                                cursor: canGoForward ? "pointer" : "not-allowed",
+                                opacity: canGoForward ? 1 : 0.5,
+                            }}
+                        >
+                            Uudemmat →
+                        </button>
+                    </div>
+
+                    <table style={tableStyle}>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                {displayYears.map((year) => (
+                                    <th key={year} style={tdStyle}>{year}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {costKeys.map((costKey) => (
+                                <tr key={costKey}>
+                                    <td style={{ ...tdStyle, fontWeight: 600 }}>{costKey}</td>
+                                    {displayYears.map((year) => {
+                                        const costs = item.yllapitokulut?.[year] as unknown as Record<string, number> | undefined;
+                                        const value = costs?.[costKey] ?? 0;
+                                        return (
+                                            <td key={year} style={{ ...tdStyle, textAlign: "center" }}>
+                                                {String(value)}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </>
+            )}
         </div>
     );
 }

@@ -33,6 +33,12 @@ import { useKiinteistot } from "../context/useKiinteistot";
 
 export default function AnalyticsView() {
     const properties = useKiinteistot().kiinteistot;
+    const year = Math.max(
+        ...properties.flatMap(k => [
+            ...Object.keys(k.yllapitokulut).map(Number),
+            ...Object.keys(k.vuokrakulut).map(Number)
+        ])
+    );
     const [selectedCriteria, setSelectedCriteria] = useState<string>("ika");
     const [sortKey, setSortKey] = useState("nimi");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -53,20 +59,20 @@ export default function AnalyticsView() {
                     B = laskePisteet(b);
                     break;
                 case "tasearvo":
-                    A = laskeTasearvo(a);
-                    B = laskeTasearvo(b);
+                    A = laskeTasearvo(a, year);
+                    B = laskeTasearvo(b, year);
                     break;
                 case "kayttoaste":
-                    A = laskeKayttoaste(a);
-                    B = laskeKayttoaste(b);
+                    A = laskeKayttoaste(a, year);
+                    B = laskeKayttoaste(b, year);
                     break;
                 case "yllapito":
-                    A = laskeYllapito(a);
-                    B = laskeYllapito(b);
+                    A = laskeYllapito(a, year);
+                    B = laskeYllapito(b, year);
                     break;
                 default:
-                    A = (a as any)[sortKey];
-                    B = (b as any)[sortKey];
+                    A = (a as unknown as Record<string, string | number>)[sortKey];
+                    B = (b as unknown as Record<string, string | number>)[sortKey];
                     break;
             }
 
@@ -120,23 +126,23 @@ export default function AnalyticsView() {
     return (
       <div style={gridContainer}>
         <h1 style={mainHeader}>Analytiikka</h1>
-        <p style={{ color: "#030303" }}>Vertailunäkymät koko salkusta</p>
+        <p style={sectionTitle}>Vertailunäkymät koko salkusta</p>
 
         <div style={chartsGrid}>
 
             <div style={chartCard}>
                 <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
-                <canvas id="chartYllapito" style={chartCanvas as any} />
+                <canvas id="chartYllapito" style={chartCanvas} />
             </div>
 
             <div style={chartCard}>
                 <div style={sectionTitle}>Pisteiden jakauma kriteereittäin</div>
-                <canvas id="chartKriteerit" style={chartCanvas as any} />
+                <canvas id="chartKriteerit" style={chartCanvas} />
             </div>
 
             <div style={chartCard}>
                 <div style={sectionTitle}>Ylläpitokulut per kiinteistö (salkkuvärit)</div>
-                <canvas id="maintenanceChart" style={chartCanvas as any} />
+                <canvas id="maintenanceChart" style={chartCanvas} />
             </div>
 
             <div style={chartCard}>
@@ -157,7 +163,7 @@ export default function AnalyticsView() {
                     ))}
                 </select>
 
-                <canvas id="criteriaChart" style={chartCanvas as any} />
+                <canvas id="criteriaChart" style={chartCanvas} />
             </div>
 
         </div>
@@ -191,9 +197,9 @@ export default function AnalyticsView() {
                             <td style={tdStyle}>{p.oma_salkku}</td>
                             <td style={tdStyle}>{laskePisteet(p)}</td>
                             <td style={tdStyle}>{p.pinta_ala}</td>
-                            <td style={tdStyle}>{laskeTasearvo(p)}</td>
-                            <td style={tdStyle}>{laskeYllapito(p)}</td>
-                            <td style={tdStyle}>{laskeKayttoaste(p)}%</td>
+                            <td style={tdStyle}>{laskeTasearvo(p, year)}</td>
+                            <td style={tdStyle}>{laskeYllapito(p, year)}</td>
+                            <td style={tdStyle}>{laskeKayttoaste(p, year)}%</td>
                             <td style={tdStyle}>{p.rakennusvuosi}</td>
                         </tr>
                     ))}
