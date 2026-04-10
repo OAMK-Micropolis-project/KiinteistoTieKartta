@@ -27,12 +27,24 @@ html, body, #root {
   color: #fff;
 
   border-right: 1px solid #1e293b;
+  overflow: hidden;
 }
 
 .toolbarBottom {
   margin-top: auto;
   width: 100%;
   display: block;
+}
+.propertyHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  width: 100%;
+  min-height: 28px;
+  padding-right: 4px;
+
+  box-sizing: border-box;
 }
 
 /* ---------------------------
@@ -43,6 +55,20 @@ html, body, #root {
   flex-direction: column;
   gap: 8px;
   width: 100%;
+}
+.propertyScroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #20242e;
+}
+.propertyScroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.propertyScroll::-webkit-scrollbar-thumb {
+  background: #444c5a;
+  border-radius: 4px;
 }
 
 /* ---------------------------
@@ -132,3 +158,53 @@ html, body, #root {
   color: #888d96;
   margin-top: 4px;
 }
+/* ---------------------------
+   filter
+---------------------------- */
+.filterButtons {
+  display: flex;
+  gap: 6px;
+}
+
+.filterBtn {
+  all: unset;
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 6px;
+  background: #1e293b;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.05s ease;
+}
+
+.filterBtn:hover {
+  background: #2d3748;
+  color: #e5e7eb;
+}
+
+.filterBtn.active {
+  background: #6366f1;
+  color: white;
+}
+
+.filterBtn:active {
+  transform: scale(0.92);
+}
+
+.filterBtn.portfolioA { background: rgba(59,130,246,0.15); color: #3b82f6; }
+.filterBtn.portfolioB { background: rgba(34,197,94,0.15);  color: #22c55e; }
+.filterBtn.portfolioC { background: rgba(234,179,8,0.15);  color: #eab308; }
+.filterBtn.portfolioD { background: rgba(239,68,68,0.15);  color: #ef4444; }
+
+.filterBtn.active.portfolioA { background: #3b82f6; color: white; }
+.filterBtn.active.portfolioB { background: #22c55e; color: white; }
+.filterBtn.active.portfolioC { background: #eab308; color: white; }
+.filterBtn.active.portfolioD { background: #ef4444; color: white; }
