@@ -38,36 +38,40 @@ export default function DetailView() {
 
     // ---------- RADAR-CHART ----------
     useEffect(() => {
-        if (!item) return;
-        if (radarChartRef.current) {
-            radarChartRef.current.destroy();
-        }
-        const ctx = document.getElementById("radarChart") as HTMLCanvasElement;
-        if (!ctx) return;
-
-        radarChartRef.current = new Chart(ctx, {
-            type: "radar",
-            data: {
-                labels: Object.keys(item.pisteet),
-                datasets: [
-                    {
-                        label: item.nimi,
-                        data: Object.values(item.pisteet),
-                        backgroundColor: "rgba(46, 104, 166, 0.25)",
-                        borderColor: "rgba(46, 104, 166, 0.9)",
-                        borderWidth: 2
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    r: { min: 0, max: 5, ticks: { stepSize: 1 } }
-                }
+        try {
+            if (!item) return;
+            if (radarChartRef.current) {
+                radarChartRef.current.destroy();
             }
-        });
-        return () => {
-            radarChartRef.current?.destroy();
-        };
+            const ctx = document.getElementById("radarChart") as HTMLCanvasElement;
+            if (!ctx) return;
+
+            radarChartRef.current = new Chart(ctx, {
+                type: "radar",
+                data: {
+                    labels: Object.keys(item.pisteet),
+                    datasets: [
+                        {
+                            label: item.nimi,
+                            data: Object.values(item.pisteet),
+                            backgroundColor: "rgba(46, 104, 166, 0.25)",
+                            borderColor: "rgba(46, 104, 166, 0.9)",
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        r: { min: 0, max: 5, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+            return () => {
+                radarChartRef.current?.destroy();
+            };
+        } catch (error) {
+            console.error("Error rendering radar chart:", error);
+        }
     }, [item]);
 
     if (!item)
