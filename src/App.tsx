@@ -78,13 +78,13 @@ function sumYllapitoKulutExceptTasearvo(obj: Record<string, number>): number {
 const summaryBoxes = [
   {
     name: "KIINTEISTÖJÄ",
-    value: realEstates.length
+    value: realEstates.length.toLocaleString("fi-FI")
   },
 
   {
     name: "KOKONAISPINTA-ALA",
     value:
-      realEstates.reduce((sum, k) => sum + (k.pinta_ala ?? 0), 0) + " m²"
+      realEstates.reduce((sum, k) => sum + (k.pinta_ala ?? 0), 0).toLocaleString("fi-FI") + " m²"
   },
 
   {
@@ -92,7 +92,7 @@ const summaryBoxes = [
     value: realEstates.reduce((sum, k) => {
       const newest = getNewestVuokrakulut(k);
       return sum + (newest?.tasearvo ?? 0);
-    }, 0) + "€"
+    }, 0).toLocaleString("fi-FI") + " €"
   },
 
   {
@@ -100,7 +100,7 @@ const summaryBoxes = [
     value: realEstates.reduce((sum, k) => {
       const newest = getNewestYllapitoKulut(k);
       return sum + (newest ? sumYllapitoKulutExceptTasearvo(newest) : 0);
-    }, 0) + "€"
+    }, 0).toLocaleString("fi-FI") + " €"
   },
 
   {
@@ -111,7 +111,7 @@ const summaryBoxes = [
 
       // Example calculation: neliövuokra * pinta_ala
       return sum + (newest.neliövuokra ?? 0) * (k.pinta_ala ?? 0);
-    }, 0) + "€"
+    }, 0).toLocaleString("fi-FI") + " €"
   }
 ];
 return (
@@ -156,9 +156,9 @@ return (
           >
             <span style={estateName}>{estate.nimi}</span>
             <span style={portfolioCell}>{estate.oma_salkku}</span>
-            <span style={estateNumber}>{getPisteetSum(estate.pisteet)}</span>
-            <span style={estateNumber}>{estate.pinta_ala} m²</span>
-            <span style={estateNumber}>{getNewestTasearvo(estate.vuokrakulut)}</span>
+            <span style={estateNumber}>{getPisteetSum(estate.pisteet).toLocaleString("fi-FI")}</span>
+            <span style={estateNumber}>{estate.pinta_ala.toLocaleString("fi-FI")} m²</span>
+            <span style={estateNumber}>{getNewestTasearvo(estate.vuokrakulut).toLocaleString("fi-FI")} €</span>
           </NavLink>
         ))}
       </div>
