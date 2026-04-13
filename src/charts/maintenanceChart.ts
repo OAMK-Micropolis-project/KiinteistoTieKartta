@@ -9,48 +9,52 @@ export function renderMaintenanceChart(
     canvasId: string,
     properties: Kiinteisto[]
 ) {
-    const ctx = document.getElementById(canvasId) as HTMLCanvasElement;
-    if (!ctx) return;
+    try {
+        const ctx = document.getElementById(canvasId) as HTMLCanvasElement;
+        if (!ctx) return;
 
-    if (maintenanceChart) maintenanceChart.destroy();
+        if (maintenanceChart) maintenanceChart.destroy();
 
-    const label = properties.map(k => k.nimi);
-    const values = properties.map(k => laskeYllapito(k, Math.max(...Object.keys(k.yllapitokulut).map(Number))));
-    const colors = properties.map(
-        k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
-    );
+        const label = properties.map(k => k.nimi);
+        const values = properties.map(k => laskeYllapito(k, Math.max(...Object.keys(k.yllapitokulut).map(Number))));
+        const colors = properties.map(
+            k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
+        );
 
-    maintenanceChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: label,
-            datasets: [
-                {
-                    label: "Ylläpitokulut (€ / v)",
-                    data: values,
-                    backgroundColor: colors,
-                    borderRadius: 8,
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: (ctx) => 
-                            `${ctx.label}: ${ctx.parsed.y} €`
+        maintenanceChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: label,
+                datasets: [
+                    {
+                        label: "Ylläpitokulut (€ / v)",
+                        data: values,
+                        backgroundColor: colors,
+                        borderRadius: 8,
                     }
-                },
-                legend: { display: false }
+                ]
             },
-            scales: {
-                x: {
-                    ticks: { color: theme.colors.text }
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => 
+                                `${ctx.label}: ${ctx.parsed.y} €`
+                        }
+                    },
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: theme.colors.text }
+                    }
                 }
             }
-        }
-    });
-
-    return maintenanceChart;
+        });
+        return maintenanceChart;
+        
+    } catch (error) {
+        console.error("Error rendering Maintenance chart:", error);
+    }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
 import { useKiinteistot } from "../context/useKiinteistot";
@@ -19,8 +19,10 @@ import {
     backButton,
     chartsGrid,
     chartCard,
-    gridContainer
+    gridContainer,
+    // thStyle
 } from "../styles";
+import type { Kiinteisto } from "../types";
 
 export default function DetailView() {
     const { id } = useParams();
@@ -36,36 +38,40 @@ export default function DetailView() {
 
     // ---------- RADAR-CHART ----------
     useEffect(() => {
-        if (!item) return;
-        if (radarChartRef.current) {
-            radarChartRef.current.destroy();
-        }
-        const ctx = document.getElementById("radarChart") as HTMLCanvasElement;
-        if (!ctx) return;
-
-        radarChartRef.current = new Chart(ctx, {
-            type: "radar",
-            data: {
-                labels: Object.keys(item.pisteet),
-                datasets: [
-                    {
-                        label: item.nimi,
-                        data: Object.values(item.pisteet),
-                        backgroundColor: "rgba(46, 104, 166, 0.25)",
-                        borderColor: "rgba(46, 104, 166, 0.9)",
-                        borderWidth: 2
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    r: { min: 0, max: 5, ticks: { stepSize: 1 } }
-                }
+        try {
+            if (!item) return;
+            if (radarChartRef.current) {
+                radarChartRef.current.destroy();
             }
-        });
-        return () => {
-            radarChartRef.current?.destroy();
-        };
+            const ctx = document.getElementById("radarChart") as HTMLCanvasElement;
+            if (!ctx) return;
+
+            radarChartRef.current = new Chart(ctx, {
+                type: "radar",
+                data: {
+                    labels: Object.keys(item.pisteet),
+                    datasets: [
+                        {
+                            label: item.nimi,
+                            data: Object.values(item.pisteet),
+                            backgroundColor: "rgba(46, 104, 166, 0.25)",
+                            borderColor: "rgba(46, 104, 166, 0.9)",
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        r: { min: 0, max: 5, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+            return () => {
+                radarChartRef.current?.destroy();
+            };
+        } catch (error) {
+            console.error("Error rendering radar chart:", error);
+        }
     }, [item]);
 
     if (!item)
@@ -115,20 +121,17 @@ export default function DetailView() {
                     />
 
                     {/* Ylläpitokustannukset */}
-                    <DetailCard
+                    <KustannuksetCard
                         title="Ylläpitokustannusten erittely"
-                        rows={Object.entries(item.yllapitokulut[year] ?? {}).map(([key, val]) => [
-                            key,
-                            (val ?? 0) // OIKEIN — EI enää vuotta
-                        ])}
-                    />
+                        item={item}
+                        />
 
                     {/* Vuokraustiedot */}
                     <DetailCard
                         title="Vuokraustiedot"
                         rows={[
-                            ["Vuokrattu m²", (item.vuokrakulut[year]?.vuokrausaste_m2 ?? 0)],
-                            ["Neliövuokra (€ / m²)", (item.vuokrakulut[year]?.neliövuokra ?? 0)],
+                            ["Vuokrattu m²", item.vuokrakulut[year]?.vuokrausaste_m2 ?? 0],
+                            ["Neliövuokra (€ / m²)", item.vuokrakulut[year]?.neliövuokra],
                         ]}
                     />
                 </div>
@@ -144,7 +147,7 @@ export default function DetailView() {
 }
 
 /* Yleinen detail-korttikomponentti */
-function DetailCard({ title, rows }: { title: string; rows: [string, string | number][] }) {
+function DetailCard({ title, rows }: { title: string; rows: [string, number | string][] }) {
     return (
         <div style={chartCard}>
             <div style={sectionTitle}>{title}</div>
@@ -158,6 +161,90 @@ function DetailCard({ title, rows }: { title: string; rows: [string, string | nu
                     ))}
                 </tbody>
             </table>
+        </div>
+    );
+}
+/* Yleinen KustannuksetCard-korttikomponentti */
+function KustannuksetCard({ title, item }: { title: string; item: Kiinteisto }) {
+    const [yearOffset, setYearOffset] = useState(0);
+
+    // Convert object to array of years from yllapitokulut
+    const allYears = [...new Set(Object.keys(item.yllapitokulut ?? {}).map(Number))].sort((a: number, b: number) => a - b);
+
+    // Extract cost keys from yllapitokulut
+    const costKeys = allYears.length > 0 
+      ? [...new Set(Object.values(item.yllapitokulut ?? {}).flatMap((costs) => Object.keys(costs as unknown as Record<string, number>)))].sort()
+      : [];
+
+    // Get the 3 years to display
+    const displayYears = allYears.slice(yearOffset, yearOffset + 3);
+    const canGoBack = yearOffset > 0;
+    const canGoForward = yearOffset + 3 < allYears.length;
+
+    return (
+        <div style={chartCard}>
+            <div style={sectionTitle}>{title}</div>
+            {allYears.length === 0 ? (
+                <p>Ei kustannustietoja saatavilla.</p>
+            ) : (
+                <>
+                    {/* Navigation buttons */}
+                    <div style={{ marginBottom: "12px", display: "flex", gap: "8px" }}>
+                        <button
+                            onClick={() => setYearOffset(Math.max(0, yearOffset - 1))}
+                            disabled={!canGoBack}
+                            style={{
+                                padding: "6px 12px",
+                                cursor: canGoBack ? "pointer" : "not-allowed",
+                                opacity: canGoBack ? 1 : 0.5,
+                            }}
+                        >
+                            ← Vanhemmat
+                        </button>
+                        <span style={{ alignSelf: "center", fontSize: "12px", color: "#666" }}>
+                            {displayYears[0] ?? ""} - {displayYears[displayYears.length - 1] ?? ""}
+                        </span>
+                        <button
+                            onClick={() => setYearOffset(yearOffset + 1)}
+                            disabled={!canGoForward}
+                            style={{
+                                padding: "6px 12px",
+                                cursor: canGoForward ? "pointer" : "not-allowed",
+                                opacity: canGoForward ? 1 : 0.5,
+                            }}
+                        >
+                            Uudemmat →
+                        </button>
+                    </div>
+
+                    <table style={tableStyle}>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                {displayYears.map((year) => (
+                                    <th key={year} style={tdStyle}>{year}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {costKeys.map((costKey) => (
+                                <tr key={costKey}>
+                                    <td style={{ ...tdStyle, fontWeight: 600 }}>{costKey}</td>
+                                    {displayYears.map((year) => {
+                                        const costs = item.yllapitokulut?.[year] as unknown as Record<string, number> | undefined;
+                                        const value = costs?.[costKey] ?? 0;
+                                        return (
+                                            <td key={year} style={{ ...tdStyle, textAlign: "center" }}>
+                                                {String(value)}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </>
+            )}
         </div>
     );
 }
