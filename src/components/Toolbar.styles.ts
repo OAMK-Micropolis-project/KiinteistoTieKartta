@@ -1,6 +1,5 @@
 // toolbarStyles.ts
 import type { CSSProperties } from "react";
-import { theme } from "../theme";
 
 /* =========================
    TOOLBAR LAYOUT
@@ -247,10 +246,10 @@ export function filterBtnPortfolio(
   active: boolean
 ): CSSProperties {
   const base = {
-  A: { bg: "rgba(34,197,94,0.15)", solid: "#22c55e",},
-  B: { bg: "rgba(234,179,8,0.15)", solid: "#eab308",},
-  C: { bg: "rgba(249,115,22,0.15)", solid: "#f97316",},
-  D: { bg: "rgba(239,68,68,0.15)", solid: "#ef4444",},
+  A: { bg: "#e8f0e7", solid: "#2d5a27",},
+  B: { bg: "#e4edf7", solid: "#1a4a7a",},
+  C: { bg: "#f5e9d5", solid:"#8a4f00",},
+  D: { bg: "#f5e0e0", solid: "#8a1a1a",},
   }[salkku];
 
   return {

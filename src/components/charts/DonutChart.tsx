@@ -1,6 +1,7 @@
 import { Doughnut } from "react-chartjs-2";
 import { useKiinteistot } from "../../context/useKiinteistot";
 import { useMemo } from "react";
+import { theme } from "../../theme";
 
 export default function DonutChart() {
   const { kiinteistot } = useKiinteistot();
@@ -15,18 +16,17 @@ export default function DonutChart() {
     );
   }, [kiinteistot]);
 
+  const colors = kiinteistot.map(
+                  k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
+              );
+
   const data = {
     labels: ["A", "B", "C", "D"],
     datasets: [
       {
         label: "Portfoliot",
         data: [counts.A, counts.B, counts.C, counts.D],
-        backgroundColor: [
-          "#22c55e",
-          "#eab308",
-          "#f97316",
-          "#ef4444",
-        ],
+        backgroundColor: colors,
         borderColor: "#ffffff",
         borderWidth: 2,
       },

@@ -22,6 +22,7 @@ import {
     chartCanvas,
     flexContainer,
     flexChartContainer,
+    badgeStyle,
 } from "../styles";
 
 // Chart-renderöinnit on erotettu omiin tiedostoihin
@@ -234,7 +235,9 @@ export default function AnalyticsView() {
                                 style={{ cursor: "pointer" }}
                             >
                                 <td style={tdStyle}>{k.nimi}</td>
-                                <td style={tdStyle}>{k.oma_salkku}</td>
+                                <td style={{ ...tdStyle, ...badgeStyle(k.oma_salkku as "A" | "B" | "C" | "D") }}>
+                                    {k.oma_salkku}
+                                </td>
                                 <td style={tdStyle}>{laskePisteet(k)}</td>
                                 <td style={tdStyle}>{k.pinta_ala}</td>
                                 <td style={tdStyle}>{laskeTasearvo(k, year)}</td>
