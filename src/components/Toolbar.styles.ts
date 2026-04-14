@@ -1,259 +1,218 @@
-// toolbarStyles.ts
+// Toolbar.styles.ts
 import type { CSSProperties } from "react";
+import { theme } from "../theme";
 
-/* =========================
-   TOOLBAR LAYOUT
-========================= */
+/* =========================================================
+   TOOLBAR – PÄÄLAYOUT
+   ========================================================= */
 
+/**
+ * Vasemman reunan kiinteä toolbar
+ * - Koko näkymän korkuinen
+ * - Värit ja varjot tulevat teemasta
+ */
 export const toolbar: CSSProperties = {
-  fontFamily: '"Roboto", sans-serif',
+    fontFamily: '"Roboto", sans-serif',
 
-  position: "fixed",
-  top: 0,
-  left: 0,
-  minWidth: 0,
-  minHeight: 0,
-  display: "flex",
-  flexDirection: "column",
-  width: "clamp(200px, 33vw, 320px)",
-  height: "100vh",
+    position: "fixed",
+    top: 0,
+    left: 0,
 
-  background: "#20242e",
+    display: "flex",
+    flexDirection: "column",
+    width: "clamp(200px, 33vw, 320px)",
+    height: "100vh",
 
-  boxSizing: "border-box",
-  padding: "16px",
-  gap: "12px",
+    background: theme.colors.text, // tumma pohja
+    color: theme.colors.surface,
 
-  color: "#fff",
-  borderRight: "1px solid #1e293b",
-  overflow: "hidden",
+    padding: "16px",
+    gap: "12px",
+    boxSizing: "border-box",
+
+    borderRight: `1px solid ${theme.colors.border}`,
+    boxShadow: theme.shadowStrong,
+
+    overflow: "hidden",
 };
 
+/**
+ * Alareunaan ankkuroidut elementit (esim. asetukset)
+ */
 export const toolbarBottom: CSSProperties = {
-  marginTop: "auto",
-  width: "100%",
+    marginTop: "auto",
+    width: "100%",
 };
 
-/* =========================
-   PROPERTY HEADER
-========================= */
-
-export const propertyHeader: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-
-  width: "100%",
-  minHeight: "28px",
-  paddingRight: "4px",
-
-  boxSizing: "border-box",
-  minWidth: 0,
-};
-
-/* =========================
-   NAVIGATION
-========================= */
-
-export const toolbarNav: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "8px",
-  width: "100%",
-  minWidth: 0,
-  minHeight: 0,
-  flexShrink: 1,
-};
-
-/* Scrollable property list */
-export const propertyScroll: CSSProperties = {
-  flex: 1,
-  overflowY: "auto",
-  overflowX: "hidden",
-  background: "#20242e",
-  minWidth: 0,
-  minHeight: 0,
-};
-
-/* =========================
-   NAV ITEMS
-========================= */
-
-export const toolbarItem: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "10px",
-  width: "100%",
-
-  textDecoration: "none",
-  background: "transparent",
-  border: "none",
-  color: "#cbd5e1",
-
-  padding: "10px 12px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  textAlign: "left",
-
-  transition: "background 0.15s ease, color 0.15s ease",
-};
-
-export function toolbarItemHover(): CSSProperties {
-  return {
-    background: "rgba(99, 102, 241, 0.15)",
-    color: "#ffffff",
-  };
-}
-
-export function toolbarItemActive(): CSSProperties {
-  return {
-    background: "rgba(99, 102, 241, 0.15)",
-    color: "#ffffff",
-    outline: "1px solid rgba(99, 102, 241, 0.4)",
-  };
-}
-
-/* =========================
-   ICON & LABEL
-========================= */
-
-export const toolbarIcon: CSSProperties = {
-  width: "26px",
-  height: "26px",
-
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-
-  borderRadius: "6px",
-  background: "#1e293b",
-
-  fontSize: "10px",
-  color: "#94a3b8",
-};
-
-export function toolbarIconActive(): CSSProperties {
-  return {
-    background: "#6366f1",
-    color: "#ffffff",
-  };
-}
-
-export const toolbarLabel: CSSProperties = {
-  fontSize: "clamp(6px, 2.5vw, 28px)",
-  fontWeight: 500,
-};
-
-/* =========================
-   HEADER
-========================= */
+/* =========================================================
+   HEADER / KIINTEISTÖN NIMI
+   ========================================================= */
 
 export const headerBlock: CSSProperties = {
-  flexShrink: 0,
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
 
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "flex-start",
+    paddingBottom: "8px",
+    marginBottom: "12px",
 
-  paddingBottom: "8px",
-  marginBottom: "12px",
-  borderBottom: "2px solid #cacccf",
-
-  width: "100%",
+    borderBottom: `2px solid ${theme.colors.border}`,
 };
 
 export const headerTitle: CSSProperties = {
-  fontSize: "clamp(20px, 3.8vw, 38px)",
-  fontWeight: 600,
-  color: "#ffffff",
-  margin: 0,
+    fontSize: "clamp(20px, 3.8vw, 38px)",
+    fontWeight: 600,
+    color: theme.colors.surface,
+    margin: 0,
 };
 
 export const headerSubtitle: CSSProperties = {
-  fontSize: "clamp(12px, 0.8vw, 28px)",
-  color: "#888d96",
-  marginTop: "4px",
+    fontSize: "clamp(12px, 0.8vw, 28px)",
+    color: theme.colors.textMuted,
 };
 
-/* =========================
-   FILTER BUTTONS
-========================= */
+/* =========================================================
+   NAVIGAATIO
+   ========================================================= */
 
-export const filterButtons: CSSProperties = {
-  display: "flex",
-  gap: "6px",
+export const toolbarNav: CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    width: "100%",
+    flexShrink: 1,
 };
 
-export const filterBtn: CSSProperties = {
-  width: "26px",
-  height: "26px",
-
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-
-  borderRadius: "6px",
-  //background: "#1e293b",
-  //color: "#94a3b8",
-
-  fontSize: "13px",
-  fontWeight: 600,
-  cursor: "pointer",
-
-  transition:
-    "background 0.15s ease, color 0.15s ease, transform 0.05s ease",
+/**
+ * Scrollattava kiinteistölista
+ */
+export const propertyScroll: CSSProperties = {
+    flex: 1,
+    overflowY: "auto",
+    overflowX: "hidden",
 };
 
-export const filterBtnActive: CSSProperties = {
-  //background: "#6366f1",
-  //color: "#ffffff",
+/* =========================================================
+   NAVIGAATIOITEMI
+   ========================================================= */
+
+export const toolbarItem: CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    width: "100%",
+
+    padding: "10px 12px",
+    borderRadius: "8px",
+
+    background: "transparent",
+    border: "none",
+    color: theme.colors.textMuted,
+
+    cursor: "pointer",
+    textAlign: "left",
+    textDecoration: "none",
+
+    transition: "background 0.15s ease, color 0.15s ease",
 };
-/* =========================
-   SEARCH BAR
-========================= */
+
+export function toolbarItemHover(): CSSProperties {
+    return {
+        background: theme.colors.accentLight,
+        color: theme.colors.accent,
+    };
+}
+
+export function toolbarItemActive(): CSSProperties {
+    return {
+        background: theme.colors.accentLight,
+        color: theme.colors.accent,
+        outline: `1px solid ${theme.colors.accent}`,
+    };
+}
+
+/* =========================================================
+   IKONI + TEKSTI
+   ========================================================= */
+
+export const toolbarIcon: CSSProperties = {
+    width: "26px",
+    height: "26px",
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    borderRadius: "6px",
+    background: theme.colors.border,
+    color: theme.colors.textMuted,
+
+    fontSize: "10px",
+};
+
+export function toolbarIconActive(): CSSProperties {
+    return {
+        background: theme.colors.accent,
+        color: theme.colors.surface,
+    };
+}
+
+export const toolbarLabel: CSSProperties = {
+    fontSize: "clamp(12px, 1.2vw, 16px)",
+    fontWeight: 500,
+};
+
+/* =========================================================
+   HAKU
+   ========================================================= */
 
 export const searchContainer: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "6px",
-  width: "100%",
-  background: "#1f2430",
-  borderRadius: "8px",
-  padding: "6px 10px",
-  boxSizing: "border-box",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+
+    width: "100%",
+    padding: "6px 10px",
+
+    background: theme.colors.surface,
+    borderRadius: theme.radius,
+    border: `1px solid ${theme.colors.border}`,
 };
 
 export const searchInput: CSSProperties = {
-  flex: 1,
-  background: "transparent",
-  border: "none",
-  color: "#e2e8f0",
-  fontSize: "14px",
-  outline: "none",
+    flex: 1,
+    background: "transparent",
+    border: "none",
+    outline: "none",
+
+    color: theme.colors.text,
+    fontSize: "14px",
 };
 
 export const searchIcon: CSSProperties = {
-  color: "#64748b",
-  fontSize: "14px",
+    color: theme.colors.textMuted,
+    fontSize: "14px",
 };
 
-/* =========================
-   PORTFOLIO FILTER COLORS
-========================= */
+/* =========================================================
+   SÄHKÖINEN SÄÄTÖ / Salkkufiltterit
+   ========================================================= */
 
+/**
+ * Salkkukohtaiset suodatinpainikkeet
+ * Värit tulevat suoraan theme.colors.salkku
+ */
 export function filterBtnPortfolio(
-  salkku: "A" | "B" | "C" | "D",
-  active: boolean
+    salkku: "A" | "B" | "C" | "D",
+    active: boolean
 ): CSSProperties {
-  const base = {
-  A: { bg: "#e8f0e7", solid: "#2d5a27",},
-  B: { bg: "#e4edf7", solid: "#1a4a7a",},
-  C: { bg: "#f5e9d5", solid:"#8a4f00",},
-  D: { bg: "#f5e0e0", solid: "#8a1a1a",},
-  }[salkku];
+    const cfg = theme.colors.salkku[salkku];
 
-  return {
-    background: active ? base.solid : base.bg,
-    color: active ? "#ffffff" : base.solid,
-  };
-};
+    return {
+        background: active ? cfg.color : cfg.bg,
+        color: active ? theme.colors.surface : cfg.color,
+        borderRadius: "6px",
+        fontWeight: 600,
+        cursor: "pointer",
+    };
+}
