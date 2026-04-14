@@ -22,6 +22,7 @@ import {
     searchIcon,
     filterBtnPortfolio,
 } from "./Toolbar.styles";
+import FileButton from "./Pathfinderbutton";
 
 export default function Toolbar() {
   const { kiinteistot } = useKiinteistot();
@@ -156,6 +157,7 @@ export default function Toolbar() {
 
       {/* ================= BOTTOM ================= */}
       <div style={toolbarBottom}>
+        <FileButton />
         {/* esim. asetukset / logout */}
       </div>
     </nav>
