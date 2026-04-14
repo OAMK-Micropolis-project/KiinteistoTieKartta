@@ -14,10 +14,10 @@ export const theme = {
 
         // Salkut
         salkku: {
-            A: { bg: "#e8f0e7", color: "#2d5a27" },
-            B: { bg: "#e4edf7", color: "#1a4a7a" },
-            C: { bg: "#f5e9d5", color: "#8a4f00" },
-            D: { bg: "#f5e0e0", color: "#8a1a1a" }
+            A: { bg: "#f6faf4", color: "#a9d08e" },
+            B: { bg: "#fffbf0", color: "#ffd966" },
+            C: { bg: "#fef7f3", color: "#f4b084" },
+            D: { bg: "#fbe6e6", color: "#da0000" }
         }
     },
 

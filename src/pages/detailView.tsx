@@ -1,18 +1,19 @@
-import { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useKiinteistot } from "../context/useKiinteistot";
 import {
-    flexContainer,
+    backButton,
+    badgeStyle,
     cardStyle,
+    chartCanvas,
+    chartCard,
+    flexContainer,
+    mainHeader,
     sectionTitle,
     tableStyle,
     tdStyle,
-    backButton,
-    badgeStyle,
-    chartCanvas,
-    chartCard,
 } from "../styles";
 import type { Kiinteisto } from "../types";
 
@@ -154,20 +155,22 @@ export default function DetailView() {
     return (
         <div style={flexContainer}>
             {/* ================= HEADER ================= */}
-            <button style={backButton} onClick={() => navigate(-1)}>
-                ← Takaisin
-            </button>
+            <div>
+                <button style={backButton} onClick={() => navigate(-1)}>
+                    ← Takaisin
+                </button>
 
-            <h1>{item.nimi}</h1>
-            <p>{item.osoite}</p>
+                <h1 style={mainHeader}>{item.nimi}</h1>
+                <p style={sectionTitle}>{item.osoite}</p>
 
-            <span
-                style={badgeStyle(
-                    item.oma_salkku as "A" | "B" | "C" | "D"
-                )}
-            >
-                Salkku {item.oma_salkku}
-            </span>
+                <span
+                    style={badgeStyle(
+                        item.oma_salkku as "A" | "B" | "C" | "D"
+                    )}
+                >
+                    Salkku {item.oma_salkku}
+                </span>
+            </div>
 
             {/* ================= TABIT ================= */}
             <div style={{ display: "flex", gap: "16px" }}>

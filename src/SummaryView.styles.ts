@@ -184,4 +184,3 @@ export const chartContainer: CSSProperties = {
   justifyContent: "center",
   alignItems: "center",
 };
-``
