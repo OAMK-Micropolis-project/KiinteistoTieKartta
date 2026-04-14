@@ -415,7 +415,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 /* =========================================================
-   YLEINEN DETAIL CARD – vastaa HTML-mallia
+   YLEINEN DETAIL CARD – KÄYTETÄÄN SEKÄ PERUSTIEDOT-OSIOSSA ETTÄ YLLÄPITOKULUT-TAULUKOSSA
    ========================================================= */
 function DetailCard({
     title,
@@ -468,7 +468,9 @@ function YllapitokulutCard({
     const currentYear = allYears[allYears.length - 1];
 
     /* --- Historia = kaikki muut --- */
-    const historyYears = allYears.filter((y) => y !== currentYear);
+    const historyYears = allYears
+        .filter((y) => y !== currentYear)
+        .sort((a, b) => b - a); // Uusin ensin
 
     /* --- Näytetään 2 historiavuotta kerrallaan --- */
     const historySlice = historyYears.slice(
@@ -512,7 +514,7 @@ function YllapitokulutCard({
                     }
                     disabled={!canGoBack}
                 >
-                    ← Vanhemmat
+                    ← Uudemmat
                 </button>
 
                 <span style={{ fontSize: "12px", color: "#666" }}>
@@ -525,7 +527,7 @@ function YllapitokulutCard({
                     onClick={() => setYearOffset(yearOffset + 1)}
                     disabled={!canGoForward}
                 >
-                    Uudemmat →
+                    Vanhemmat →
                 </button>
             </div>
 

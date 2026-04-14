@@ -2,6 +2,7 @@ import { Bar } from "react-chartjs-2";
 import { useMemo } from "react";
 import { useKiinteistot } from "../../context/useKiinteistot";
 import { plugins } from "chart.js";
+import { theme } from "../../theme";
 
 function sumPisteet(pisteet: Record<string, number>): number {
   return Object.values(pisteet).reduce((sum, v) => sum + v, 0);
@@ -22,18 +23,17 @@ export default function PointsBarChart() {
 
   const values = [sums.A, sums.B, sums.C, sums.D];
 
+  const colors = kiinteistot.map(
+    k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
+  );
+
   const data = {
     labels: ["A", "B", "C", "D"],
     datasets: [
       {
         label: "Pisteet",
         data: values,
-        backgroundColor: [
-          "#22c55e", // A
-          "#eab308", // B
-          "#f97316", // C
-          "#ef4444", // D
-        ],
+        backgroundColor: colors,
         borderColor: "#ffffff",
         borderWidth: 2,
         borderRadius: 6,
