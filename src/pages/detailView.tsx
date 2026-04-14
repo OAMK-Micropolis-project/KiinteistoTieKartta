@@ -14,6 +14,7 @@ import {
     chartCanvas,
     chartCard,
 } from "../styles";
+import type { Kiinteisto } from "../types";
 
 type Tab = "perustiedot" | "kuntoarviointi" | "toimenpiteet" | "talous";
 
@@ -356,54 +357,12 @@ export default function DetailView() {
                     }}
                 >
                     {/* ========= YLLÄPITOKULUT ========= */}
-                    <div style={cardStyle}>
-                        <h3 style={sectionTitle}>Ylläpitokulut (€/v)</h3>
 
-                        {yllapito ? (
-                            <>
-                                {(
-                                    [
-                                        ["Sähkö", yllapito.sahko],
-                                        ["Lämmitys", yllapito.lammitys],
-                                        ["Vesi", yllapito.vesi],
-                                        ["Huolto", yllapito.huolto],
-                                        ["Kiinteistövero", yllapito.vero],
-                                        ["Laina", yllapito.laina],
-                                        ["Muut", yllapito.muut],
-                                    ] as [string, number][]
-                                ).map(([label, value]) => (
-                                    <div
-                                        key={label}
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            padding: "6px 0",
-                                            borderBottom: "1px solid #eee",
-                                        }}
-                                    >
-                                        <span>{label}</span>
-                                        <span>{value ? `${Math.round(value / 1000)} k€` : "—"}</span>
-                                    </div>
-                                ))}
+                    <YllapitokulutCard
+                        title="Ylläpitokulut (€/v)"
+                        item={item}
+                    />
 
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        fontWeight: 600,
-                                        paddingTop: "8px",
-                                    }}
-                                >
-                                    <span>Yhteensä</span>
-                                    <span>
-                                        {Math.round(yllapitoYhteensa / 1000)} k€
-                                    </span>
-                                </div>
-                            </>
-                        ) : (
-                            <p>Ei ylläpitotietoja.</p>
-                        )}
-                    </div>
 
                     {/* ========= VUOKRAUSTIEDOT ========= */}
                     <div style={cardStyle}>
@@ -474,6 +433,161 @@ function DetailCard({
                         <tr key={label}>
                             <td style={tdStyle}>{label}</td>
                             <td style={tdStyle}>{value}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
+function YllapitokulutCard({
+    title,
+    item,
+}: {
+    title: string;
+    item: Kiinteisto;
+}) {
+    const [yearOffset, setYearOffset] = useState(0);
+
+    /* --- Kaikki vuodet datasta --- */
+    const allYears = Object.keys(item.yllapitokulut ?? {})
+        .map(Number)
+        .sort((a, b) => a - b);
+
+    if (allYears.length === 0) {
+        return (
+            <div style={chartCard}>
+                <div style={sectionTitle}>{title}</div>
+                <p>Ei kustannustietoja saatavilla.</p>
+            </div>
+        );
+    }
+
+    /* --- Nykyinen vuosi = uusin --- */
+    const currentYear = allYears[allYears.length - 1];
+
+    /* --- Historia = kaikki muut --- */
+    const historyYears = allYears.filter((y) => y !== currentYear);
+
+    /* --- Näytetään 2 historiavuotta kerrallaan --- */
+    const historySlice = historyYears.slice(
+        yearOffset,
+        yearOffset + 2
+    );
+
+    const displayYears = [currentYear, ...historySlice];
+
+    const canGoBack = yearOffset > 0;
+    const canGoForward = yearOffset + 2 < historyYears.length;
+
+    /* --- Kululajit --- */
+    const costKeys =
+        Object.values(item.yllapitokulut ?? {}).length > 0
+            ? [
+                ...new Set(
+                    Object.values(item.yllapitokulut).flatMap((yearData) =>
+                        Object.keys(yearData)
+                    )
+                ),
+            ]
+            : [];
+
+    return (
+        <div style={chartCard}>
+            <div style={sectionTitle}>{title}</div>
+
+            {/* Navigointi koskee vain historiaa */}
+            <div
+                style={{
+                    marginBottom: "12px",
+                    display: "flex",
+                    gap: "8px",
+                    alignItems: "center",
+                }}
+            >
+                <button
+                    onClick={() =>
+                        setYearOffset(Math.max(0, yearOffset - 1))
+                    }
+                    disabled={!canGoBack}
+                >
+                    ← Vanhemmat
+                </button>
+
+                <span style={{ fontSize: "12px", color: "#666" }}>
+                    Nykyinen: {currentYear} · Historia:{" "}
+                    {historySlice[0] ?? "-"} –{" "}
+                    {historySlice[historySlice.length - 1] ?? "-"}
+                </span>
+
+                <button
+                    onClick={() => setYearOffset(yearOffset + 1)}
+                    disabled={!canGoForward}
+                >
+                    Uudemmat →
+                </button>
+            </div>
+
+            <table style={tableStyle}>
+                <thead>
+                    <tr>
+                        <th></th>
+                        {displayYears.map((year) => (
+                            <th
+                                key={year}
+                                style={{
+                                    ...tdStyle,
+                                    fontWeight:
+                                        year === currentYear
+                                            ? 700
+                                            : 400,
+                                }}
+                            >
+                                {year}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {costKeys.map((costKey) => (
+                        <tr key={costKey}>
+                            <td
+                                style={{
+                                    ...tdStyle,
+                                    fontWeight: 600,
+                                }}
+                            >
+                                {costKey}
+                            </td>
+
+                            {displayYears.map((year) => {
+                                const value =
+                                    item.yllapitokulut?.[year]?.[
+                                    costKey as keyof typeof item.yllapitokulut[number]
+                                    ] ?? 0;
+
+                                return (
+                                    <td
+                                        key={year}
+                                        style={{
+                                            ...tdStyle,
+                                            textAlign: "center",
+                                            fontWeight:
+                                                year === currentYear
+                                                    ? 700
+                                                    : 400,
+                                        }}
+                                    >
+                                        {value
+                                            ? `${Math.round(
+                                                value / 1000
+                                            )} k€`
+                                            : "—"}
+                                    </td>
+                                );
+                            })}
                         </tr>
                     ))}
                 </tbody>
