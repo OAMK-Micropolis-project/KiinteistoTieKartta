@@ -1,17 +1,31 @@
 import { Doughnut } from "react-chartjs-2";
+import { useKiinteistot } from "../../context/useKiinteistot";
+import { useMemo } from "react";
 
 export default function DonutChart() {
+  const { kiinteistot } = useKiinteistot();
+
+  const counts = useMemo(() => {
+    return kiinteistot.reduce(
+      (acc, k) => {
+        acc[k.oma_salkku]++;
+        return acc;
+      },
+      { A: 0, B: 0, C: 0, D: 0 }
+    );
+  }, [kiinteistot]);
+
   const data = {
     labels: ["A", "B", "C", "D"],
     datasets: [
       {
         label: "Portfoliot",
-        data: [10, 20, 30, 40],
+        data: [counts.A, counts.B, counts.C, counts.D],
         backgroundColor: [
-          "#3b82f6",
           "#22c55e",
           "#eab308",
-          "#ef4444"
+          "#f97316",
+          "#ef4444",
         ],
         borderColor: "#ffffff",
         borderWidth: 2,
