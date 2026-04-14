@@ -1,18 +1,38 @@
 import { Bar } from "react-chartjs-2";
+import { useMemo } from "react";
+import { useKiinteistot } from "../../context/useKiinteistot";
+import { plugins } from "chart.js";
+
+function sumPisteet(pisteet: Record<string, number>): number {
+  return Object.values(pisteet).reduce((sum, v) => sum + v, 0);
+}
 
 export default function PointsBarChart() {
-  const values = [50, 70, 40, 90];
+  const { kiinteistot } = useKiinteistot();
+
+  const sums = useMemo(() => {
+    return kiinteistot.reduce(
+      (acc, estate) => {
+        acc[estate.oma_salkku] += sumPisteet(estate.pisteet);
+        return acc;
+      },
+      { A: 0, B: 0, C: 0, D: 0 }
+    );
+  }, [kiinteistot]);
+
+  const values = [sums.A, sums.B, sums.C, sums.D];
+
   const data = {
-    labels: ["Kiinteistö A", "B", "C", "D"],
+    labels: ["A", "B", "C", "D"],
     datasets: [
       {
         label: "Pisteet",
         data: values,
         backgroundColor: [
-          "#3b82f6",
-          "#22c55e",
-          "#eab308",
-          "#ef4444",
+          "#22c55e", // A
+          "#eab308", // B
+          "#f97316", // C
+          "#ef4444", // D
         ],
         borderColor: "#ffffff",
         borderWidth: 2,
@@ -25,9 +45,12 @@ export default function PointsBarChart() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
+      legend: {
+        display: false,
+      },
       title: {
         display: true,
-        text: "Salkkujakauma",
+        text: "Pistejakauma",
         font: {
           size: 20,
           weight: "600",
@@ -38,12 +61,6 @@ export default function PointsBarChart() {
           bottom: 10,
         },
       },
-      legend: {
-        position: "bottom",
-        labels: {
-          color: "#333",
-        },
-      },
     },
     scales: {
       x: {
@@ -51,8 +68,7 @@ export default function PointsBarChart() {
         grid: { display: false },
       },
       y: {
-        min: Math.min(...values) - 10,
-        max: Math.max(...values) + 10,
+        beginAtZero: true,
         ticks: { color: "#333" },
         grid: { color: "#e5e7eb" },
       },
