@@ -33,12 +33,7 @@ import { useKiinteistot } from "../context/useKiinteistot";
 
 export default function AnalyticsView() {
     const properties = useKiinteistot().kiinteistot;
-    const year = Math.max(
-        ...properties.flatMap(k => [
-            ...Object.keys(k.yllapitokulut).map(Number),
-            ...Object.keys(k.vuokrakulut).map(Number)
-        ])
-    );
+    const year = useKiinteistot().getLatestYear();
     const [selectedCriteria, setSelectedCriteria] = useState<string>("ika");
     const [sortKey, setSortKey] = useState("nimi");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");

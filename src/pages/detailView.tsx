@@ -31,10 +31,7 @@ export default function DetailView() {
     const radarChartRef = useRef<Chart | null>(null);
 
     const item = useKiinteistot().getById(Number(id));
-    const year = Math.max(
-        ...Object.keys(item?.yllapitokulut || {}).map(Number),
-        ...Object.keys(item?.vuokrakulut || {}).map(Number),
-    );
+    const year = useKiinteistot().getLatestYear();
 
     // ---------- RADAR-CHART ----------
     useEffect(() => {
