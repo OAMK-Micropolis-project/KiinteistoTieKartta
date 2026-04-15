@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { Kiinteisto } from "../types";
+import { useKiinteistot } from "../context/useKiinteistot";
 
 import {
     laskeKayttoaste,
@@ -16,33 +17,36 @@ import {
     thStyle,
     tdStyle,
     sectionTitle,
-    gridContainer,
-    /*gridContainer2,*/
     mainHeader,
-    chartsGrid,
     chartCard,
     chartCanvas,
+    flexContainer,
+    flexChartContainer,
+    badgeStyle,
 } from "../styles";
 
-// Ulkoiset chart-funktiot
+// Chart-renderöinnit on erotettu omiin tiedostoihin
 import { renderYllapitoChart } from "../charts/chartYllapito";
 import { renderKriteeritChart } from "../charts/chartKriteerit";
 import { renderMaintenanceChart } from "../charts/maintenanceChart";
 import { renderCriteriaComparisonChart } from "../charts/criteriaComparisonChart";
-import { useKiinteistot } from "../context/useKiinteistot";
 
 export default function AnalyticsView() {
-    const properties = useKiinteistot().kiinteistot;
+    const kiinteistot = useKiinteistot().kiinteistot;
     const year = useKiinteistot().getLatestYear();
     const [selectedCriteria, setSelectedCriteria] = useState<string>("ika");
-    const [sortKey, setSortKey] = useState("nimi");
-    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
     const navigate = useNavigate();
 
-    // =============================
-    // SORT LOGIC 
-    // =============================
+    /**
+     * Taulukon lajittelun tila
+     */
+    const [sortKey, setSortKey] = useState<string>("nimi");
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+    /**
+     * Lajittelee kiinteistöt valitun sarakkeen ja suunnan mukaan.
+     * Laskennalliset arvot käsitellään erikseen util-funktioiden avulla.
+     */
     function sortData(data: Kiinteisto[]) {
         return [...data].sort((a, b) => {
             let A: string | number;
@@ -66,9 +70,8 @@ export default function AnalyticsView() {
                     B = laskeYllapito(b, year);
                     break;
                 default:
-                    A = (a as unknown as Record<string, string | number>)[sortKey];
-                    B = (b as unknown as Record<string, string | number>)[sortKey];
-                    break;
+                    A = (a as any)[sortKey];
+                    B = (b as any)[sortKey];
             }
 
             if (typeof A === "string") {
@@ -83,6 +86,11 @@ export default function AnalyticsView() {
         });
     }
 
+    /**
+     * Päivittää lajittelun:
+     * - sama otsikko → vaihda suuntaa
+     * - eri otsikko → uusi sarake, oletus nouseva
+     */
     function handleSort(key: string) {
         if (sortKey === key) {
             setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -92,123 +100,142 @@ export default function AnalyticsView() {
         }
     }
 
-    const header = (text: string, key: string) => (
-        <th style={thStyle as React.CSSProperties} onClick={() => handleSort(key)}>
-            {text}
+    /**
+     * Pieni apufunktio taulukon headerien luontiin
+     */
+    const header = (label: string, key: string) => (
+        <th
+            style={thStyle as React.CSSProperties}
+            onClick={() => handleSort(key)}
+        >
+            {label}
         </th>
     );
 
-    // =============================
-    // CHART CALLS (kiinteistötiedot -> chartit)
-    // =============================
+    /**
+     * Renderöidään perus-chartit aina, kun kiinteistöt muuttuvat.
+     * Canvasien koot määritellään CSS:n kautta → dynaaminen resize.
+     */
     useEffect(() => {
+        if (kiinteistot.length === 0) return;
+
         try {
-            if (properties.length === 0) return;
-
-            renderYllapitoChart("chartYllapito", properties);
-            renderKriteeritChart("chartKriteerit", properties);
-            renderMaintenanceChart("maintenanceChart", properties);
-        } catch (error) {
-            console.error("Error rendering charts:", error);
+            renderYllapitoChart("chartYllapito", kiinteistot);
+            renderKriteeritChart("chartKriteerit", kiinteistot);
+            renderMaintenanceChart("maintenanceChart", kiinteistot);
+        } catch (err) {
+            console.error("Chart rendering error:", err);
         }
-    }, [properties]);
+    }, [kiinteistot]);
 
+    /**
+     * Kriteerivertailu-chart päivittyy myös,
+     * kun käyttäjä vaihtaa kriteeriä
+     */
     useEffect(() => {
+        if (kiinteistot.length === 0) return;
+
         try {
-            if (properties.length === 0) return;
-
-            renderCriteriaComparisonChart("criteriaChart", properties, selectedCriteria);
-        } catch (error) {
-            console.error("Error rendering criteria comparison chart:", error);
+            renderCriteriaComparisonChart(
+                "criteriaChart",
+                kiinteistot,
+                selectedCriteria
+            );
+        } catch (err) {
+            console.error("Criteria chart error:", err);
         }
-    }, [properties, selectedCriteria]);
+    }, [kiinteistot, selectedCriteria]);
 
-    // =============================
-    // RENDER
-    // =============================
     return (
-      <div style={gridContainer}>
-        <h1 style={mainHeader}>Analytiikka</h1>
-        <p style={sectionTitle}>Vertailunäkymät koko salkusta</p>
+        <div style={flexContainer}>
+            <h1 style={mainHeader}>Analytiikka</h1>
+            <p style={sectionTitle}>Vertailunäkymät koko salkusta</p>
 
-        <div style={chartsGrid}>
+            {/* ================== CHART-NÄKYMÄ ================== */}
+            <div style={flexChartContainer}>
+                <div style={chartCard}>
+                    <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
+                    <canvas id="chartYllapito" style={chartCanvas} />
+                </div>
 
-            <div style={chartCard}>
-                <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
-                <canvas id="chartYllapito" style={chartCanvas} />
+                <div style={chartCard}>
+                    <div style={sectionTitle}>Pisteiden jakauma kriteereittäin</div>
+                    <canvas id="chartKriteerit" style={chartCanvas} />
+                </div>
+
+                <div style={chartCard}>
+                    <div style={sectionTitle}>
+                        Ylläpitokulut per kiinteistö (salkkuvärit)
+                    </div>
+                    <canvas id="maintenanceChart" style={chartCanvas} />
+                </div>
+
+                <div style={chartCard}>
+                    <div style={sectionTitle}>Kriteerivertailu</div>
+
+                    <select
+                        value={selectedCriteria}
+                        onChange={(e) => setSelectedCriteria(e.target.value)}
+                        style={{
+                            padding: "6px 10px",
+                            marginBottom: "12px",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                        }}
+                    >
+                        {Object.keys(kiinteistot[0]?.pisteet ?? {}).map(
+                            (key) => (
+                                <option key={key} value={key}>
+                                    {key}
+                                </option>
+                            )
+                        )}
+                    </select>
+
+                    <canvas id="criteriaChart" style={chartCanvas} />
+                </div>
             </div>
 
-            <div style={chartCard}>
-                <div style={sectionTitle}>Pisteiden jakauma kriteereittäin</div>
-                <canvas id="chartKriteerit" style={chartCanvas} />
-            </div>
-
-            <div style={chartCard}>
-                <div style={sectionTitle}>Ylläpitokulut per kiinteistö (salkkuvärit)</div>
-                <canvas id="maintenanceChart" style={chartCanvas} />
-            </div>
-
-            <div style={chartCard}>
-                <div style={sectionTitle}>Kriteerivertailu</div>
-
-                <select
-                    value={selectedCriteria}
-                    onChange={(e) => setSelectedCriteria(e.target.value)}
-                    style={{
-                        padding: "6px 10px",
-                        marginBottom: "12px",
-                        borderRadius: "6px",
-                        border: "1px solid #ccc",
-                    }}
-                >
-                    {Object.keys(properties[0]?.pisteet ?? {}).map(key => (
-                        <option key={key}>{key}</option>
-                    ))}
-                </select>
-
-                <canvas id="criteriaChart" style={chartCanvas} />
-            </div>
-
-        </div>
-
-        {/* ---------------- Yhteenvetotaulukko ---------------- */}
-        <div style={cardStyle}>
-            <div style={sectionTitle}>Yhteenvetotaulukko</div>
-
-            <table style={tableStyle}>
-                <thead>
-                    <tr>
-                        {header("Kiinteistö", "nimi")}
-                        {header("Salkku", "oma_salkku")}
-                        {header("Pisteet", "pisteet")}
-                        {header("m²", "pinta_ala")}
-                        {header("Tasearvo (€)", "tasearvo")}
-                        {header("Ylläpito (€ / v)", "yllapito")}
-                        {header("Käyttöaste (%)", "kayttoaste")}
-                        {header("Rakv.", "rakennusvuosi")}
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {sortData(properties).map((p) => (
-                        <tr
-                            key={p.id}
-                            onClick={() => navigate(`/detail/${p.id}`)}
-                            style={{ cursor: "pointer" }}
-                        >
-                            <td style={tdStyle}>{p.nimi}</td>
-                            <td style={tdStyle}>{p.oma_salkku}</td>
-                            <td style={tdStyle}>{laskePisteet(p)}</td>
-                            <td style={tdStyle}>{p.pinta_ala}</td>
-                            <td style={tdStyle}>{laskeTasearvo(p, year)}</td>
-                            <td style={tdStyle}>{laskeYllapito(p, year)}</td>
-                            <td style={tdStyle}>{laskeKayttoaste(p, year)}%</td>
-                            <td style={tdStyle}>{p.rakennusvuosi}</td>
+            {/* ================== YHTEENVETOTAULUKKO ================== */}
+            <div style={{ ...cardStyle}}>
+                <div style={sectionTitle}>Yhteenvetotaulukko</div>
+                <table style={tableStyle}>
+                    <thead>
+                        <tr>
+                            {header("Kiinteistö", "nimi")}
+                            {header("Salkku", "oma_salkku")}
+                            {header("Pisteet", "pisteet")}
+                            {header("m²", "pinta_ala")}
+                            {header("Tasearvo (€)", "tasearvo")}
+                            {header("Ylläpito (€ / v)", "yllapito")}
+                            {header("Käyttöaste (%)", "kayttoaste")}
+                            {header("Rakv.", "rakennusvuosi")}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>        
-      </div>
+                    </thead>
+                    <tbody>
+                        {sortData(kiinteistot).map((k) => (
+                            <tr
+                                key={k.id}
+                                onClick={() => navigate(`/detail/${k.id}`)}
+                                style={{ cursor: "pointer" }}
+                            >
+                                <td style={tdStyle}>{k.nimi}</td>
+                                <td style={{ ...tdStyle, ...badgeStyle(k.oma_salkku as "A" | "B" | "C" | "D") }}>
+                                    {k.oma_salkku}
+                                </td>
+                                <td style={tdStyle}>{laskePisteet(k)}</td>
+                                <td style={tdStyle}>{k.pinta_ala}</td>
+                                <td style={tdStyle}>{laskeTasearvo(k, year)}</td>
+                                <td style={tdStyle}>{laskeYllapito(k, year)}</td>
+                                <td style={tdStyle}>
+                                    {laskeKayttoaste(k, year)} %
+                                </td>
+                                <td style={tdStyle}>{k.rakennusvuosi}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     );
 }

@@ -15,7 +15,7 @@ export type KiinteistoStore = {
   calKayttoaste: (k: Kiinteisto, year: number) => number;
   calNumberOfKiinteistot: () => number;
   calPainotutPisteet: (k: Kiinteisto) => number;
-  calPintaAla: () => number;
+  calAllPintaAla: () => number;
   calVuokra: (k: Kiinteisto, year: number) => number;
   calYllapito: (k: Kiinteisto, year: number) => number;
 
