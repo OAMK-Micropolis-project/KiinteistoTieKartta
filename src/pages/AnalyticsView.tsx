@@ -32,25 +32,10 @@ import { renderCriteriaComparisonChart } from "../charts/criteriaComparisonChart
 import { renderMaintenanceChart } from "../charts/maintenanceChart";
 
 export default function AnalyticsView() {
-    const navigate = useNavigate();
-    const { kiinteistot } = useKiinteistot();
-
-    /**
-     * Valitaan uusin vuosi, jota käytetään laskentafunktioissa.
-     * Tämä pitää näkymän automaattisesti ajan tasalla,
-     * vaikka dataan lisättäisiin uusia vuosia.
-     */
-    const year = Math.max(
-        ...kiinteistot.flatMap((k) => [
-            ...Object.keys(k.yllapitokulut).map(Number),
-            ...Object.keys(k.vuokrakulut).map(Number),
-        ])
-    );
-
-    /**
-     * Valittu pistekriteeri kriteerivertailu-charttia varten
-     */
+    const kiinteistot = useKiinteistot().kiinteistot;
+    const year = useKiinteistot().getLatestYear();
     const [selectedCriteria, setSelectedCriteria] = useState<string>("ika");
+    const navigate = useNavigate();
 
     /**
      * Taulukon lajittelun tila

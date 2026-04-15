@@ -1,4 +1,4 @@
-interface YllapitoKulut {
+type YllapitoKulut = {
     sahko: number;
     lammitys: number;
     vesi: number;
@@ -8,7 +8,7 @@ interface YllapitoKulut {
     muut: number;
 }
 
-interface VuokraKulut {
+type VuokraKulut = {
     tasearvo: number;
     vuokrausaste_m2: number;
     neliövuokra: number;
@@ -17,8 +17,29 @@ interface VuokraKulut {
     vedenkulutus: number;
 }
 
-interface Pisteet {
-    [kriteeri: string]: number;
+type Pisteet = {
+    ika: number,
+    vesikatto: number,
+    sadevesi: number,
+    salaoja: number,
+    julkisivu: number,
+    ikkunat: number,
+    ovet: number,
+    vaippa: number,
+    tontti: number,
+    lattia: number,
+    sisailma: number,
+    yleisilme: number,
+    lammitys: number,
+    lammlaitteet: number,
+    kayttovesi: number,
+    viemari: number,
+    iv: number,
+    peruskorjaus: number,
+    toimivuus: number,
+    kayttoaste_piste: number,
+    tulevaisuus: number,
+    investointi: number,
 }
 
 interface Toimenpide {
@@ -37,7 +58,9 @@ export interface Kiinteisto {
     suojelukohde: boolean;
 
     pisteet: Pisteet;
-    oma_salkku: string;
+    painotetutPisteet: number;
+
+    oma_salkku: "A" | "B" | "C" | "D";
     oma_perusteet: string;
     toimenpiteet: Toimenpide[];
 
@@ -45,10 +68,4 @@ export interface Kiinteisto {
     vuokrakulut: { [key: number]: VuokraKulut };
 }
 
-export type KiinteistoStore = {
-    kiinteistot: Kiinteisto[];
-    getById: (id: number) => Kiinteisto | undefined;
-    addKiinteisto: (newKiinteisto: Kiinteisto) => void;
-    updateKiinteisto: (updated: Kiinteisto) => void;
-    deleteKiinteisto: (id: number) => void;
-};
+export type NewKiinteistoInput = Omit<Kiinteisto, "id" | "painotetutPisteet" | "oma_salkku">;
