@@ -154,7 +154,7 @@ export const tdStyle: CSSProperties = {
  */
 export function badgeStyle(salkku: "A" | "B" | "C" | "D"): CSSProperties {
     return {
-        display: "inline-block",
+        display: "inline-flex",
         width: "fit-content",
         padding: "6px 16px",
         borderRadius: "20px",

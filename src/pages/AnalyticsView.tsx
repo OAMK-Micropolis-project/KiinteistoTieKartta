@@ -1,35 +1,35 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import type { Kiinteisto } from "../types";
 import { useKiinteistot } from "../context/useKiinteistot";
+import type { Kiinteisto } from "../types";
 
 import {
     laskeKayttoaste,
     laskePisteet,
-    laskeYllapito,
     laskeTasearvo,
+    laskeYllapito,
 } from "../utils/analyticsUtils";
 
 import {
-    cardStyle,
-    tableStyle,
-    thStyle,
-    tdStyle,
-    sectionTitle,
-    mainHeader,
-    chartCard,
-    chartCanvas,
-    flexContainer,
-    flexChartContainer,
     badgeStyle,
+    cardStyle,
+    chartCanvas,
+    chartCard,
+    flexChartContainer,
+    flexContainer,
+    mainHeader,
+    sectionTitle,
+    tableStyle,
+    tdStyle,
+    thStyle,
 } from "../styles";
 
 // Chart-renderöinnit on erotettu omiin tiedostoihin
-import { renderYllapitoChart } from "../charts/chartYllapito";
 import { renderKriteeritChart } from "../charts/chartKriteerit";
-import { renderMaintenanceChart } from "../charts/maintenanceChart";
+import { renderYllapitoChart } from "../charts/chartYllapito";
 import { renderCriteriaComparisonChart } from "../charts/criteriaComparisonChart";
+import { renderMaintenanceChart } from "../charts/maintenanceChart";
 
 export default function AnalyticsView() {
     const kiinteistot = useKiinteistot().kiinteistot;
@@ -148,8 +148,10 @@ export default function AnalyticsView() {
 
     return (
         <div style={flexContainer}>
-            <h1 style={mainHeader}>Analytiikka</h1>
-            <p style={sectionTitle}>Vertailunäkymät koko salkusta</p>
+            <div>
+                <h1 style={mainHeader}>Analytiikka</h1>
+                <p style={sectionTitle}>Vertailunäkymät koko salkusta</p>
+            </div>
 
             {/* ================== CHART-NÄKYMÄ ================== */}
             <div style={flexChartContainer}>
@@ -197,7 +199,7 @@ export default function AnalyticsView() {
             </div>
 
             {/* ================== YHTEENVETOTAULUKKO ================== */}
-            <div style={{ ...cardStyle}}>
+            <div style={{ ...cardStyle }}>
                 <div style={sectionTitle}>Yhteenvetotaulukko</div>
                 <table style={tableStyle}>
                     <thead>

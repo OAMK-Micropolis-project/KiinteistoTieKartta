@@ -1,6 +1,6 @@
-import { use, useEffect, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import Chart from "chart.js/auto";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useKiinteistot } from "../context/useKiinteistot";
 import {

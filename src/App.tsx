@@ -1,7 +1,6 @@
 import { HashRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import AnalyticsView from "./pages/AnalyticsView.tsx";
 import DetailView from "./pages/detailView";
-import "./App.css";
 import "./utils/chartSetup";
 import PointsBarChart from "./components/charts/Barchart";
 import Layout from "./components/Layout";
