@@ -151,7 +151,7 @@ export function portfolioRowStyle(
 }
 export function portfolioItemHover() : CSSProperties{
     return {
-        filter: "brightness(1.3)",
+        filter: "brightness(0.9)",
     };
 }
 export function salkkuBadge(salkku: "A" | "B" | "C" | "D"): CSSProperties {
