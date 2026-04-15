@@ -15,7 +15,7 @@ export const boxesContainer: CSSProperties = {
 export const box: CSSProperties = {
   flex: 1,
   minWidth: "180px",
-  height: "clamp(40px, 8vh, 260px)",
+  height: "clamp(40px, 10vh, 260px)",
   backgroundColor: theme.colors.surface,
   display: "flex",
   flexDirection: "column",
