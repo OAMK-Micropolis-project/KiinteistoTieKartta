@@ -25,7 +25,7 @@ import {
   portfolioRowStyle,
   portfolioItemHover,
   salkkuBadge,
-} from "../SummaryView.styles";
+} from "./SummaryView.styles";
 
 export default function HomePage() {
   const store = useKiinteistot();

@@ -122,9 +122,25 @@ export default function DetailView() {
   return (
     <div style={flexContainer}>
       {/* ================= HEADER ================= */}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: "16px",
+      }}
+    >
       <button style={backButton} onClick={() => navigate(-1)}>
         ← Takaisin
       </button>
+
+      <button
+        style={backButton}
+        onClick={() => navigate(`/add?id=${item.id}`)}
+      >
+        ✎ Muokkaa
+      </button>
+    </div>
 
       <h1>{item.nimi}</h1>
       <p>{item.osoite}</p>

@@ -1,4 +1,4 @@
-import { theme } from "./theme";
+import { theme } from "../theme";
 import type { CSSProperties } from "react";
 /* ========================
    BOXES
