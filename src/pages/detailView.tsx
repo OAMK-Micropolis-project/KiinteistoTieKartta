@@ -125,13 +125,13 @@ export default function DetailView() {
       <button style={backButton} onClick={() => navigate(-1)}>
         ← Takaisin
       </button>
-
-      <h1>{item.nimi}</h1>
-      <p>{item.osoite}</p>
-
-      <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
-        Salkku {item.oma_salkku}
-      </span>
+      <div>
+        <h1>{item.nimi}</h1>
+        <div>{item.osoite} · {item.kayttotarkoitus} · Rakennettu {item.rakennusvuosi}</div>
+        <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
+          Salkku {item.oma_salkku}
+        </span>
+      </div>
 
       {/* ================= TABIT ================= */}
       <div style={{ display: "flex", gap: "16px" }}>
@@ -179,10 +179,22 @@ export default function DetailView() {
             title="Salkutus"
             rows={[
               [
+                "Salkku",
+                <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
+                  {item.oma_salkku}
+                </span>,
+              ],
+              [
                 "Pisteet",
                 Object.values(item.pisteet).reduce((a, b) => a + b, 0),
               ],
-              ["Salkku", item.oma_salkku],
+              ["A > 225  •  B > 175  •  C > 125  •  D < 125", ""],
+              [
+                "Toimenpiteet",
+                item.toimenpiteet && item.toimenpiteet.length > 0
+                  ? item.toimenpiteet.map((t) => t.kuvaus).join(", ")
+                  : "Ei kirjattuja toimenpiteitä",
+              ],
             ]}
           />
         </div>
@@ -363,7 +375,7 @@ function DetailCard({
   rows,
 }: {
   title: string;
-  rows: [string, string | number][];
+  rows: [string, React.ReactNode][];
 }) {
   return (
     <div style={cardStyle}>
@@ -425,12 +437,12 @@ function YllapitokulutCard({
   const costKeys =
     Object.values(item.yllapitokulut ?? {}).length > 0
       ? [
-          ...new Set(
-            Object.values(item.yllapitokulut).flatMap((yearData) =>
-              Object.keys(yearData),
-            ),
+        ...new Set(
+          Object.values(item.yllapitokulut).flatMap((yearData) =>
+            Object.keys(yearData),
           ),
-        ]
+        ),
+      ]
       : [];
 
   return (
@@ -499,7 +511,7 @@ function YllapitokulutCard({
               {displayYears.map((year) => {
                 const value =
                   item.yllapitokulut?.[year]?.[
-                    costKey as keyof (typeof item.yllapitokulut)[number]
+                  costKey as keyof (typeof item.yllapitokulut)[number]
                   ] ?? 0;
 
                 return (
