@@ -1,55 +1,41 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import type { Kiinteisto } from "../types";
 import { useKiinteistot } from "../context/useKiinteistot";
+import type { Kiinteisto } from "../types";
 
 import {
     laskeKayttoaste,
     laskePisteet,
-    laskeYllapito,
     laskeTasearvo,
+    laskeYllapito,
 } from "../utils/analyticsUtils";
 
 import {
+    badgeStyle,
     cardStyle,
-    tableStyle,
-    thStyle,
-    tdStyle,
-    sectionTitle,
-    mainHeader,
-    chartCard,
     chartCanvas,
-    flexContainer,
+    chartCard,
     flexChartContainer,
+    flexContainer,
+    mainHeader,
+    sectionTitle,
+    tableStyle,
+    tdStyle,
+    thStyle,
 } from "../styles";
 
 // Chart-renderöinnit on erotettu omiin tiedostoihin
-import { renderYllapitoChart } from "../charts/chartYllapito";
 import { renderKriteeritChart } from "../charts/chartKriteerit";
-import { renderMaintenanceChart } from "../charts/maintenanceChart";
+import { renderYllapitoChart } from "../charts/chartYllapito";
 import { renderCriteriaComparisonChart } from "../charts/criteriaComparisonChart";
+import { renderMaintenanceChart } from "../charts/maintenanceChart";
 
 export default function AnalyticsView() {
-    const navigate = useNavigate();
-    const { kiinteistot } = useKiinteistot();
-
-    /**
-     * Valitaan uusin vuosi, jota käytetään laskentafunktioissa.
-     * Tämä pitää näkymän automaattisesti ajan tasalla,
-     * vaikka dataan lisättäisiin uusia vuosia.
-     */
-    const year = Math.max(
-        ...kiinteistot.flatMap((k) => [
-            ...Object.keys(k.yllapitokulut).map(Number),
-            ...Object.keys(k.vuokrakulut).map(Number),
-        ])
-    );
-
-    /**
-     * Valittu pistekriteeri kriteerivertailu-charttia varten
-     */
+    const kiinteistot = useKiinteistot().kiinteistot;
+    const year = useKiinteistot().getLatestYear();
     const [selectedCriteria, setSelectedCriteria] = useState<string>("ika");
+    const navigate = useNavigate();
 
     /**
      * Taulukon lajittelun tila
@@ -162,8 +148,10 @@ export default function AnalyticsView() {
 
     return (
         <div style={flexContainer}>
-            <h1 style={mainHeader}>Analytiikka</h1>
-            <p style={sectionTitle}>Vertailunäkymät koko salkusta</p>
+            <div>
+                <h1 style={mainHeader}>Analytiikka</h1>
+                <p style={sectionTitle}>Vertailunäkymät koko salkusta</p>
+            </div>
 
             {/* ================== CHART-NÄKYMÄ ================== */}
             <div style={flexChartContainer}>
@@ -211,7 +199,7 @@ export default function AnalyticsView() {
             </div>
 
             {/* ================== YHTEENVETOTAULUKKO ================== */}
-            <div style={{ ...cardStyle}}>
+            <div style={{ ...cardStyle }}>
                 <div style={sectionTitle}>Yhteenvetotaulukko</div>
                 <table style={tableStyle}>
                     <thead>
@@ -234,7 +222,9 @@ export default function AnalyticsView() {
                                 style={{ cursor: "pointer" }}
                             >
                                 <td style={tdStyle}>{k.nimi}</td>
-                                <td style={tdStyle}>{k.oma_salkku}</td>
+                                <td style={{ ...tdStyle, ...badgeStyle(k.oma_salkku as "A" | "B" | "C" | "D") }}>
+                                    {k.oma_salkku}
+                                </td>
                                 <td style={tdStyle}>{laskePisteet(k)}</td>
                                 <td style={tdStyle}>{k.pinta_ala}</td>
                                 <td style={tdStyle}>{laskeTasearvo(k, year)}</td>

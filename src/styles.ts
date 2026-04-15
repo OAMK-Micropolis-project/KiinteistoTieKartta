@@ -54,7 +54,7 @@ export const cardStyle: CSSProperties = {
     borderRadius: theme.radius,
     padding: "16px",
     boxShadow: theme.shadow,
-    width: "100%",
+    width: "auto",
 };
 
 /**
@@ -154,7 +154,8 @@ export const tdStyle: CSSProperties = {
  */
 export function badgeStyle(salkku: "A" | "B" | "C" | "D"): CSSProperties {
     return {
-        display: "inline-block",
+        display: "inline-flex",
+        width: "fit-content",
         padding: "6px 16px",
         borderRadius: "20px",
         background: theme.colors.salkku[salkku].bg,
@@ -167,6 +168,7 @@ export function badgeStyle(salkku: "A" | "B" | "C" | "D"): CSSProperties {
  * Takaisin-painike detail-näkymissä
  */
 export const backButton: CSSProperties = {
+    width: "fit-content",
     padding: "8px 16px",
     borderRadius: "8px",
     border: `1px solid ${theme.colors.border}`,
