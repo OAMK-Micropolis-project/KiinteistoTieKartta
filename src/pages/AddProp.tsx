@@ -4,10 +4,11 @@ import { useNavigate } from "react-router-dom";
 
 // Ryhmän providerin hook
 import { useKiinteistot } from "../context/useKiinteistot";
-import type { Kiinteisto } from "../types";
+import { type NewKiinteistoInput } from "../types";
+import { ArviointiParametrit } from "../context/arviointiParametrit";
 
 const AddProp: React.FC = () => {
-  const { kiinteistot, addKiinteisto } = useKiinteistot();
+  const { add } = useKiinteistot();
   const navigate = useNavigate();
 
   // Lomakedata
@@ -96,21 +97,14 @@ const AddProp: React.FC = () => {
 
     const year = new Date().getFullYear();
 
-    const newId =
-      kiinteistot.length === 0
-        ? 1
-        : Math.max(...kiinteistot.map((k) => k.id)) + 1;
-
     // OIKEA dataformaatti providerille + DetailView:lle
-    const uusi: Kiinteisto = {
-      id: newId,
+    const uusi: NewKiinteistoInput = {
       nimi: formData.nimi,
       osoite: formData.osoite,
       kayttotarkoitus: formData.kayttotarkoitus,
       pinta_ala: formData.bruttopintaAla,
       rakennusvuosi: formData.rakennusvuosi,
       suojelukohde: formData.suojelukohde === "Kyllä",
-      oma_salkku: "A",
 
       pisteet: { ...formData.kunto },
 
@@ -141,7 +135,7 @@ const AddProp: React.FC = () => {
       toimenpiteet: [],
     };
 
-    addKiinteisto(uusi);
+    add(uusi);
 
     alert("Kiinteistö lisätty!");
     navigate("/");
@@ -296,32 +290,9 @@ const AddProp: React.FC = () => {
 
           <div className="slider-grid">
 
-            {[
-              ["Kiinteistön ikä", "ika"],
-              ["Vesikaton kunto ja kaltevuus", "vesikatto"],
-              ["Sadevesijärjestelmät", "sadevesi"],
-              ["Salaoja ja seinänvierustat", "salaoja"],
-              ["Julkisivuverhouksen kunto", "julkisivu"],
-              ["Ikkunat – laatu ja kunto", "ikkunat"],
-              ["Ulko-ovet – laatu ja kunto", "ovet"],
-              ["Rakennusvaipan U-arvo", "vaippa"],
-              ["Tontin korkeusasema ja kuivatus", "tontti"],
-              ["Lattiapinnan korkeus maastoon nähden", "lattia"],
-              ["Sisäilmaongelmat", "sisailma"],
-              ["Yleisilme sisätiloilta", "yleisilme"],
-              ["Lämmitysmuoto", "lammitys"],
-              ["Lämmityslaitteiden kunto", "lammlaitteet"],
-              ["Käyttövesiputkistot", "kayttovesi"],
-              ["Viemäriputkisto", "viemari"],
-              ["IV-järjestelmä", "iv"],
-              ["Peruskorjaus viim. 15v", "peruskorjaus"],
-              ["Toimivuus käyttötarkoitukseen", "toimivuus"],
-              ["Rakennuksen käyttöaste", "kayttoaste_piste"],
-              ["Tulevaisuuden käyttöaste", "tulevaisuus"],
-              ["Kannattaako investoida", "investointi"],
-            ].map(([label, field]) => (
+            {Object.entries(ArviointiParametrit).map(([field, { nimi }]) => (
               <div className="slider-item" key={field}>
-                <label>{label}</label>
+                <label>{nimi}</label>
                 <input
                   type="range"
                   min={1}
