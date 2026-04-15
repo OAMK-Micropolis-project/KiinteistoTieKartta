@@ -105,7 +105,7 @@ export default function AnalyticsView() {
      */
     const header = (label: string, key: string) => (
         <th
-            style={thStyle as React.CSSProperties}
+            style={thStyle}
             onClick={() => handleSort(key)}
         >
             {label}
@@ -179,6 +179,7 @@ export default function AnalyticsView() {
                         value={selectedCriteria}
                         onChange={(e) => setSelectedCriteria(e.target.value)}
                         style={{
+                            width: "fit-content",
                             padding: "6px 10px",
                             marginBottom: "12px",
                             borderRadius: "6px",
