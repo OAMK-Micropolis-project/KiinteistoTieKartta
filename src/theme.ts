@@ -1,7 +1,3 @@
-// =========================
-// KIINTEISTÖSALKUN VÄRITEEMA
-// =========================
-
 export const theme = {
     colors: {
         bg: "#f0ede8",
@@ -14,10 +10,10 @@ export const theme = {
 
         // Salkut
         salkku: {
-            A: { bg: "#f6faf4", color: "#a9d08e" },
-            B: { bg: "#fffbf0", color: "#ffd966" },
-            C: { bg: "#fef7f3", color: "#f4b084" },
-            D: { bg: "#fbe6e6", color: "#da0000" }
+            A: { bg: "#d2f0c5", color: "rgba(0, 119, 0, 0.5)" },
+            B: { bg: "#fffddc", color: "rgba(128, 125, 0, 0.5)" },
+            C: { bg: "#ffe3c3", color: "rgba(160, 96, 0, 0.5)" },
+            D: { bg: "#ffdcdc", color: "rgba(177, 0, 0, 0.5)" }
         }
     },
 
