@@ -154,6 +154,26 @@ export function portfolioItemHover() : CSSProperties{
         filter: "brightness(1.3)",
     };
 }
+export function salkkuBadge(salkku: "A" | "B" | "C" | "D"): CSSProperties {
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    minWidth: "32px",
+    height: "32px",
+    padding: "0 12px",
+
+    borderRadius: "999px",
+    fontWeight: 700,
+    fontSize: "14px",
+
+    background: theme.colors.salkku[salkku].color,
+
+    lineHeight: 1,
+    boxSizing: "border-box",
+  };
+}
 
 /* ========================
    SECOND ROW (CHARTS + LIST)

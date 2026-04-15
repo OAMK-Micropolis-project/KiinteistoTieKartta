@@ -6,6 +6,7 @@ import PointsBarChart from "./components/charts/Barchart";
 import Layout from "./components/Layout";
 import AddProp from "./pages/AddProp";
 import DonutChart from "./components/charts/DonutChart";
+import formatNumberShort from "./utils/formatUtils";
 import { useKiinteistot } from "./context/useKiinteistot.ts";
 import { useEffect, useState } from "react";
 import {
@@ -26,6 +27,7 @@ import {
   chartContainer,
   portfolioRowStyle,
   portfolioItemHover,
+  salkkuBadge,
 } from "./SummaryView.styles";
 
 function HomePage() {
@@ -47,27 +49,27 @@ function HomePage() {
   const summaryBoxes = [
     {
       name: "KIINTEISTÖJÄ",
-      value: realEstates.length.toLocaleString("fi-FI"),
+      value: formatNumberShort(realEstates.length),
     },
 
     {
       name: "KOKONAISPINTA-ALA",
-      value: store.calAllPintaAla().toLocaleString("fi-FI") + " m²",
+      value: formatNumberShort(store.calAllPintaAla()) + " m²",
     },
 
     {
       name: "TASEARVO YHTEENSÄ",
-      value: store.calAllTasearvo(year).toLocaleString("fi-FI") + " €",
+      value: formatNumberShort(store.calAllTasearvo(year)) + "€",
     },
 
     {
       name: "YLLÄPITÖKULUT / V",
-      value: store.calAllYllapito(year).toLocaleString("fi-FI") + " €",
+      value: formatNumberShort(store.calAllYllapito(year)) + "€",
     },
 
     {
       name: "VUOKRATULOT / V",
-      value: store.calAllVuokra(year).toLocaleString("fi-FI") + " €",
+      value: formatNumberShort(store.calAllVuokra(year)) + "€",
     },
   ];
 
@@ -112,7 +114,11 @@ function HomePage() {
               onMouseLeave={() => setHoverId(null)}
             >
               <span style={estateName}>{estate.nimi}</span>
-              <span style={portfolioCell}>{estate.oma_salkku}</span>
+              <span style={portfolioCell}>
+                <span style={salkkuBadge(estate.oma_salkku)}>
+                  {estate.oma_salkku}
+                </span>
+              </span>
               <span style={estateNumber}>
                 {(estate.painotetutPisteet ?? 0).toLocaleString("fi-FI")}
               </span>
@@ -120,9 +126,7 @@ function HomePage() {
                 {estate.pinta_ala.toLocaleString("fi-FI")} m²
               </span>
               <span style={estateNumber}>
-                {(estate.vuokrakulut[year]?.tasearvo ?? 0).toLocaleString(
-                  "fi-FI",
-                )}{" "}
+                {formatNumberShort(estate.vuokrakulut[year]?.tasearvo ?? 0)}{" "}
                 €
               </span>
             </NavLink>
