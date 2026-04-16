@@ -1,5 +1,34 @@
 import { theme } from "../theme";
 import type { CSSProperties } from "react";
+
+/*=========================
+   YearFilter
+======================== */
+
+export const yearFilterContainer: CSSProperties = {
+  display: "flex",
+  gap: "8px",
+  marginBottom: "16px",
+  overflowX: "auto",
+  paddingBottom: "4px",
+};
+
+export function yearFilterButton(active: boolean): CSSProperties {
+  return {
+    padding: "4px 10px",
+    borderRadius: "6px",
+
+    border: `1px solid ${active ? theme.colors.accent : theme.colors.border}`,
+    background: active ? theme.colors.accent : theme.colors.surfaceMuted,
+    color: active ? theme.colors.surface : theme.colors.text,
+
+    cursor: "pointer",
+    fontWeight: active ? 600 : 400,
+
+    transition: "background 0.15s ease, color 0.15s ease, border 0.15s ease",
+  };
+}
+
 /* ========================
    BOXES
 ======================== */

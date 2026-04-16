@@ -25,12 +25,29 @@ import {
   portfolioRowStyle,
   portfolioItemHover,
   salkkuBadge,
+  yearFilterButton,
+  yearFilterContainer,
 } from "./SummaryView.styles";
 
 export default function HomePage() {
   const store = useKiinteistot();
   const realEstates = store.kiinteistot;
-  const year = store.getLatestYear();
+  const years = Array.from(
+    new Set(
+      realEstates.flatMap((k) => [
+        ...Object.keys(k.yllapitokulut ?? {}).map(Number),
+        ...Object.keys(k.vuokrakulut ?? {}).map(Number),
+      ]),
+    ),
+  ).sort((a, b) => b - a);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (years.length && selectedYear === null) {
+      setSelectedYear(years[0]); // default = newest selectedYear
+    }
+  }, [years, selectedYear]);
+
 
   const [hoverId, setHoverId] = useState<string | null>(null);
 
@@ -50,21 +67,33 @@ export default function HomePage() {
     },
     {
       name: "TASEARVO YHTEENSÄ",
-      value: formatNumberShort(store.calAllTasearvo(year)) + " €",
+      value: formatNumberShort(store.calAllTasearvo(selectedYear)) + " €",
     },
     {
       name: "YLLÄPITÖKULUT / V",
-      value: formatNumberShort(store.calAllYllapito(year)) + " €",
+      value: formatNumberShort(store.calAllYllapito(selectedYear)) + " €",
     },
     {
       name: "VUOKRATULOT / V",
-      value: formatNumberShort(store.calAllVuokra(year)) + " €",
+      value: formatNumberShort(store.calAllVuokra(selectedYear)) + " €",
     },
   ];
 
   return (
     <>
       <span style={boxTitle}>Kiinteistösalkku</span>
+
+      <div style={yearFilterContainer}>
+        {years.map((y) => (
+          <button
+            key={y}
+            onClick={() => setSelectedYear(y)}
+            style={yearFilterButton(selectedYear === y)}
+          >
+            {y}
+          </button>
+        ))}
+      </div>
 
       <div style={boxesContainer}>
         {summaryBoxes.map((boxItem, i) => (
@@ -113,7 +142,7 @@ export default function HomePage() {
               </span>
               <span style={estateNumber}>
                 {formatNumberShort(
-                  estate.vuokrakulut[year]?.tasearvo ?? 0,
+                  estate.vuokrakulut[selectedYear]?.tasearvo ?? 0,
                 )}{" "}
                 €
               </span>
@@ -126,7 +155,7 @@ export default function HomePage() {
             <DonutChart />
           </div>
           <div style={chartContainer}>
-            <PointsBarChart />
+            <PointsBarChart/>
           </div>
         </div>
       </div>
