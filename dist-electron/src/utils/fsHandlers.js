@@ -5,7 +5,6 @@ const electron_1 = require("electron");
 const path_1 = require("path");
 const promises_1 = require("fs/promises");
 const settingsFile = (0, path_1.join)(electron_1.app.getPath("userData"), "settings.json");
-const targetFilePath = (0, path_1.join)(__dirname, '../../../../tmpdata.json');
 function registerFsHandlers() {
     async function loadSettings() {
         try {
