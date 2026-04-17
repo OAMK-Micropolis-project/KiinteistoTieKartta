@@ -184,7 +184,7 @@ export default function DetailView() {
               ["Rakennusvuosi", item.rakennusvuosi],
               ["Käyttötarkoitus", item.kayttotarkoitus],
               ["Suojelukohde", item.suojelukohde ? "Kyllä" : "Ei"],
-              ["Tasearvo", vuokra?.tasearvo ?? "—"],
+              ["Tasearvo", item.vuokrakulut[latestYear]?.tasearvo ?? "Ei saatavilla"],
               ["Ylläpitokulut / v", yllapitoYhteensa],
               ["Vuokratulot / v", vuokratulot],
               ["Käyttöaste", `${kayttoaste} %`],
@@ -196,13 +196,13 @@ export default function DetailView() {
             rows={[
               [
                 "Salkku",
-                <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
+                <span style={badgeStyle(item.oma_salkku)}>
                   {item.oma_salkku}
                 </span>,
               ],
               [
                 "Pisteet",
-                Object.values(item.pisteet).reduce((a, b) => a + b, 0),
+                arviointiYhteensa.toFixed(1),
               ],
               ["A > 225  •  B > 175  •  C > 125  •  D < 125", ""],
               [
@@ -335,7 +335,7 @@ export default function DetailView() {
         >
           {/* ========= YLLÄPITOKULUT ========= */}
 
-          <YllapitokulutCard title="Ylläpitokulut (€/v)" item={item} />
+          <Yllapitokulut title="Ylläpitokulut (€/v)" item={item} />
 
           {/* ========= VUOKRAUSTIEDOT ========= */}
           <div style={cardStyle}>
@@ -410,7 +410,7 @@ function DetailCard({
   );
 }
 
-function YllapitokulutCard({
+function Yllapitokulut({
   title,
   item,
 }: {
