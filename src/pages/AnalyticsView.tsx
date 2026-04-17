@@ -223,10 +223,10 @@ export default function AnalyticsView() {
                                 style={{ cursor: "pointer" }}
                             >
                                 <td style={tdStyle}>{k.nimi}</td>
-                                <td style={{ ...tdStyle, ...badgeStyle(k.oma_salkku as "A" | "B" | "C" | "D") }}>
+                                <td style={{ ...tdStyle, ...badgeStyle(k.oma_salkku) }}>
                                     {k.oma_salkku}
                                 </td>
-                                <td style={tdStyle}>{laskePisteet(k)}</td>
+                                <td style={tdStyle}>{k.painotetutPisteet.toFixed(0)}</td>
                                 <td style={tdStyle}>{k.pinta_ala}</td>
                                 <td style={tdStyle}>{laskeTasearvo(k, year)}</td>
                                 <td style={tdStyle}>{laskeYllapito(k, year)}</td>

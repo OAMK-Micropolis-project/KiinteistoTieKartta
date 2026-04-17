@@ -134,7 +134,22 @@ export function KiinteistoProvider({
   }
 
   function update(updated: Kiinteisto) {
-    const newList = kiinteistot.map((k) => (k.id === updated.id ? updated : k));
+    const painotetutPisteet = calPainotutPisteet(updated);
+    const oma_salkku = evalSalkku({
+      ...updated,
+      painotetutPisteet,
+    });
+
+    const normalized: Kiinteisto = {
+      ...updated,
+      painotetutPisteet,
+      oma_salkku,
+    };
+
+    const newList = kiinteistot.map((k) =>
+      k.id === updated.id ? normalized : k
+    );
+
     setKiinteistot(newList);
     persist(newList);
   }
@@ -147,21 +162,25 @@ export function KiinteistoProvider({
 
   function normalizeKiinteisto(raw: any): Kiinteisto | null {
     try {
-      return {
+      // 1. Perusnormalisointi (EI johdettuja arvoja)
+      const base: Kiinteisto = {
         id: Number(raw.id),
         nimi: String(raw.nimi ?? ""),
         osoite: String(raw.osoite ?? ""),
+        kayttotarkoitus: String(raw.kayttotarkoitus ?? ""),
         pinta_ala: Number(raw.pinta_ala ?? 0),
         rakennusvuosi: Number(raw.rakennusvuosi ?? 0),
         suojelukohde: Boolean(raw.suojelukohde),
-        oma_salkku: raw.oma_salkku ?? "D",
-        oma_perusteet: String(raw.oma_perusteet ?? ""),
-        toimenpiteet: Array.isArray(raw.toimenpiteet) ? raw.toimenpiteet : [],
 
         pisteet:
           raw.pisteet && typeof raw.pisteet === "object"
             ? raw.pisteet
             : {},
+
+        oma_perusteet: String(raw.oma_perusteet ?? ""),
+        toimenpiteet: Array.isArray(raw.toimenpiteet)
+          ? raw.toimenpiteet
+          : [],
 
         yllapitokulut:
           raw.yllapitokulut && typeof raw.yllapitokulut === "object"
@@ -173,12 +192,30 @@ export function KiinteistoProvider({
             ? raw.vuokrakulut
             : {},
 
-        painotetutPisteet: Number(raw.painotetutPisteet ?? 0),
+        // asetetaan väliaikaisesti, korvataan heti
+        painotetutPisteet: 0,
+        oma_salkku: "D",
       };
-    } catch {
+
+      // 2. Johdetut arvot (AINOA TOTUUS)
+      const painotetutPisteet = calPainotutPisteet(base);
+      const oma_salkku = evalSalkku({
+        ...base,
+        painotetutPisteet,
+      });
+
+      // 3. Lopullinen, validi Kiinteisto
+      return {
+        ...base,
+        painotetutPisteet,
+        oma_salkku,
+      };
+    } catch (error) {
+      console.error("Failed to normalize Kiinteisto:", error);
       return null;
     }
   }
+
 
   useEffect(() => {
     async function initData() {

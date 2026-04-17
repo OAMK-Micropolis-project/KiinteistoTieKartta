@@ -1,30 +1,30 @@
-import { NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { useKiinteistot } from "../context/useKiinteistot";
 
-import DonutChart from "../components/charts/DonutChart";
 import PointsBarChart from "../components/charts/Barchart";
+import DonutChart from "../components/charts/DonutChart";
 import formatNumberShort from "../utils/formatUtils";
 
 import {
-  boxesContainer,
   box,
+  boxesContainer,
   boxName,
-  boxValue,
   boxTitle,
-  secondRowContainer,
-  realEstatesContainer,
-  realEstateRow,
-  realEstateRowTitles,
-  realEstateTitle,
-  realEstateTitle2,
+  boxValue,
+  chartContainer,
   estateName,
   estateNumber,
   portfolioCell,
-  chartContainer,
-  portfolioRowStyle,
   portfolioItemHover,
+  portfolioRowStyle,
+  realEstateRow,
+  realEstateRowTitles,
+  realEstatesContainer,
+  realEstateTitle,
+  realEstateTitle2,
   salkkuBadge,
+  secondRowContainer,
   yearFilterButton,
   yearFilterContainer,
 } from "./SummaryView.styles";
@@ -155,7 +155,7 @@ export default function HomePage() {
             <DonutChart />
           </div>
           <div style={chartContainer}>
-            <PointsBarChart/>
+            <PointsBarChart />
           </div>
         </div>
       </div>
