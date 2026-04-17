@@ -1,5 +1,34 @@
-import { theme } from "./theme";
+import { theme } from "../theme";
 import type { CSSProperties } from "react";
+
+/*=========================
+   YearFilter
+======================== */
+
+export const yearFilterContainer: CSSProperties = {
+  display: "flex",
+  gap: "8px",
+  marginBottom: "16px",
+  overflowX: "auto",
+  paddingBottom: "4px",
+};
+
+export function yearFilterButton(active: boolean): CSSProperties {
+  return {
+    padding: "4px 10px",
+    borderRadius: "6px",
+
+    border: `1px solid ${active ? theme.colors.accent : theme.colors.border}`,
+    background: active ? theme.colors.accent : theme.colors.surfaceMuted,
+    color: active ? theme.colors.surface : theme.colors.text,
+
+    cursor: "pointer",
+    fontWeight: active ? 600 : 400,
+
+    transition: "background 0.15s ease, color 0.15s ease, border 0.15s ease",
+  };
+}
+
 /* ========================
    BOXES
 ======================== */
@@ -15,7 +44,7 @@ export const boxesContainer: CSSProperties = {
 export const box: CSSProperties = {
   flex: 1,
   minWidth: "180px",
-  height: "clamp(40px, 8vh, 260px)",
+  height: "clamp(40px, 10vh, 260px)",
   backgroundColor: theme.colors.surface,
   display: "flex",
   flexDirection: "column",
@@ -151,8 +180,28 @@ export function portfolioRowStyle(
 }
 export function portfolioItemHover() : CSSProperties{
     return {
-        filter: "brightness(1.3)",
+        filter: "brightness(0.9)",
     };
+}
+export function salkkuBadge(salkku: "A" | "B" | "C" | "D"): CSSProperties {
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    minWidth: "32px",
+    height: "32px",
+    padding: "0 12px",
+
+    borderRadius: "999px",
+    fontWeight: 700,
+    fontSize: "14px",
+
+    background: theme.colors.salkku[salkku].color,
+
+    lineHeight: 1,
+    boxSizing: "border-box",
+  };
 }
 
 /* ========================

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./AddProp.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
 
 // Ryhmän providerin hook
 import { useKiinteistot } from "../context/useKiinteistot";
@@ -8,55 +9,67 @@ import { type NewKiinteistoInput } from "../types";
 import { ArviointiParametrit } from "../context/arviointiParametrit";
 
 const AddProp: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const idParam = searchParams.get("id");
+  const editId = idParam ? Number(idParam) : null;
+
+  const store = useKiinteistot();
+
+  const existing = editId ? store.getById(editId) : null;
+  const isEditMode = Boolean(existing);
   const { add } = useKiinteistot();
   const navigate = useNavigate();
 
   // Lomakedata
-  const [formData, setFormData] = useState({
-    nimi: "",
-    osoite: "",
-    kayttotarkoitus: "",
-    bruttopintaAla: 0,
-    rakennusvuosi: 0,
-    tasearvo: 0,
-    vuokrattu: 0,
-    neliovuokra: 0,
-    suojelukohde: "Ei",
+const [formData, setFormData] = useState(() => {
+  if (!existing) {
+    return {
+      nimi: "",
+      osoite: "",
+      kayttotarkoitus: "",
+      bruttopintaAla: 0,
+      rakennusvuosi: 0,
+      tasearvo: 0,
+      vuokrattu: 0,
+      neliovuokra: 0,
+      suojelukohde: "Ei",
+      yllapito: {
+        sahko: 0,
+        lammitus: 0,
+        vesi: 0,
+        huolto: 0,
+        kiinteistovero: 0,
+        laina: 0,
+      },
+      kunto: Object.fromEntries(
+        Object.keys(ArviointiParametrit).map((k) => [k, 3]),
+      ),
+    };
+  }
 
+  const latestYear = store.getLatestYear();
+
+  return {
+    nimi: existing.nimi,
+    osoite: existing.osoite,
+    kayttotarkoitus: existing.kayttotarkoitus ?? "",
+    bruttopintaAla: existing.pinta_ala,
+    rakennusvuosi: existing.rakennusvuosi,
+    tasearvo: existing.vuokrakulut?.[latestYear]?.tasearvo ?? 0,
+    vuokrattu: existing.vuokrakulut?.[latestYear]?.vuokrausaste_m2 ?? 0,
+    neliovuokra: existing.vuokrakulut?.[latestYear]?.neliövuokra ?? 0,
+    suojelukohde: existing.suojelukohde ? "Kyllä" : "Ei",
     yllapito: {
-      sahko: 0,
-      lammitus: 0,
-      vesi: 0,
-      huolto: 0,
-      kiinteistovero: 0,
-      laina: 0,
+      sahko: existing.yllapitokulut?.[latestYear]?.sahko ?? 0,
+      lammitus: existing.yllapitokulut?.[latestYear]?.lammitys ?? 0,
+      vesi: existing.yllapitokulut?.[latestYear]?.vesi ?? 0,
+      huolto: existing.yllapitokulut?.[latestYear]?.huolto ?? 0,
+      kiinteistovero: existing.yllapitokulut?.[latestYear]?.vero ?? 0,
+      laina: existing.yllapitokulut?.[latestYear]?.laina ?? 0,
     },
-
-    kunto: {
-      ika: 3,
-      vesikatto: 3,
-      sadevesi: 3,
-      salaoja: 3,
-      julkisivu: 3,
-      ikkunat: 3,
-      ovet: 3,
-      vaippa: 3,
-      tontti: 3,
-      lattia: 3,
-      sisailma: 3,
-      yleisilme: 3,
-      lammitys: 3,
-      lammlaitteet: 3,
-      kayttovesi: 3,
-      viemari: 3,
-      iv: 3,
-      peruskorjaus: 3,
-      toimivuus: 3,
-      kayttoaste_piste: 3,
-      tulevaisuus: 3,
-      investointi: 3,
-    },
-  });
+    kunto: { ...existing.pisteet },
+  };
+});
 
   // Input-käsittelijä
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -109,6 +122,7 @@ const AddProp: React.FC = () => {
       pisteet: { ...formData.kunto },
 
       yllapitokulut: {
+        ...(existing?.yllapitokulut ?? {}),
         [year]: {
           sahko: formData.yllapito.sahko,
           lammitys: formData.yllapito.lammitus,
@@ -121,6 +135,7 @@ const AddProp: React.FC = () => {
       },
 
       vuokrakulut: {
+        ...(existing?.vuokrakulut ?? {}),
         [year]: {
           tasearvo: formData.tasearvo,
           vuokrausaste_m2: formData.vuokrattu,
@@ -131,20 +146,40 @@ const AddProp: React.FC = () => {
         },
       },
 
+
       oma_perusteet: "",
       toimenpiteet: [],
     };
 
-    add(uusi);
+  if (isEditMode && existing) {
+    store.update({
+      ...existing,
+      ...uusi,
+      id: existing.id,
+      painotetutPisteet: store.calPainotutPisteet({
+        ...existing,
+        pisteet: uusi.pisteet,
+      }),
+      oma_salkku: store.evalSalkku({
+        ...existing,
+        pisteet: uusi.pisteet,
+      }),
+    });
 
+    alert("Kiinteistö päivitetty!");
+  } else {
+    store.add(uusi);
     alert("Kiinteistö lisätty!");
-    navigate("/");
+  }
+
+  navigate("/");
   };
 
   return (
     <div className="addprop-container">
       <div className="card-container">
-        <h2>Lisää kiinteistö</h2>
+        <h2>{isEditMode ? "Muokkaa kiinteistöä" : "Lisää kiinteistö"}</h2>
+
 
         <form onSubmit={handleSubmit}>
 
@@ -306,9 +341,9 @@ const AddProp: React.FC = () => {
 
           </div>
 
-          <button className="save-button" type="submit">
-            Tallenna
-          </button>
+        <button className="save-button" type="submit">
+          {isEditMode ? "Tallenna muutokset" : "Tallenna"}
+        </button>
 
         </form>
       </div>

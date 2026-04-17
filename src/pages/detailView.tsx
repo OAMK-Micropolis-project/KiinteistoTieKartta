@@ -122,16 +122,32 @@ export default function DetailView() {
   return (
     <div style={flexContainer}>
       {/* ================= HEADER ================= */}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: "16px",
+      }}
+    >
       <button style={backButton} onClick={() => navigate(-1)}>
         ← Takaisin
       </button>
-      <div>
-        <h1>{item.nimi}</h1>
-        <div>{item.osoite} · {item.kayttotarkoitus} · Rakennettu {item.rakennusvuosi}</div>
-        <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
-          Salkku {item.oma_salkku}
-        </span>
-      </div>
+
+      <button
+        style={backButton}
+        onClick={() => navigate(`/add?id=${item.id}`)}
+      >
+        ✎ Muokkaa
+      </button>
+    </div>
+
+      <h1>{item.nimi}</h1>
+      <p>{item.osoite}</p>
+
+      <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
+        Salkku {item.oma_salkku}
+      </span>
 
       {/* ================= TABIT ================= */}
       <div style={{ display: "flex", gap: "16px" }}>
