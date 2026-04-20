@@ -26,6 +26,19 @@ export default function DetailView() {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<Tab>("perustiedot");
+  const store = useKiinteistot();
+
+  function handleDelete() {
+    const confirmed = window.confirm(
+      `Haluatko varmasti poistaa kiinteistön "${item.nimi}"?\n\nToimintoa ei voi perua.`
+    );
+
+    if (!confirmed) return;
+
+    store.remove(item.id);
+
+    navigate("/");
+  }
 
   // Radar-chartin elinkaaren hallinta
   const radarRef = useRef<Chart | null>(null);
@@ -133,13 +146,26 @@ export default function DetailView() {
         <button style={backButton} onClick={() => navigate(-1)}>
           ← Takaisin
         </button>
+        <div style={{display: "flex", gap: "12px"}}>
+          <button
+            style={backButton}
+            onClick={() => navigate(`/add?id=${item.id}`)}
+          >
+            ✎ Muokkaa
+          </button>
 
-        <button
-          style={backButton}
-          onClick={() => navigate(`/add?id=${item.id}`)}
-        >
-          ✎ Muokkaa
-        </button>
+          <button
+            style={{
+              ...backButton,
+              backgroundColor: "#b91c1c",
+              color: "#fff",
+              border: "none",
+            }}
+            onClick={() => handleDelete()}
+          >
+            🗑 Poista
+          </button>
+        </div>
       </div>
 
       <h1>{item.nimi}</h1>
