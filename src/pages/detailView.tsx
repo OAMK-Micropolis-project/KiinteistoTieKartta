@@ -2,20 +2,20 @@ import Chart from "chart.js/auto";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { ArviointiParametrit } from "../context/arviointiParametrit";
 import { useKiinteistot } from "../context/useKiinteistot";
 import {
-  flexContainer,
+  backButton,
+  badgeStyle,
   cardStyle,
+  chartCanvas,
+  chartCard,
+  flexContainer,
   sectionTitle,
   tableStyle,
   tdStyle,
-  backButton,
-  badgeStyle,
-  chartCanvas,
-  chartCard,
 } from "../styles";
 import type { Kiinteisto } from "../types";
-import { ArviointiParametrit } from "../context/arviointiParametrit";
 
 type Tab = "perustiedot" | "kuntoarviointi" | "toimenpiteet" | "talous";
 
@@ -122,25 +122,25 @@ export default function DetailView() {
   return (
     <div style={flexContainer}>
       {/* ================= HEADER ================= */}
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: "16px",
-      }}
-    >
-      <button style={backButton} onClick={() => navigate(-1)}>
-        ← Takaisin
-      </button>
-
-      <button
-        style={backButton}
-        onClick={() => navigate(`/add?id=${item.id}`)}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "16px",
+        }}
       >
-        ✎ Muokkaa
-      </button>
-    </div>
+        <button style={backButton} onClick={() => navigate(-1)}>
+          ← Takaisin
+        </button>
+
+        <button
+          style={backButton}
+          onClick={() => navigate(`/add?id=${item.id}`)}
+        >
+          ✎ Muokkaa
+        </button>
+      </div>
 
       <h1>{item.nimi}</h1>
       <p>{item.osoite}</p>
@@ -180,14 +180,14 @@ export default function DetailView() {
           <DetailCard
             title="Kiinteistön tiedot"
             rows={[
-              ["Pinta-ala", `${item.pinta_ala} m²`],
-              ["Rakennusvuosi", item.rakennusvuosi],
-              ["Käyttötarkoitus", item.kayttotarkoitus],
+              ["Pinta-ala", item.pinta_ala ?? "Ei tietoa"],
+              ["Rakennusvuosi", item.rakennusvuosi ?? "Ei tietoa"],
+              ["Käyttötarkoitus", item.kayttotarkoitus ?? "Ei tietoa"],
               ["Suojelukohde", item.suojelukohde ? "Kyllä" : "Ei"],
               ["Tasearvo", item.vuokrakulut[latestYear]?.tasearvo ?? "Ei saatavilla"],
-              ["Ylläpitokulut / v", yllapitoYhteensa],
-              ["Vuokratulot / v", vuokratulot],
-              ["Käyttöaste", `${kayttoaste} %`],
+              ["Ylläpitokulut / v", yllapitoYhteensa ?? "Ei saatavilla"],
+              ["Vuokratulot / v", vuokratulot ?? "Ei saatavilla"],
+              ["Käyttöaste (%)", kayttoaste ?? "Ei tietoa"],
             ]}
           />
 
@@ -202,7 +202,7 @@ export default function DetailView() {
               ],
               [
                 "Pisteet",
-                arviointiYhteensa.toFixed(1),
+                item.painotetutPisteet.toFixed(1),
               ],
               ["A > 225  •  B > 175  •  C > 125  •  D < 125", ""],
               [
