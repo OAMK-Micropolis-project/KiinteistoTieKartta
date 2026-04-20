@@ -15,7 +15,7 @@ import {
   tableStyle,
   tdStyle,
 } from "../styles";
-import type { Kiinteisto } from "../types";
+import type { Kiinteisto, Toimenpide } from "../types";
 
 type Tab = "perustiedot" | "kuntoarviointi" | "toimenpiteet" | "talous";
 
@@ -24,6 +24,21 @@ export default function DetailView() {
   const item = useKiinteistot().getById(Number(id));
   const latestYear = useKiinteistot().getLatestYear();
   const navigate = useNavigate();
+
+  const [otsikko, setOtsikko] = useState("");
+  const [kuvaus, setKuvaus] = useState("");
+  const [kustannukset, setKustannukset] = useState("");
+  const [suunniteltuPvm, setSuunniteltuPvm] = useState("");
+
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+
+  const [editOtsikko, setEditOtsikko] = useState("");
+  const [editKuvaus, setEditKuvaus] = useState("");
+  const [editKustannus, setEditKustannus] = useState("");
+  const [editSuunniteltuPvm, setEditSuunniteltuPvm] = useState("");
+  const [editTehtyPvm, setEditTehtyPvm] = useState("");
+
+  const [openDescIndex, setOpenDescIndex] = useState<number | null>(null);
 
   const [activeTab, setActiveTab] = useState<Tab>("perustiedot");
 
@@ -73,6 +88,81 @@ export default function DetailView() {
     return () => radarRef.current?.destroy();
   }, [activeTab, item]);
 
+  const { update } = useKiinteistot();
+
+  function handleAddToimenpide() {
+    if (!item) return;
+    if (!otsikko.trim()) return;
+
+    const uusi: Toimenpide = {
+      otsikko,
+      kuvaus: kuvaus || undefined,
+      kustannukset: Number(kustannukset) || 0,
+      suunniteltuPvm: suunniteltuPvm || undefined,
+    };
+
+    update({
+      ...item,
+      toimenpiteet: [...item.toimenpiteet, uusi],
+    });
+
+    setOtsikko("");
+    setKuvaus("");
+    setKustannukset("");
+    setSuunniteltuPvm("");
+  }
+  function isOverdue(t: Toimenpide): boolean {
+    if (!t.suunniteltuPvm) return false;
+    if (t.tehtyPvm) return false;
+
+    const today = new Date().toISOString().slice(0, 10);
+    return t.suunniteltuPvm < today;
+  }
+
+  function startEdit(t: Toimenpide, index: number) {
+    setEditIndex(index);
+    setEditOtsikko(t.otsikko);
+    setEditKuvaus(t.kuvaus ?? "");
+    setEditKustannus(String(t.kustannukset));
+    setEditSuunniteltuPvm(t.suunniteltuPvm ?? "");
+    setEditTehtyPvm(t.tehtyPvm ?? "");
+  }
+
+  function saveEdit() {
+    if (!item || editIndex === null) return;
+
+    const updatedToimenpiteet = item.toimenpiteet.map((t, i) =>
+      i === editIndex
+        ? {
+            ...t,
+            otsikko: editOtsikko,
+            kuvaus: editKuvaus,
+            kustannukset: Number(editKustannus) || 0,
+            suunniteltuPvm: editSuunniteltuPvm || undefined,
+            tehtyPvm: editTehtyPvm || undefined,
+          }
+        : t,
+    );
+
+    update({
+      ...item,
+      toimenpiteet: updatedToimenpiteet,
+    });
+
+    setEditIndex(null);
+  }
+
+  function deleteToimenpide(index: number) {
+    if (!item) return;
+
+    const updated = item.toimenpiteet.filter((_, i) => i !== index);
+
+    update({
+      ...item,
+      toimenpiteet: updated,
+    });
+  }
+
   /* --------------------------------------------------
        Guard render – EI ennen hookeja
     -------------------------------------------------- */
@@ -121,7 +211,6 @@ export default function DetailView() {
 
   return (
     <div style={flexContainer}>
-      {/* ================= HEADER ================= */}
       <div
         style={{
           display: "flex",
@@ -141,13 +230,15 @@ export default function DetailView() {
           ✎ Muokkaa
         </button>
       </div>
+      {/* ================= HEADER ================= */}
+      <div>
+        <h1>{item.nimi}</h1>
+        <p>{item.osoite}</p>
 
-      <h1>{item.nimi}</h1>
-      <p>{item.osoite}</p>
-
-      <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
-        Salkku {item.oma_salkku}
-      </span>
+        <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
+          Salkku {item.oma_salkku}
+        </span>
+      </div>
 
       {/* ================= TABIT ================= */}
       <div style={{ display: "flex", gap: "16px" }}>
@@ -184,7 +275,10 @@ export default function DetailView() {
               ["Rakennusvuosi", item.rakennusvuosi ?? "Ei tietoa"],
               ["Käyttötarkoitus", item.kayttotarkoitus ?? "Ei tietoa"],
               ["Suojelukohde", item.suojelukohde ? "Kyllä" : "Ei"],
-              ["Tasearvo", item.vuokrakulut[latestYear]?.tasearvo ?? "Ei saatavilla"],
+              [
+                "Tasearvo",
+                item.vuokrakulut[latestYear]?.tasearvo ?? "Ei saatavilla",
+              ],
               ["Ylläpitokulut / v", yllapitoYhteensa ?? "Ei saatavilla"],
               ["Vuokratulot / v", vuokratulot ?? "Ei saatavilla"],
               ["Käyttöaste (%)", kayttoaste ?? "Ei tietoa"],
@@ -200,15 +294,12 @@ export default function DetailView() {
                   {item.oma_salkku}
                 </span>,
               ],
-              [
-                "Pisteet",
-                item.painotetutPisteet.toFixed(1),
-              ],
+              ["Pisteet", item.painotetutPisteet.toFixed(1)],
               ["A > 225  •  B > 175  •  C > 125  •  D < 125", ""],
               [
                 "Toimenpiteet",
                 item.toimenpiteet && item.toimenpiteet.length > 0
-                  ? item.toimenpiteet.map((t) => t.kuvaus).join(", ")
+                  ? item.toimenpiteet.map((t) => t.otsikko).join(", ")
                   : "Ei kirjattuja toimenpiteitä",
               ],
             ]}
@@ -265,11 +356,10 @@ export default function DetailView() {
                       }}
                     />
                   </div>
+                  <hr style={{ margin: "12px 0" }} />
                 </div>
               );
             })}
-
-            <hr style={{ margin: "12px 0" }} />
 
             <div
               style={{
@@ -292,36 +382,182 @@ export default function DetailView() {
       )}
       {/* ================= TOIMENPITEET ================= */}
       {activeTab === "toimenpiteet" && (
-        <div style={cardStyle}>
-          <h3 style={sectionTitle}>Suunnitellut toimenpiteet</h3>
+        <>
+          <div style={cardStyle}>
+            <h3 style={sectionTitle}>Lisää toimenpide</h3>
 
-          {item.toimenpiteet.length === 0 ? (
-            <p>Ei kirjattuja toimenpiteitä.</p>
-          ) : (
-            item.toimenpiteet.map((t, index) => (
-              <div
-                key={index}
-                style={{
-                  padding: "12px 0",
-                  borderBottom: "1px solid #ddd",
-                }}
-              >
-                <div style={{ fontWeight: 500, marginBottom: "4px" }}>
-                  {index + 1}. {t.kuvaus}
-                </div>
+            <input
+              placeholder="Toimenpiteen otsikko (esim. Julkisivun kunnostus)"
+              value={otsikko}
+              onChange={(e) => setOtsikko(e.target.value)}
+            />
 
+            <textarea
+              placeholder="Tarkempi kuvaus (valinnainen)"
+              value={kuvaus}
+              onChange={(e) => setKuvaus(e.target.value)}
+              rows={3}
+            />
+
+            <input
+              type="number"
+              placeholder="Kustannusarvio (€)"
+              value={kustannukset}
+              onChange={(e) => setKustannukset(e.target.value)}
+            />
+
+            <input
+              type="date"
+              value={suunniteltuPvm}
+              onChange={(e) => setSuunniteltuPvm(e.target.value)}
+            />
+
+            <button onClick={handleAddToimenpide}>Lisää toimenpide</button>
+          </div>
+          <div style={cardStyle}>
+            <h3 style={sectionTitle}>Toimenpiteet</h3>
+            {item.toimenpiteet.length === 0 && (
+              <p>Ei kirjattuja toimenpiteitä.</p>
+            )}
+            {item.toimenpiteet.map((t, index) => {
+              const overdue = isOverdue(t);
+              const isOpen = openDescIndex === index;
+
+              return (
                 <div
+                  key={index}
                   style={{
-                    fontSize: "0.9rem",
-                    color: "#666",
+                    marginBottom: 16,
+                    padding: 12,
+                    border: "1px solid #ddd",
+                    borderLeft: overdue
+                      ? "6px solid #d32f2f"
+                      : "6px solid transparent",
+                    background: overdue ? "#fff5f5" : "transparent",
                   }}
                 >
-                  {t.kustannukset ? t.kustannukset : "Ei kustannusarviota"}
+                  {/* ================= MUOKKAUSTILA ================= */}
+                  {editIndex === index ? (
+                    <>
+                      <input
+                        value={editOtsikko}
+                        onChange={(e) => setEditOtsikko(e.target.value)}
+                        placeholder="Otsikko"
+                      />
+
+                      <textarea
+                        value={editKuvaus}
+                        onChange={(e) => setEditKuvaus(e.target.value)}
+                        placeholder="Tarkempi kuvaus"
+                        rows={3}
+                      />
+
+                      <input
+                        type="number"
+                        value={editKustannus}
+                        onChange={(e) => setEditKustannus(e.target.value)}
+                      />
+
+                      <input
+                        type="date"
+                        value={editSuunniteltuPvm}
+                        onChange={(e) => setEditSuunniteltuPvm(e.target.value)}
+                      />
+
+                      <input
+                        type="date"
+                        value={editTehtyPvm}
+                        onChange={(e) => setEditTehtyPvm(e.target.value)}
+                      />
+
+                      <button onClick={saveEdit}>Tallenna</button>
+                      <button onClick={() => setEditIndex(null)}>
+                        Peruuta
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {/* ================= NORMAALI NÄKYMÄ ================= */}
+
+                      {/* OTSIKKO */}
+                      <strong>{t.otsikko}</strong>
+
+                      {/* NÄYTÄ / PIILOTA KUVAUS */}
+                      {t.kuvaus && (
+                        <button
+                          style={{ marginLeft: 8 }}
+                          onClick={() =>
+                            setOpenDescIndex(isOpen ? null : index)
+                          }
+                        >
+                          {isOpen ? "Piilota kuvaus" : "Näytä kuvaus"}
+                        </button>
+                      )}
+
+                      <div>Kustannus: {t.kustannukset} €</div>
+
+                      {t.suunniteltuPvm && (
+                        <div>Suunniteltu: {t.suunniteltuPvm}</div>
+                      )}
+
+                      {t.tehtyPvm ? (
+                        <div>✅ Tehty: {t.tehtyPvm}</div>
+                      ) : (
+                        <>
+                          {overdue && (
+                            <div style={{ color: "#d32f2f" }}>⚠ Myöhässä</div>
+                          )}
+
+                          <input
+                            type="date"
+                            onChange={(e) => {
+                              if (!item) return;
+
+                              const updated = item.toimenpiteet.map((tp, i) =>
+                                i === index
+                                  ? { ...tp, tehtyPvm: e.target.value }
+                                  : tp,
+                              );
+
+                              update({
+                                ...item,
+                                toimenpiteet: updated,
+                              });
+                            }}
+                          />
+                        </>
+                      )}
+
+                      {/* KUVAUS */}
+                      {isOpen && t.kuvaus && (
+                        <div
+                          style={{
+                            marginTop: 8,
+                            padding: 8,
+                            background: "#f7f7f7",
+                            whiteSpace: "pre-wrap",
+                          }}
+                        >
+                          {t.kuvaus}
+                        </div>
+                      )}
+
+                      {/* TOIMINNOT */}
+                      <div style={{ marginTop: 8 }}>
+                        <button onClick={() => startEdit(t, index)}>
+                          Muokkaa
+                        </button>
+                        <button onClick={() => deleteToimenpide(index)}>
+                          Poista
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       {/* ================= TALOUS ================= */}
@@ -410,13 +646,7 @@ function DetailCard({
   );
 }
 
-function Yllapitokulut({
-  title,
-  item,
-}: {
-  title: string;
-  item: Kiinteisto;
-}) {
+function Yllapitokulut({ title, item }: { title: string; item: Kiinteisto }) {
   const [yearOffset, setYearOffset] = useState(0);
 
   /* --- Kaikki vuodet datasta --- */
@@ -453,12 +683,12 @@ function Yllapitokulut({
   const costKeys =
     Object.values(item.yllapitokulut ?? {}).length > 0
       ? [
-        ...new Set(
-          Object.values(item.yllapitokulut).flatMap((yearData) =>
-            Object.keys(yearData),
+          ...new Set(
+            Object.values(item.yllapitokulut).flatMap((yearData) =>
+              Object.keys(yearData),
+            ),
           ),
-        ),
-      ]
+        ]
       : [];
 
   return (
@@ -527,7 +757,7 @@ function Yllapitokulut({
               {displayYears.map((year) => {
                 const value =
                   item.yllapitokulut?.[year]?.[
-                  costKey as keyof (typeof item.yllapitokulut)[number]
+                    costKey as keyof (typeof item.yllapitokulut)[number]
                   ] ?? 0;
 
                 return (

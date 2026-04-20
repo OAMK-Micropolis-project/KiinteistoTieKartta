@@ -42,10 +42,12 @@ type Pisteet = {
     investointi: number,
 }
 
-interface Toimenpide {
-    kuvaus: string;
-    kustannukset: string;
-    tila: boolean;
+export interface Toimenpide {
+    otsikko: string;
+    kuvaus?: string;
+    kustannukset: number;
+    suunniteltuPvm?: string; // YYYY-MM-DD
+    tehtyPvm?: string; // YYYY-MM-DD
 }
 
 export interface Kiinteisto {

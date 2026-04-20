@@ -5,8 +5,9 @@ import { useKiinteistot } from "../context/useKiinteistot";
 import type { Kiinteisto } from "../types";
 
 import {
+    getPainotetutPisteet,
     laskeKayttoaste,
-    laskePisteet,
+    // laskePisteet,
     laskeTasearvo,
     laskeYllapito,
 } from "../utils/analyticsUtils";
@@ -54,8 +55,8 @@ export default function AnalyticsView() {
 
             switch (sortKey) {
                 case "pisteet":
-                    A = laskePisteet(a);
-                    B = laskePisteet(b);
+                    A = getPainotetutPisteet(a);
+                    B = getPainotetutPisteet(b);
                     break;
                 case "tasearvo":
                     A = laskeTasearvo(a, year);
