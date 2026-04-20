@@ -10,6 +10,11 @@ export function KiinteistoProvider({
   children: React.ReactNode;
 }) {
   const [kiinteistot, setKiinteistot] = useState<Kiinteisto[]>([]);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+
+  useEffect(() => {
+    refresh();
+  }, []);
 
   function getAll() {
     return [...kiinteistot];
@@ -216,46 +221,75 @@ export function KiinteistoProvider({
     }
   }
 
-
   useEffect(() => {
-    async function initData() {
+    let cancelled = false;
+
+    async function pollFile() {
       try {
         const content = await window.electronFs.readFile();
 
-        if (!content) {
-          setKiinteistot([]);
-          return;
-        }
+        if (!content || cancelled) return;
 
         const parsed = JSON.parse(content);
 
-        if (!Array.isArray(parsed)) {
-          throw new Error("Root JSON is not an array");
-        }
+        if (!Array.isArray(parsed)) return;
 
-        const safeData = parsed
-          .map(normalizeKiinteisto)
-          .filter((k): k is Kiinteisto => k !== null);
+        setKiinteistot((prev) => {
+          const prevJson = JSON.stringify(prev);
+          const nextJson = JSON.stringify(parsed);
 
-        setKiinteistot(safeData);
-        console.log("Data loaded safely");
+          return prevJson !== nextJson ? parsed : prev;
+        });
+        setLastRefresh(new Date());
       } catch (err) {
-        console.error("Invalid data file, resetting", err);
-
-        // 🔥 Recovery step
-        await window.settings.save({ lastFilePath: null });
-        setKiinteistot([]);
+        console.warn("Polling failed, keeping previous data", err);
       }
     }
 
-    initData();
+    const interval = setInterval(pollFile, 15_000); // every 15 seconds
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, []);
+
+  async function refresh() {
+    try {
+      const content = await window.electronFs.readFile();
+
+      if (!content) {
+        console.warn("No file content found during refresh");
+        return;
+      }
+
+      const parsed = JSON.parse(content);
+
+      if (!Array.isArray(parsed)) {
+        throw new Error("Invalid data format");
+      }
+
+      const safeData = parsed
+        .map(normalizeKiinteisto)
+        .filter((k): k is Kiinteisto => k !== null);
+
+      setKiinteistot(safeData);
+      setLastRefresh(new Date());
+      console.log("Data refreshed manually");
+    } catch (err) {
+      console.error("Manual refresh failed", err);
+    }
+  }
+
 
   const store: KiinteistoStore = {
     kiinteistot: getAll(),
     add,
     update,
     remove,
+
+    refresh,
+    lastRefresh,
 
     getById,
     getLatestYear,

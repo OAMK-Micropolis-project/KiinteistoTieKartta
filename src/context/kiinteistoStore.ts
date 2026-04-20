@@ -6,6 +6,9 @@ export type KiinteistoStore = {
   update: (updated: Kiinteisto) => void;
   remove: (id: number) => void;
 
+  refresh: () => Promise<void>;
+  lastRefresh: Date | null;
+
   getById: (id: number) => Kiinteisto | undefined;
   getLatestYear: () => number;
 

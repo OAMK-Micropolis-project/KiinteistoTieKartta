@@ -26,9 +26,11 @@ import FileButton from "./Pathfinderbutton";
 
 export default function Toolbar() {
   const { kiinteistot } = useKiinteistot();
-
+  const store = useKiinteistot();
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { lastRefresh } = useKiinteistot();
 
   const [activeSalkut, setActiveSalkut] = useState<
     Set<"A" | "B" | "C" | "D">
@@ -158,6 +160,33 @@ export default function Toolbar() {
       {/* ================= BOTTOM ================= */}
       <div style={toolbarBottom}>
         <FileButton />
+        <button      
+          onClick={async () => {
+            setIsRefreshing(true);
+            await store.refresh();
+            setIsRefreshing(false);
+          }}
+          disabled={isRefreshing}
+          title="Päivitä tiedosto"
+          style={{
+            padding: "8px 12px",
+            borderRadius: "6px",
+            background: "#2563eb",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          {isRefreshing ? "Päivitetään…" : "🔄 Päivitä"}
+        </button>
+
+        {lastRefresh && (
+          <span style={{ fontSize: "12px", color: "#666", paddingLeft: "10px", }}>
+            Päivitetty: {lastRefresh.toLocaleTimeString("fi-FI")}
+          </span>
+        )}
+
         {/* esim. asetukset / logout */}
       </div>
     </nav>
