@@ -1,0 +1,21 @@
+
+/* -------- Root layout -------- */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* -------- Global visuals -------- */
+body {
+  background-color: #f3e9e9;
+  font-family: Roboto, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* -------- Optional: scrollbar tuning -------- */
+* {
+  box-sizing: border-box;
+}

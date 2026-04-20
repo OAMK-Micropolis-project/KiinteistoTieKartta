@@ -30,8 +30,8 @@ export const toolbar: CSSProperties = {
     gap: "12px",
     boxSizing: "border-box",
 
-    borderRight: `1px solid ${theme.colors.border}`,
-    boxShadow: theme.shadowStrong,
+    borderRight: "none",//`1px solid ${theme.colors.border}`,
+    boxShadow: "0 0 20px rgba(0,0,0,0,0.15)",//theme.shadowStrong,
 
     overflow: "hidden",
 };

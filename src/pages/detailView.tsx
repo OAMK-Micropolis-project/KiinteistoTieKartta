@@ -2,20 +2,20 @@ import Chart from "chart.js/auto";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { ArviointiParametrit } from "../context/arviointiParametrit";
 import { useKiinteistot } from "../context/useKiinteistot";
 import {
-  flexContainer,
+  backButton,
+  badgeStyle,
   cardStyle,
+  chartCanvas,
+  chartCard,
+  flexContainer,
   sectionTitle,
   tableStyle,
   tdStyle,
-  backButton,
-  badgeStyle,
-  chartCanvas,
-  chartCard,
 } from "../styles";
 import type { Kiinteisto } from "../types";
-import { ArviointiParametrit } from "../context/arviointiParametrit";
 
 type Tab = "perustiedot" | "kuntoarviointi" | "toimenpiteet" | "talous";
 
@@ -122,16 +122,32 @@ export default function DetailView() {
   return (
     <div style={flexContainer}>
       {/* ================= HEADER ================= */}
-      <button style={backButton} onClick={() => navigate(-1)}>
-        ← Takaisin
-      </button>
-      <div>
-        <h1>{item.nimi}</h1>
-        <div>{item.osoite} · {item.kayttotarkoitus} · Rakennettu {item.rakennusvuosi}</div>
-        <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
-          Salkku {item.oma_salkku}
-        </span>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "16px",
+        }}
+      >
+        <button style={backButton} onClick={() => navigate(-1)}>
+          ← Takaisin
+        </button>
+
+        <button
+          style={backButton}
+          onClick={() => navigate(`/add?id=${item.id}`)}
+        >
+          ✎ Muokkaa
+        </button>
       </div>
+
+      <h1>{item.nimi}</h1>
+      <p>{item.osoite}</p>
+
+      <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
+        Salkku {item.oma_salkku}
+      </span>
 
       {/* ================= TABIT ================= */}
       <div style={{ display: "flex", gap: "16px" }}>
@@ -164,14 +180,14 @@ export default function DetailView() {
           <DetailCard
             title="Kiinteistön tiedot"
             rows={[
-              ["Pinta-ala", `${item.pinta_ala} m²`],
-              ["Rakennusvuosi", item.rakennusvuosi],
-              ["Käyttötarkoitus", item.kayttotarkoitus],
+              ["Pinta-ala", item.pinta_ala ?? "Ei tietoa"],
+              ["Rakennusvuosi", item.rakennusvuosi ?? "Ei tietoa"],
+              ["Käyttötarkoitus", item.kayttotarkoitus ?? "Ei tietoa"],
               ["Suojelukohde", item.suojelukohde ? "Kyllä" : "Ei"],
-              ["Tasearvo", vuokra?.tasearvo ?? "—"],
-              ["Ylläpitokulut / v", yllapitoYhteensa],
-              ["Vuokratulot / v", vuokratulot],
-              ["Käyttöaste", `${kayttoaste} %`],
+              ["Tasearvo", item.vuokrakulut[latestYear]?.tasearvo ?? "Ei saatavilla"],
+              ["Ylläpitokulut / v", yllapitoYhteensa ?? "Ei saatavilla"],
+              ["Vuokratulot / v", vuokratulot ?? "Ei saatavilla"],
+              ["Käyttöaste (%)", kayttoaste ?? "Ei tietoa"],
             ]}
           />
 
@@ -180,13 +196,13 @@ export default function DetailView() {
             rows={[
               [
                 "Salkku",
-                <span style={badgeStyle(item.oma_salkku as "A" | "B" | "C" | "D")}>
+                <span style={badgeStyle(item.oma_salkku)}>
                   {item.oma_salkku}
                 </span>,
               ],
               [
                 "Pisteet",
-                Object.values(item.pisteet).reduce((a, b) => a + b, 0),
+                item.painotetutPisteet.toFixed(1),
               ],
               ["A > 225  •  B > 175  •  C > 125  •  D < 125", ""],
               [
@@ -319,7 +335,7 @@ export default function DetailView() {
         >
           {/* ========= YLLÄPITOKULUT ========= */}
 
-          <YllapitokulutCard title="Ylläpitokulut (€/v)" item={item} />
+          <Yllapitokulut title="Ylläpitokulut (€/v)" item={item} />
 
           {/* ========= VUOKRAUSTIEDOT ========= */}
           <div style={cardStyle}>
@@ -394,7 +410,7 @@ function DetailCard({
   );
 }
 
-function YllapitokulutCard({
+function Yllapitokulut({
   title,
   item,
 }: {

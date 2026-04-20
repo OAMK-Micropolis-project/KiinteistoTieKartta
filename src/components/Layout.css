@@ -2,6 +2,7 @@
   margin-left: clamp(200px, 33vw, 320px);
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
   box-sizing: border-box;
   padding: 16px;
   background-color: #f1ebeb;

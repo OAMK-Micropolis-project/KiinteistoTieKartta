@@ -55,3 +55,12 @@ export function laskeKayttoaste(k: Kiinteisto, year: number): number {
         return 0;
     }
 }
+
+export function getPainotetutPisteet(k: Kiinteisto): number {
+    try {
+        return k.painotetutPisteet ?? 0;
+    } catch (error) {
+        console.error(`Error getting weighted points for ${k.nimi}:`, error);
+        return 0;
+    }
+}
