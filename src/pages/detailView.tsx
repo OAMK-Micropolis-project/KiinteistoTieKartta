@@ -16,19 +16,22 @@ import {
   tdStyle,
 } from "../styles";
 import type { Kiinteisto, Toimenpide } from "../types";
+import ToimenpideModal from "../components/ToimenpideModal";
 
 type Tab = "perustiedot" | "kuntoarviointi" | "toimenpiteet" | "talous";
 
 export default function DetailView() {
-  const { id } = useParams();
-  const item = useKiinteistot().getById(Number(id));
+  // const { id } = useParams();
+  // const item = useKiinteistot().getById(Number(id));
   const latestYear = useKiinteistot().getLatestYear();
   const navigate = useNavigate();
 
-  const [otsikko, setOtsikko] = useState("");
-  const [kuvaus, setKuvaus] = useState("");
-  const [kustannukset, setKustannukset] = useState("");
-  const [suunniteltuPvm, setSuunniteltuPvm] = useState("");
+  // const { update } = useKiinteistot();
+  const [showModal, setShowModal] = useState(false);
+  const [modalKey, setModalKey] = useState(0);
+  const [openDescIndex, setOpenDescIndex] = useState<number | null>(null);
+
+  const [activeTab, setActiveTab] = useState<Tab>("perustiedot");
 
   const [editIndex, setEditIndex] = useState<number | null>(null);
 
@@ -38,9 +41,12 @@ export default function DetailView() {
   const [editSuunniteltuPvm, setEditSuunniteltuPvm] = useState("");
   const [editTehtyPvm, setEditTehtyPvm] = useState("");
 
-  const [openDescIndex, setOpenDescIndex] = useState<number | null>(null);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<Tab>("perustiedot");
+  const { getById, update } = useKiinteistot();
+  const { id } = useParams();
+
+  const item = getById(Number(id));
 
   // Radar-chartin elinkaaren hallinta
   const radarRef = useRef<Chart | null>(null);
@@ -88,81 +94,6 @@ export default function DetailView() {
     return () => radarRef.current?.destroy();
   }, [activeTab, item]);
 
-  const { update } = useKiinteistot();
-
-  function handleAddToimenpide() {
-    if (!item) return;
-    if (!otsikko.trim()) return;
-
-    const uusi: Toimenpide = {
-      otsikko,
-      kuvaus: kuvaus || undefined,
-      kustannukset: Number(kustannukset) || 0,
-      suunniteltuPvm: suunniteltuPvm || undefined,
-    };
-
-    update({
-      ...item,
-      toimenpiteet: [...item.toimenpiteet, uusi],
-    });
-
-    setOtsikko("");
-    setKuvaus("");
-    setKustannukset("");
-    setSuunniteltuPvm("");
-  }
-  function isOverdue(t: Toimenpide): boolean {
-    if (!t.suunniteltuPvm) return false;
-    if (t.tehtyPvm) return false;
-
-    const today = new Date().toISOString().slice(0, 10);
-    return t.suunniteltuPvm < today;
-  }
-
-  function startEdit(t: Toimenpide, index: number) {
-    setEditIndex(index);
-    setEditOtsikko(t.otsikko);
-    setEditKuvaus(t.kuvaus ?? "");
-    setEditKustannus(String(t.kustannukset));
-    setEditSuunniteltuPvm(t.suunniteltuPvm ?? "");
-    setEditTehtyPvm(t.tehtyPvm ?? "");
-  }
-
-  function saveEdit() {
-    if (!item || editIndex === null) return;
-
-    const updatedToimenpiteet = item.toimenpiteet.map((t, i) =>
-      i === editIndex
-        ? {
-            ...t,
-            otsikko: editOtsikko,
-            kuvaus: editKuvaus,
-            kustannukset: Number(editKustannus) || 0,
-            suunniteltuPvm: editSuunniteltuPvm || undefined,
-            tehtyPvm: editTehtyPvm || undefined,
-          }
-        : t,
-    );
-
-    update({
-      ...item,
-      toimenpiteet: updatedToimenpiteet,
-    });
-
-    setEditIndex(null);
-  }
-
-  function deleteToimenpide(index: number) {
-    if (!item) return;
-
-    const updated = item.toimenpiteet.filter((_, i) => i !== index);
-
-    update({
-      ...item,
-      toimenpiteet: updated,
-    });
-  }
-
   /* --------------------------------------------------
        Guard render – EI ennen hookeja
     -------------------------------------------------- */
@@ -208,6 +139,64 @@ export default function DetailView() {
     (sum, r) => sum + r.painotettu,
     0,
   );
+
+  function sortByPlannedDate(a: Toimenpide, b: Toimenpide) {
+    if (!a.suunniteltuPvm) return 1;
+    if (!b.suunniteltuPvm) return -1;
+    return a.suunniteltuPvm.localeCompare(b.suunniteltuPvm);
+  }
+
+  function isOverdue(t: Toimenpide): boolean {
+    if (!t.suunniteltuPvm) return false;
+    if (t.tehtyPvm) return false;
+
+    const today = new Date().toISOString().slice(0, 10);
+    return t.suunniteltuPvm < today;
+  }
+
+  function startEdit(t: Toimenpide, index: number) {
+    setEditIndex(index);
+    setEditOtsikko(t.otsikko);
+    setEditKuvaus(t.kuvaus ?? "");
+    setEditKustannus(String(t.kustannukset));
+    setEditSuunniteltuPvm(t.suunniteltuPvm ?? "");
+    setEditTehtyPvm(t.tehtyPvm ?? "");
+  }
+
+  function saveEdit() {
+    if (!item || editIndex === null) return;
+
+    const updated = item.toimenpiteet.map((t, i) =>
+      i === editIndex
+        ? {
+            ...t,
+            otsikko: editOtsikko,
+            kuvaus: editKuvaus || undefined,
+            kustannukset: Number(editKustannus) || 0,
+            suunniteltuPvm: editSuunniteltuPvm || undefined,
+            tehtyPvm: editTehtyPvm || undefined,
+          }
+        : t,
+    );
+
+    update({
+      ...item,
+      toimenpiteet: updated,
+    });
+
+    setEditIndex(null);
+  }
+
+  function deleteToimenpide(index: number) {
+    if (!item) return;
+
+    const updated = item.toimenpiteet.filter((_, i) => i !== index);
+
+    update({
+      ...item,
+      toimenpiteet: updated,
+    });
+  }
 
   return (
     <div style={flexContainer}>
@@ -383,43 +372,55 @@ export default function DetailView() {
       {/* ================= TOIMENPITEET ================= */}
       {activeTab === "toimenpiteet" && (
         <>
-          <div style={cardStyle}>
-            <h3 style={sectionTitle}>Lisää toimenpide</h3>
-
-            <input
-              placeholder="Toimenpiteen otsikko (esim. Julkisivun kunnostus)"
-              value={otsikko}
-              onChange={(e) => setOtsikko(e.target.value)}
-            />
-
-            <textarea
-              placeholder="Tarkempi kuvaus (valinnainen)"
-              value={kuvaus}
-              onChange={(e) => setKuvaus(e.target.value)}
-              rows={3}
-            />
-
-            <input
-              type="number"
-              placeholder="Kustannusarvio (€)"
-              value={kustannukset}
-              onChange={(e) => setKustannukset(e.target.value)}
-            />
-
-            <input
-              type="date"
-              value={suunniteltuPvm}
-              onChange={(e) => setSuunniteltuPvm(e.target.value)}
-            />
-
-            <button onClick={handleAddToimenpide}>Lisää toimenpide</button>
-          </div>
+          {/* ===== LISÄÄ TOIMENPIDE ===== */}
           <div style={cardStyle}>
             <h3 style={sectionTitle}>Toimenpiteet</h3>
+
+            <button
+              onClick={() => {
+                setModalKey((k) => k + 1);
+                setShowModal(true);
+              }}
+            >
+              Lisää toimenpide
+            </button>
+          </div>
+
+          {/* ===== MODAL ===== */}
+
+          {showModal && (
+            <ToimenpideModal
+              key={modalKey}
+              onClose={() => setShowModal(false)}
+              onSave={(t) => {
+                if (!item) return;
+
+                update({
+                  ...item,
+                  toimenpiteet: [...item.toimenpiteet, t],
+                });
+
+                setShowModal(false);
+
+                setSaveMessage("Toimenpide tallennettu");
+                setTimeout(() => setSaveMessage(null), 2000);
+              }}
+            />
+          )}
+
+          {/* ===== LISTA ===== */}
+          <div style={cardStyle}>
             {item.toimenpiteet.length === 0 && (
               <p>Ei kirjattuja toimenpiteitä.</p>
             )}
-            {item.toimenpiteet.map((t, index) => {
+
+            {saveMessage && (
+              <div style={{ color: "green", marginBottom: 12 }}>
+                ✅ {saveMessage}
+              </div>
+            )}
+
+            {[...item.toimenpiteet].sort(sortByPlannedDate).map((t, index) => {
               const overdue = isOverdue(t);
               const isOpen = openDescIndex === index;
 
@@ -436,34 +437,26 @@ export default function DetailView() {
                     background: overdue ? "#fff5f5" : "transparent",
                   }}
                 >
-                  {/* ================= MUOKKAUSTILA ================= */}
                   {editIndex === index ? (
                     <>
                       <input
                         value={editOtsikko}
                         onChange={(e) => setEditOtsikko(e.target.value)}
-                        placeholder="Otsikko"
                       />
-
                       <textarea
                         value={editKuvaus}
                         onChange={(e) => setEditKuvaus(e.target.value)}
-                        placeholder="Tarkempi kuvaus"
-                        rows={3}
                       />
-
                       <input
                         type="number"
                         value={editKustannus}
                         onChange={(e) => setEditKustannus(e.target.value)}
                       />
-
                       <input
                         type="date"
                         value={editSuunniteltuPvm}
                         onChange={(e) => setEditSuunniteltuPvm(e.target.value)}
                       />
-
                       <input
                         type="date"
                         value={editTehtyPvm}
@@ -477,15 +470,10 @@ export default function DetailView() {
                     </>
                   ) : (
                     <>
-                      {/* ================= NORMAALI NÄKYMÄ ================= */}
-
-                      {/* OTSIKKO */}
                       <strong>{t.otsikko}</strong>
 
-                      {/* NÄYTÄ / PIILOTA KUVAUS */}
                       {t.kuvaus && (
                         <button
-                          style={{ marginLeft: 8 }}
                           onClick={() =>
                             setOpenDescIndex(isOpen ? null : index)
                           }
@@ -495,62 +483,23 @@ export default function DetailView() {
                       )}
 
                       <div>Kustannus: {t.kustannukset} €</div>
-
                       {t.suunniteltuPvm && (
                         <div>Suunniteltu: {t.suunniteltuPvm}</div>
                       )}
-
-                      {t.tehtyPvm ? (
-                        <div>✅ Tehty: {t.tehtyPvm}</div>
-                      ) : (
-                        <>
-                          {overdue && (
-                            <div style={{ color: "#d32f2f" }}>⚠ Myöhässä</div>
-                          )}
-
-                          <input
-                            type="date"
-                            onChange={(e) => {
-                              if (!item) return;
-
-                              const updated = item.toimenpiteet.map((tp, i) =>
-                                i === index
-                                  ? { ...tp, tehtyPvm: e.target.value }
-                                  : tp,
-                              );
-
-                              update({
-                                ...item,
-                                toimenpiteet: updated,
-                              });
-                            }}
-                          />
-                        </>
+                      {t.tehtyPvm && <div>✅ Tehty: {t.tehtyPvm}</div>}
+                      {overdue && (
+                        <div style={{ color: "#d32f2f" }}>⚠ Myöhässä</div>
                       )}
 
-                      {/* KUVAUS */}
-                      {isOpen && t.kuvaus && (
-                        <div
-                          style={{
-                            marginTop: 8,
-                            padding: 8,
-                            background: "#f7f7f7",
-                            whiteSpace: "pre-wrap",
-                          }}
-                        >
-                          {t.kuvaus}
-                        </div>
-                      )}
+                      {isOpen && t.kuvaus && <div>{t.kuvaus}</div>}
 
-                      {/* TOIMINNOT */}
-                      <div style={{ marginTop: 8 }}>
-                        <button onClick={() => startEdit(t, index)}>
-                          Muokkaa
-                        </button>
-                        <button onClick={() => deleteToimenpide(index)}>
-                          Poista
-                        </button>
-                      </div>
+                      <button onClick={() => startEdit(t, index)}>
+                        Muokkaa
+                      </button>
+
+                      <button onClick={() => deleteToimenpide(index)}>
+                        Poista
+                      </button>
                     </>
                   )}
                 </div>
