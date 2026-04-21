@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./AddProp.css";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 
 // Ryhmän providerin hook
@@ -9,67 +9,79 @@ import { type NewKiinteistoInput } from "../types";
 import { ArviointiParametrit } from "../context/arviointiParametrit";
 
 const AddProp: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const idParam = searchParams.get("id");
-  const editId = idParam ? Number(idParam) : null;
+  const firstInputRef = React.useRef<HTMLInputElement | null>(null);
+  const {id} = useParams<{id?: string}>();
+  const editId = id ? Number(id) : null;
 
   const store = useKiinteistot();
+  const [formData, setFormData] = useState<any>(null);
 
   const existing = editId ? store.getById(editId) : null;
   const isEditMode = Boolean(existing);
-  const { add } = useKiinteistot();
   const navigate = useNavigate();
 
   // Lomakedata
-const [formData, setFormData] = useState(() => {
-  if (!existing) {
-    return {
-      nimi: "",
-      osoite: "",
-      kayttotarkoitus: "",
-      bruttopintaAla: 0,
-      rakennusvuosi: 0,
-      tasearvo: 0,
-      vuokrattu: 0,
-      neliovuokra: 0,
-      suojelukohde: "Ei",
+  useEffect(() => {
+
+    if (!editId) {
+      // ADD MODE
+      setFormData({
+        nimi: "",
+        osoite: "",
+        kayttotarkoitus: "",
+        bruttopintaAla: 0,
+        rakennusvuosi: 0,
+        tasearvo: 0,
+        vuokrattu: 0,
+        neliovuokra: 0,
+        suojelukohde: "Ei",
+        yllapito: {
+          sahko: 0,
+          lammitus: 0,
+          vesi: 0,
+          huolto: 0,
+          kiinteistovero: 0,
+          laina: 0,
+        },
+        kunto: Object.fromEntries(
+          Object.keys(ArviointiParametrit).map((k) => [k, 3])
+        ),
+      });
+      return;
+    }
+
+    // EDIT MODE
+    const current = store.getById(editId);
+    if (!current) return;
+
+    const latestYear = store.getLatestYear();
+
+    setFormData({
+      nimi: current.nimi,
+      osoite: current.osoite,
+      kayttotarkoitus: current.kayttotarkoitus ?? "",
+      bruttopintaAla: current.pinta_ala,
+      rakennusvuosi: current.rakennusvuosi,
+      tasearvo: current.vuokrakulut?.[latestYear]?.tasearvo ?? 0,
+      vuokrattu: current.vuokrakulut?.[latestYear]?.vuokrausaste_m2 ?? 0,
+      neliovuokra: current.vuokrakulut?.[latestYear]?.neliövuokra ?? 0,
+      suojelukohde: current.suojelukohde ? "Kyllä" : "Ei",
       yllapito: {
-        sahko: 0,
-        lammitus: 0,
-        vesi: 0,
-        huolto: 0,
-        kiinteistovero: 0,
-        laina: 0,
+        sahko: current.yllapitokulut?.[latestYear]?.sahko ?? 0,
+        lammitus: current.yllapitokulut?.[latestYear]?.lammitys ?? 0,
+        vesi: current.yllapitokulut?.[latestYear]?.vesi ?? 0,
+        huolto: current.yllapitokulut?.[latestYear]?.huolto ?? 0,
+        kiinteistovero: current.yllapitokulut?.[latestYear]?.vero ?? 0,
+        laina: current.yllapitokulut?.[latestYear]?.laina ?? 0,
       },
-      kunto: Object.fromEntries(
-        Object.keys(ArviointiParametrit).map((k) => [k, 3]),
-      ),
-    };
+      kunto: { ...current.pisteet },
+    });
+  }, [editId]);
+
+
+  if (!formData) {
+    return null;
   }
-
-  const latestYear = store.getLatestYear();
-
-  return {
-    nimi: existing.nimi,
-    osoite: existing.osoite,
-    kayttotarkoitus: existing.kayttotarkoitus ?? "",
-    bruttopintaAla: existing.pinta_ala,
-    rakennusvuosi: existing.rakennusvuosi,
-    tasearvo: existing.vuokrakulut?.[latestYear]?.tasearvo ?? 0,
-    vuokrattu: existing.vuokrakulut?.[latestYear]?.vuokrausaste_m2 ?? 0,
-    neliovuokra: existing.vuokrakulut?.[latestYear]?.neliövuokra ?? 0,
-    suojelukohde: existing.suojelukohde ? "Kyllä" : "Ei",
-    yllapito: {
-      sahko: existing.yllapitokulut?.[latestYear]?.sahko ?? 0,
-      lammitus: existing.yllapitokulut?.[latestYear]?.lammitys ?? 0,
-      vesi: existing.yllapitokulut?.[latestYear]?.vesi ?? 0,
-      huolto: existing.yllapitokulut?.[latestYear]?.huolto ?? 0,
-      kiinteistovero: existing.yllapitokulut?.[latestYear]?.vero ?? 0,
-      laina: existing.yllapitokulut?.[latestYear]?.laina ?? 0,
-    },
-    kunto: { ...existing.pisteet },
-  };
-});
 
   // Input-käsittelijä
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -166,13 +178,34 @@ const [formData, setFormData] = useState(() => {
       }),
     });
 
-    alert("Kiinteistö päivitetty!");
+    navigate(`/detail/${existing.id}`)
   } else {
     store.add(uusi);
-    alert("Kiinteistö lisätty!");
+    
+  setFormData({
+    nimi: "",
+    osoite: "",
+    kayttotarkoitus: "",
+    bruttopintaAla: 0,
+    rakennusvuosi: 0,
+    tasearvo: 0,
+    vuokrattu: 0,
+    neliovuokra: 0,
+    suojelukohde: "Ei",
+    yllapito: {
+      sahko: 0,
+      lammitus: 0,
+      vesi: 0,
+      huolto: 0,
+      kiinteistovero: 0,
+      laina: 0,
+    },
+    kunto: Object.fromEntries(Object.keys(ArviointiParametrit).map(k => [k, 3])),
+  });
+  setTimeout(() => firstInputRef.current?.focus(), 0);
+  navigate("/add", { replace: true});
   }
 
-  navigate("/");
   };
 
   return (
@@ -191,6 +224,7 @@ const [formData, setFormData] = useState(() => {
             <div className="grid-item">
               <label>Kiinteistön nimi *</label>
               <input
+                ref={firstInputRef}
                 name="nimi"
                 value={formData.nimi}
                 onChange={handleChange}

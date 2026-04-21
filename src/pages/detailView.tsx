@@ -149,7 +149,7 @@ export default function DetailView() {
         <div style={{display: "flex", gap: "12px"}}>
           <button
             style={backButton}
-            onClick={() => navigate(`/add?id=${item.id}`)}
+            onClick={() => navigate(`/add/${item.id}`)}
           >
             ✎ Muokkaa
           </button>
