@@ -17,6 +17,7 @@ export default function ToimenpideModal({ onSave, onClose }: Props) {
     if (!otsikko.trim()) return;
 
     onSave({
+      id: crypto.randomUUID(),   // stable ID for keying and editing
       otsikko,
       kuvaus: kuvaus || undefined,
       kustannukset: Number(kustannukset) || 0,

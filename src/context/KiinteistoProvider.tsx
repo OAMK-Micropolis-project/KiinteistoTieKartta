@@ -178,8 +178,13 @@ export function KiinteistoProvider({
             : {},
 
         oma_perusteet: String(raw.oma_perusteet ?? ""),
+
+        // Migration: backfill id for any toimenpide saved before this field existed
         toimenpiteet: Array.isArray(raw.toimenpiteet)
-          ? raw.toimenpiteet
+          ? raw.toimenpiteet.map((t: any) => ({
+              ...t,
+              id: t.id ?? crypto.randomUUID(),
+            }))
           : [],
 
         yllapitokulut:
@@ -216,7 +221,6 @@ export function KiinteistoProvider({
     }
   }
 
-
   useEffect(() => {
     async function initData() {
       try {
@@ -242,7 +246,7 @@ export function KiinteistoProvider({
       } catch (err) {
         console.error("Invalid data file, resetting", err);
 
-        // 🔥 Recovery step
+        // Recovery step
         await window.settings.save({ lastFilePath: null });
         setKiinteistot([]);
       }
