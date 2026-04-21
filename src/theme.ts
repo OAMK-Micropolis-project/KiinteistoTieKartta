@@ -5,7 +5,7 @@ export const theme = {
         border: "#ddd9d0",
         text: "#1c1a17",
         textMuted: "#7a756c",
-        accent: "#2d5a27",
+        accent: "#c7c7c7",
         accentLight: "#e8f0e7",
 
         // Salkut
