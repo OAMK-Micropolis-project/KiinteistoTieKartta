@@ -246,7 +246,7 @@ export function KiinteistoProvider({
       }
     }
 
-    const interval = setInterval(pollFile, 15_000); // every 15 seconds
+    const interval = setInterval(pollFile, 60_000); // every 60 seconds
 
     return () => {
       cancelled = true;
