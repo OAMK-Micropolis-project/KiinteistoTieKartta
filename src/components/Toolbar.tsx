@@ -21,6 +21,12 @@ import {
     searchInput,
     searchIcon,
     filterBtnPortfolio,
+    filterRow,
+    emptyState,
+    refreshButton,
+    refreshButtonDisabled,
+    lastRefreshLabel,
+    toolbarBottomActions
 } from "./Toolbar.styles";
 import FileButton from "./Pathfinderbutton";
 
@@ -102,7 +108,7 @@ export default function Toolbar() {
       <div>
         <strong>Kiinteistöt</strong>
 
-        <div style={{ display: "flex", gap: "6px", marginTop: "6px" }}>
+        <div style={filterRow}>
           {(["A", "B", "C", "D"] as const).map((s) => (
             <button
               key={s}
@@ -133,7 +139,7 @@ export default function Toolbar() {
       {/* ================= PROPERTY LIST ================= */}
       <div style={propertyScroll}>
         {filteredKiinteistot.length === 0 && (
-          <div style={{ padding: "8px", opacity: 0.6 }}>
+          <div style={emptyState}>
             Ei kiinteistöjä
           </div>
         )}
@@ -169,20 +175,15 @@ export default function Toolbar() {
           disabled={isRefreshing}
           title="Päivitä tiedosto"
           style={{
-            padding: "8px 12px",
-            borderRadius: "6px",
-            background: "#2563eb",
-            color: "#fff",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: 600,
+            ...refreshButton,
+            ...(isRefreshing ? refreshButtonDisabled : {}),
           }}
         >
           {isRefreshing ? "Päivitetään…" : "🔄 Päivitä"}
         </button>
 
         {lastRefresh && (
-          <span style={{ fontSize: "12px", color: "#666", paddingLeft: "10px", }}>
+          <span style={lastRefreshLabel}>
             Päivitetty: {lastRefresh.toLocaleTimeString("fi-FI")}
           </span>
         )}
