@@ -43,11 +43,12 @@ type Pisteet = {
 }
 
 export interface Toimenpide {
+    id: string;          // stable unique ID – generate with crypto.randomUUID()
     otsikko: string;
     kuvaus?: string;
     kustannukset: number;
     suunniteltuPvm?: string; // YYYY-MM-DD
-    tehtyPvm?: string; // YYYY-MM-DD
+    tehtyPvm?: string;       // YYYY-MM-DD
 }
 
 export interface Kiinteisto {

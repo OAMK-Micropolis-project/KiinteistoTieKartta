@@ -227,7 +227,7 @@ export default function AnalyticsView() {
                                 <td style={{ ...tdStyle, ...badgeStyle(k.oma_salkku) }}>
                                     {k.oma_salkku}
                                 </td>
-                                <td style={tdStyle}>{k.painotetutPisteet.toFixed(0)}</td>
+                                <td style={tdStyle}>{k.painotetutPisteet.toFixed(1)}</td>
                                 <td style={tdStyle}>{k.pinta_ala}</td>
                                 <td style={tdStyle}>{laskeTasearvo(k, year)}</td>
                                 <td style={tdStyle}>{laskeYllapito(k, year)}</td>
