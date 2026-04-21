@@ -39,10 +39,18 @@ export const toolbar: CSSProperties = {
 /**
  * Alareunaan ankkuroidut elementit (esim. asetukset)
  */
+
+
 export const toolbarBottom: CSSProperties = {
-    marginTop: "auto",
-    width: "100%",
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between", // ✅ vierekkäin
+  gap: "8px",
+  paddingTop: "8px",
+  flexShrink: 0,                   // ✅ ei katoa
 };
+
 
 /* =========================================================
    HEADER / KIINTEISTÖN NIMI
@@ -90,6 +98,7 @@ export const propertyScroll: CSSProperties = {
     flex: 1,
     overflowY: "auto",
     overflowX: "hidden",
+    marginBottom: "8px",
 };
 
 /* =========================================================

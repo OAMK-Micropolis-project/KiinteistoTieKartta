@@ -6,6 +6,7 @@ import AnalyticsView from "./pages/AnalyticsView";
 import DetailView from "./pages/detailView";
 import AddProp from "./pages/AddProp";
 import PropertyPdfReport from "./pages/PropertyPdfReport";
+import BackUp from "./pages/BackUp";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/detail/:id" element={<DetailView />} />
           <Route path="/add" element={<AddProp />} />
           <Route path="/add/:id" element={<AddProp />} />
+          <Route path="/deleted" element={<BackUp />} />
         </Route>
       </Routes>
     </Router>

@@ -140,6 +140,17 @@ export default function Toolbar() {
 
       {/* ── Bottom ──────────────────────────────────────────────────── */}
       <div style={toolbarBottom}>
+        <NavLink
+          to="/deleted"
+          style={({ isActive }) => ({
+            ...toolbarItem,
+            ...(isActive ? toolbarItemActive() : {}),
+            padding: "8px 10px",
+          })}
+        >
+          <span style={toolbarLabel}>Poistetut</span>
+        </NavLink>
+
         <FileButton />
 
         <button

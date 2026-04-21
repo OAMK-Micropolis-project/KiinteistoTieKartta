@@ -16,6 +16,7 @@ const TABS: Tab[] = ["perustiedot", "kuntoarviointi", "toimenpiteet", "talous"];
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
+
 export default function DetailView() {
   const { id } = useParams();
   const { getById, update, getLatestYear, remove } = useKiinteistot();
@@ -26,14 +27,15 @@ export default function DetailView() {
 
   const [activeTab, setActiveTab] = useState<Tab>("perustiedot");
 
-  // Guard: hooks above, render guard below (rules of hooks satisfied)
   if (!item) return <p>Kiinteistöä ei löytynyt.</p>;
 
   function handleDelete() {
-    const ok = window.confirm(`Haluatko varmasti poistaa kiinteistön "${item.nimi}"?\n\nToimintoa ei voi perua.`);
+    const ok = window.confirm(
+      `Haluatko varmasti poistaa kiinteistön "${item.nimi}"?\n\nToimintoa ei voi perua.`
+    );
     if (!ok) return;
 
-    remove(item.id);
+    remove(item.id); // ✅ menee backupin kautta Providerissa
     navigate("/");
   }
 
@@ -51,7 +53,8 @@ export default function DetailView() {
         <button style={backButton} onClick={() => navigate(-1)}>
           ← Takaisin
         </button>
-        <div style={{display: "flex", gap: "12px"}}>
+
+        <div style={{ display: "flex", gap: "12px" }}>
           <button
             style={backButton}
             onClick={() => navigate(`/detail/${item.id}/pdf`)}
@@ -73,12 +76,13 @@ export default function DetailView() {
               color: "#fff",
               border: "none",
             }}
-            onClick={() => handleDelete()}
+            onClick={handleDelete}
           >
             🗑 Poista
           </button>
         </div>
       </div>
+
 
       {/* Header */}
       <div>
@@ -122,6 +126,7 @@ export default function DetailView() {
       )}
       {activeTab === "talous" && (
         <TalousTab item={item} latestYear={latestYear} />
+
       )}
     </div>
   );

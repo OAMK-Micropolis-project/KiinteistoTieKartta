@@ -72,3 +72,6 @@ export interface Kiinteisto {
 }
 
 export type NewKiinteistoInput = Omit<Kiinteisto, "id" | "painotetutPisteet" | "oma_salkku">;
+export type DeletedKiinteisto = Kiinteisto & {
+  deletedAt: string;
+};

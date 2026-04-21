@@ -175,3 +175,20 @@ export const backButton: CSSProperties = {
     background: theme.colors.surface,
     cursor: "pointer",
 };
+
+
+export const detailActions: CSSProperties = {
+  display: "flex",
+  justifyContent: "flex-end",
+  marginTop: "32px",
+};
+
+export const deleteButton: CSSProperties = {
+  padding: "10px 18px",
+  borderRadius: "6px",
+  border: "none",
+  background: "#e74c3c",
+  color: "#fff",
+  fontWeight: 600,
+  cursor: "pointer",
+};

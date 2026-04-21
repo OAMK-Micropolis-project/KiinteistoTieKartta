@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import type { Kiinteisto, NewKiinteistoInput } from "../types";
+import type { Kiinteisto, NewKiinteistoInput, DeletedKiinteisto } from "../types";
 import { ArviointiParametrit } from "./arviointiParametrit";
 import { KiinteistoContext } from "./KiinteistoContext";
 import type { KiinteistoStore } from "./kiinteistoStore";
 
-const ALL_SALKUT = new Set<"A" | "B" | "C" | "D">(["A", "B", "C", "D"]);
 
+const ALL_SALKUT = new Set<"A" | "B" | "C" | "D">(["A", "B", "C", "D"]);
 export function KiinteistoProvider({ children }: { children: React.ReactNode }) {
+
   const [kiinteistot, setKiinteistot] = useState<Kiinteisto[]>([]);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [activeSalkut, setActiveSalkut] = useState<Set<"A" | "B" | "C" | "D">>(
@@ -169,11 +170,11 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
     persist(newList);
   }
 
+
   function remove(id: number) {
-    const newList = kiinteistot.filter((k) => k.id !== id);
-    setKiinteistot(newList);
-    persist(newList);
+    deleteKiinteistoWithBackup(id);
   }
+
 
   // ── Data loading ──────────────────────────────────────────────────────────
 
@@ -227,6 +228,79 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => { refresh(); }, []);
 
   // Poll every 60s
+
+  
+
+  function getBackup(): DeletedKiinteisto[] {
+    const data = localStorage.getItem("kiinteistot-backup");
+    return data ? JSON.parse(data) : [];
+  }
+
+  function saveBackup(backup: DeletedKiinteisto[]) {
+    localStorage.setItem(
+      "kiinteistot-backup",
+      JSON.stringify(backup, null, 2)
+    );
+  }
+
+
+
+
+  function deleteKiinteistoWithBackup(id: number) {
+    setKiinteistot(prev => {
+      const toDelete = prev.find(k => k.id === id);
+      if (!toDelete) return prev;
+
+      const backup = getBackup();
+
+      // ✅ ESTÄ DUPLIKAATTI BACKUPISSA
+      const alreadyExists = backup.some(
+        (k) => k.id === toDelete.id
+      );
+
+      if (!alreadyExists) {
+        backup.push({
+          ...toDelete,
+          deletedAt: new Date().toISOString(),
+        });
+
+        saveBackup(backup);
+      }
+
+      return prev.filter(k => k.id !== id);
+    });
+  }
+
+  //palauta poistettu kiinteisto 
+  
+  function restoreKiinteisto(id: number) {
+    // 1. Lue backup
+    const data = localStorage.getItem("kiinteistot-backup");
+    if (!data) return;
+
+    const backup = JSON.parse(data);
+
+    // 2. Etsi palautettava
+    const restored = backup.find((k: any) => k.id === id);
+    if (!restored) return;
+
+    // 3. Poista deletedAt ennen palautusta
+    const { deletedAt, ...cleaned } = restored;
+
+    // 4. Lisää takaisin aktiivisiin kiinteistöihin
+    setKiinteistot((prev) => [...prev, cleaned]);
+
+    // 5. Poista backupista
+    const updatedBackup = backup.filter((k: any) => k.id !== id);
+    localStorage.setItem(
+      "kiinteistot-backup",
+      JSON.stringify(updatedBackup)
+    );
+  }
+
+
+
+
   useEffect(() => {
     let cancelled = false;
     async function pollFile() {
@@ -262,6 +336,8 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
     add,
     update,
     remove,
+    deleteKiinteistoWithBackup,
+    restoreKiinteisto,
 
     refresh,
     lastRefresh,
