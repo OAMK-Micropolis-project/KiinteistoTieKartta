@@ -5,8 +5,9 @@ import { useKiinteistot } from "../context/useKiinteistot";
 import type { Kiinteisto } from "../types";
 
 import {
+    getPainotetutPisteet,
     laskeKayttoaste,
-    laskePisteet,
+    // laskePisteet,
     laskeTasearvo,
     laskeYllapito,
 } from "../utils/analyticsUtils";
@@ -54,8 +55,8 @@ export default function AnalyticsView() {
 
             switch (sortKey) {
                 case "pisteet":
-                    A = laskePisteet(a);
-                    B = laskePisteet(b);
+                    A = getPainotetutPisteet(a);
+                    B = getPainotetutPisteet(b);
                     break;
                 case "tasearvo":
                     A = laskeTasearvo(a, year);
@@ -226,7 +227,7 @@ export default function AnalyticsView() {
                                 <td style={{ ...tdStyle, ...badgeStyle(k.oma_salkku) }}>
                                     {k.oma_salkku}
                                 </td>
-                                <td style={tdStyle}>{k.painotetutPisteet.toFixed(0)}</td>
+                                <td style={tdStyle}>{k.painotetutPisteet.toFixed(1)}</td>
                                 <td style={tdStyle}>{k.pinta_ala}</td>
                                 <td style={tdStyle}>{laskeTasearvo(k, year)}</td>
                                 <td style={tdStyle}>{laskeYllapito(k, year)}</td>
