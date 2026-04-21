@@ -26,9 +26,50 @@ export default function DetailView() {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<Tab>("perustiedot");
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   // Radar-chartin elinkaaren hallinta
   const radarRef = useRef<Chart | null>(null);
+
+  async function handleExportPdf() {
+    console.log("Export PDF clicked for item");
+    if (!item) {
+      return;
+    }
+
+    if (
+      !window.electronPdf ||
+      !window.electronPdf.chooseSavePdfPath ||
+      !window.electronPdf.exportKiinteistoPdf
+    ) {
+      console.error(
+        "PDF bridge is missing in preload. Rebuild Electron bundle.",
+      );
+      return;
+    }
+
+    setIsExportingPdf(true);
+
+    try {
+      const baseUrl = window.location.href.split("#")[0];
+      const route = `${baseUrl}#/detail/${item.id}/pdf`;
+      const suggestedFileName = `kiinteisto-${item.nimi}-${item.id}`;
+      const outputPath =
+        await window.electronPdf.chooseSavePdfPath(suggestedFileName);
+
+      console.log("Valittu PDF-tiedostopolku:", outputPath);
+
+      if (!outputPath) {
+        return;
+      }
+
+      await window.electronPdf.exportKiinteistoPdf(route, outputPath);
+    } catch (error) {
+      console.error("PDF:n vienti epäonnistui:", error);
+    }
+
+    setIsExportingPdf(false);
+  }
 
   /* --------------------------------------------------
        Hookit kutsutaan AINA – guardit vasta tämän jälkeen
@@ -135,6 +176,17 @@ export default function DetailView() {
         </button>
 
         <button
+          style={{
+            ...backButton,
+            opacity: isExportingPdf ? 0.7 : 1,
+          }}
+          onClick={handleExportPdf}
+          disabled={isExportingPdf}
+        >
+          {isExportingPdf ? "Viedään PDF:ää..." : "Vie PDF"}
+        </button>
+
+        <button
           style={backButton}
           onClick={() => navigate(`/add?id=${item.id}`)}
         >
@@ -184,7 +236,10 @@ export default function DetailView() {
               ["Rakennusvuosi", item.rakennusvuosi ?? "Ei tietoa"],
               ["Käyttötarkoitus", item.kayttotarkoitus ?? "Ei tietoa"],
               ["Suojelukohde", item.suojelukohde ? "Kyllä" : "Ei"],
-              ["Tasearvo", item.vuokrakulut[latestYear]?.tasearvo ?? "Ei saatavilla"],
+              [
+                "Tasearvo",
+                item.vuokrakulut[latestYear]?.tasearvo ?? "Ei saatavilla",
+              ],
               ["Ylläpitokulut / v", yllapitoYhteensa ?? "Ei saatavilla"],
               ["Vuokratulot / v", vuokratulot ?? "Ei saatavilla"],
               ["Käyttöaste (%)", kayttoaste ?? "Ei tietoa"],
@@ -200,10 +255,7 @@ export default function DetailView() {
                   {item.oma_salkku}
                 </span>,
               ],
-              [
-                "Pisteet",
-                item.painotetutPisteet.toFixed(1),
-              ],
+              ["Pisteet", item.painotetutPisteet.toFixed(1)],
               ["A > 225  •  B > 175  •  C > 125  •  D < 125", ""],
               [
                 "Toimenpiteet",
@@ -410,13 +462,7 @@ function DetailCard({
   );
 }
 
-function Yllapitokulut({
-  title,
-  item,
-}: {
-  title: string;
-  item: Kiinteisto;
-}) {
+function Yllapitokulut({ title, item }: { title: string; item: Kiinteisto }) {
   const [yearOffset, setYearOffset] = useState(0);
 
   /* --- Kaikki vuodet datasta --- */
@@ -453,12 +499,12 @@ function Yllapitokulut({
   const costKeys =
     Object.values(item.yllapitokulut ?? {}).length > 0
       ? [
-        ...new Set(
-          Object.values(item.yllapitokulut).flatMap((yearData) =>
-            Object.keys(yearData),
+          ...new Set(
+            Object.values(item.yllapitokulut).flatMap((yearData) =>
+              Object.keys(yearData),
+            ),
           ),
-        ),
-      ]
+        ]
       : [];
 
   return (
@@ -527,7 +573,7 @@ function Yllapitokulut({
               {displayYears.map((year) => {
                 const value =
                   item.yllapitokulut?.[year]?.[
-                  costKey as keyof (typeof item.yllapitokulut)[number]
+                    costKey as keyof (typeof item.yllapitokulut)[number]
                   ] ?? 0;
 
                 return (

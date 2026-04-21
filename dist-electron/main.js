@@ -5,12 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const node_path_1 = __importDefault(require("node:path"));
+const pdfHandlers_1 = __importDefault(require("./utils/pdfHandlers"));
+const fsHandlers_1 = __importDefault(require("./utils/fsHandlers"));
 function createWindow() {
     const win = new electron_1.BrowserWindow({
         show: false,
         webPreferences: {
             preload: node_path_1.default.join(__dirname, "./preload.js"),
-        }
+        },
     });
     win.maximize();
     win.show();
@@ -23,4 +25,6 @@ function createWindow() {
 }
 electron_1.app.whenReady().then(() => {
     createWindow();
+    (0, pdfHandlers_1.default)();
+    (0, fsHandlers_1.default)();
 });

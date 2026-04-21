@@ -2,12 +2,12 @@
   "name": "kiinteistotiekartta",
   "private": true,
   "version": "0.0.0",
-  "main": "dist-electron/electron/main.js",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"npm:dev:electron\"",
     "dev:electron": "cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
     "build": "vite build && npm run build:electron",
-    "build:electron": "tsc -p electron --outDir dist-electron",
+    "build:electron": "tsc --project electron --outDir dist-electron",
     "dist": "npm run build && electron-builder",
     "lint": "eslint .",
     "preview": "vite preview"

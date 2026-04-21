@@ -5,11 +5,13 @@ import HomePage from "./pages/SummaryView";
 import AnalyticsView from "./pages/AnalyticsView";
 import DetailView from "./pages/detailView";
 import AddProp from "./pages/AddProp";
+import PropertyPdfReport from "./pages/PropertyPdfReport";
 
 export default function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/detail/:id/pdf" element={<PropertyPdfReport />} />
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/analytics" element={<AnalyticsView />} />

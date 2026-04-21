@@ -8,6 +8,10 @@ electron_1.contextBridge.exposeInMainWorld('electronFs', {
     saveFilePath: (path) => electron_1.ipcRenderer.invoke("save-file-path", path),
     getFilePath: () => electron_1.ipcRenderer.invoke("get-file-path"),
 });
+electron_1.contextBridge.exposeInMainWorld("electronPdf", {
+    chooseSavePdfPath: (suggestedFileName) => electron_1.ipcRenderer.invoke("choose-save-pdf-path", { suggestedFileName }),
+    exportKiinteistoPdf: (route, outputPath) => electron_1.ipcRenderer.invoke("export-kiinteisto-pdf", { route, outputPath }),
+});
 electron_1.contextBridge.exposeInMainWorld("settings", {
     load: () => electron_1.ipcRenderer.invoke("load-settings"),
     save: (data) => electron_1.ipcRenderer.invoke("save-settings", data),
