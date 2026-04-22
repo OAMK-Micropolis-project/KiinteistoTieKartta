@@ -5,14 +5,6 @@ import { useKiinteistot } from "../context/useKiinteistot";
 import type { Kiinteisto } from "../types";
 
 import {
-    getPainotetutPisteet,
-    laskeKayttoaste,
-    // laskePisteet,
-    laskeTasearvo,
-    laskeYllapito,
-} from "../utils/analyticsUtils";
-
-import {
     badgeStyle,
     cardStyle,
     chartCanvas,
@@ -26,28 +18,29 @@ import {
     thStyle,
 } from "../styles";
 
-// Chart-renderöinnit on erotettu omiin tiedostoihin
 import { renderKriteeritChart } from "../charts/chartKriteerit";
 import { renderYllapitoChart } from "../charts/chartYllapito";
 import { renderCriteriaComparisonChart } from "../charts/criteriaComparisonChart";
 import { renderMaintenanceChart } from "../charts/maintenanceChart";
 
 export default function AnalyticsView() {
-    const kiinteistot = useKiinteistot().kiinteistot;
-    const year = useKiinteistot().getLatestYear();
-    const [selectedCriteria, setSelectedCriteria] = useState<string>("ika");
+    const {
+        kiinteistot,
+        getLatestYear,
+        calYllapito,
+        calKayttoaste,
+        calPainotutPisteet,
+    } = useKiinteistot();
+
+    const year = getLatestYear();
     const navigate = useNavigate();
 
-    /**
-     * Taulukon lajittelun tila
-     */
+    const [selectedCriteria, setSelectedCriteria] = useState<string>("ika");
     const [sortKey, setSortKey] = useState<string>("nimi");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-    /**
-     * Lajittelee kiinteistöt valitun sarakkeen ja suunnan mukaan.
-     * Laskennalliset arvot käsitellään erikseen util-funktioiden avulla.
-     */
+    // ── Sorting ───────────────────────────────────────────────────────────────
+
     function sortData(data: Kiinteisto[]) {
         return [...data].sort((a, b) => {
             let A: string | number;
@@ -55,20 +48,20 @@ export default function AnalyticsView() {
 
             switch (sortKey) {
                 case "pisteet":
-                    A = getPainotetutPisteet(a);
-                    B = getPainotetutPisteet(b);
+                    A = calPainotutPisteet(a);
+                    B = calPainotutPisteet(b);
                     break;
                 case "tasearvo":
-                    A = laskeTasearvo(a, year);
-                    B = laskeTasearvo(b, year);
+                    A = a.vuokrakulut[year]?.tasearvo ?? 0;
+                    B = b.vuokrakulut[year]?.tasearvo ?? 0;
                     break;
                 case "kayttoaste":
-                    A = laskeKayttoaste(a, year);
-                    B = laskeKayttoaste(b, year);
+                    A = calKayttoaste(a, year);
+                    B = calKayttoaste(b, year);
                     break;
                 case "yllapito":
-                    A = laskeYllapito(a, year);
-                    B = laskeYllapito(b, year);
+                    A = calYllapito(a, year);
+                    B = calYllapito(b, year);
                     break;
                 default:
                     A = (a as any)[sortKey];
@@ -87,11 +80,6 @@ export default function AnalyticsView() {
         });
     }
 
-    /**
-     * Päivittää lajittelun:
-     * - sama otsikko → vaihda suuntaa
-     * - eri otsikko → uusi sarake, oletus nouseva
-     */
     function handleSort(key: string) {
         if (sortKey === key) {
             setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -101,25 +89,16 @@ export default function AnalyticsView() {
         }
     }
 
-    /**
-     * Pieni apufunktio taulukon headerien luontiin
-     */
     const header = (label: string, key: string) => (
-        <th
-            style={thStyle}
-            onClick={() => handleSort(key)}
-        >
+        <th style={thStyle} onClick={() => handleSort(key)}>
             {label}
         </th>
     );
 
-    /**
-     * Renderöidään perus-chartit aina, kun kiinteistöt muuttuvat.
-     * Canvasien koot määritellään CSS:n kautta → dynaaminen resize.
-     */
+    // ── Charts ────────────────────────────────────────────────────────────────
+
     useEffect(() => {
         if (kiinteistot.length === 0) return;
-
         try {
             renderYllapitoChart("chartYllapito", kiinteistot);
             renderKriteeritChart("chartKriteerit", kiinteistot);
@@ -129,23 +108,16 @@ export default function AnalyticsView() {
         }
     }, [kiinteistot]);
 
-    /**
-     * Kriteerivertailu-chart päivittyy myös,
-     * kun käyttäjä vaihtaa kriteeriä
-     */
     useEffect(() => {
         if (kiinteistot.length === 0) return;
-
         try {
-            renderCriteriaComparisonChart(
-                "criteriaChart",
-                kiinteistot,
-                selectedCriteria
-            );
+            renderCriteriaComparisonChart("criteriaChart", kiinteistot, selectedCriteria);
         } catch (err) {
             console.error("Criteria chart error:", err);
         }
     }, [kiinteistot, selectedCriteria]);
+
+    // ── Render ────────────────────────────────────────────────────────────────
 
     return (
         <div style={flexContainer}>
@@ -154,7 +126,7 @@ export default function AnalyticsView() {
                 <p style={sectionTitle}>Vertailunäkymät koko salkusta</p>
             </div>
 
-            {/* ================== CHART-NÄKYMÄ ================== */}
+            {/* Charts */}
             <div style={flexChartContainer}>
                 <div style={chartCard}>
                     <div style={sectionTitle}>Ylläpitokulut salkuittain (€/v)</div>
@@ -167,15 +139,12 @@ export default function AnalyticsView() {
                 </div>
 
                 <div style={chartCard}>
-                    <div style={sectionTitle}>
-                        Ylläpitokulut per kiinteistö (salkkuvärit)
-                    </div>
+                    <div style={sectionTitle}>Ylläpitokulut per kiinteistö (salkkuvärit)</div>
                     <canvas id="maintenanceChart" style={chartCanvas} />
                 </div>
 
                 <div style={chartCard}>
                     <div style={sectionTitle}>Kriteerivertailu</div>
-
                     <select
                         value={selectedCriteria}
                         onChange={(e) => setSelectedCriteria(e.target.value)}
@@ -187,21 +156,16 @@ export default function AnalyticsView() {
                             border: "1px solid #ccc",
                         }}
                     >
-                        {Object.keys(kiinteistot[0]?.pisteet ?? {}).map(
-                            (key) => (
-                                <option key={key} value={key}>
-                                    {key}
-                                </option>
-                            )
-                        )}
+                        {Object.keys(kiinteistot[0]?.pisteet ?? {}).map((key) => (
+                            <option key={key} value={key}>{key}</option>
+                        ))}
                     </select>
-
                     <canvas id="criteriaChart" style={chartCanvas} />
                 </div>
             </div>
 
-            {/* ================== YHTEENVETOTAULUKKO ================== */}
-            <div style={{ ...cardStyle }}>
+            {/* Summary table */}
+            <div style={cardStyle}>
                 <div style={sectionTitle}>Yhteenvetotaulukko</div>
                 <table style={tableStyle}>
                     <thead>
@@ -229,11 +193,9 @@ export default function AnalyticsView() {
                                 </td>
                                 <td style={tdStyle}>{k.painotetutPisteet.toFixed(1)}</td>
                                 <td style={tdStyle}>{k.pinta_ala}</td>
-                                <td style={tdStyle}>{laskeTasearvo(k, year)}</td>
-                                <td style={tdStyle}>{laskeYllapito(k, year)}</td>
-                                <td style={tdStyle}>
-                                    {laskeKayttoaste(k, year)} %
-                                </td>
+                                <td style={tdStyle}>{k.vuokrakulut[year]?.tasearvo ?? 0}</td>
+                                <td style={tdStyle}>{calYllapito(k, year)}</td>
+                                <td style={tdStyle}>{calKayttoaste(k, year).toFixed(1)} %</td>
                                 <td style={tdStyle}>{k.rakennusvuosi}</td>
                             </tr>
                         ))}

@@ -1,22 +1,29 @@
+// src/charts/maintenanceChart.ts
 import Chart from "chart.js/auto";
 import type { Kiinteisto } from "../types";
-import { laskeYllapito } from "../utils/analyticsUtils";
 import { theme } from "../theme";
 
 let maintenanceChart: Chart | null = null;
 
-export function renderMaintenanceChart(
-    canvasId: string,
-    properties: Kiinteisto[]
-) {
+function calcYllapito(k: Kiinteisto, year: number): number {
+    return Object.values(k.yllapitokulut[year] || {}).reduce(
+        (sum, val) => sum + (val ?? 0),
+        0
+    );
+}
+
+export function renderMaintenanceChart(canvasId: string, properties: Kiinteisto[]) {
     try {
         const ctx = document.getElementById(canvasId) as HTMLCanvasElement;
         if (!ctx) return;
 
         if (maintenanceChart) maintenanceChart.destroy();
 
-        const label = properties.map(k => k.nimi);
-        const values = properties.map(k => laskeYllapito(k, Math.max(...Object.keys(k.yllapitokulut).map(Number))));
+        const labels = properties.map(k => k.nimi);
+        const values = properties.map(k => {
+            const year = Math.max(...Object.keys(k.yllapitokulut).map(Number));
+            return calcYllapito(k, year);
+        });
         const colors = properties.map(
             k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
         );
@@ -24,7 +31,7 @@ export function renderMaintenanceChart(
         maintenanceChart = new Chart(ctx, {
             type: "bar",
             data: {
-                labels: label,
+                labels,
                 datasets: [
                     {
                         label: "Ylläpitokulut (€ / v)",
@@ -39,8 +46,7 @@ export function renderMaintenanceChart(
                 plugins: {
                     tooltip: {
                         callbacks: {
-                            label: (ctx) => 
-                                `${ctx.label}: ${ctx.parsed.y} €`
+                            label: (ctx) => `${ctx.label}: ${ctx.parsed.y} €`
                         }
                     },
                     legend: { display: false }
@@ -53,7 +59,7 @@ export function renderMaintenanceChart(
             }
         });
         return maintenanceChart;
-        
+
     } catch (error) {
         console.error("Error rendering Maintenance chart:", error);
     }

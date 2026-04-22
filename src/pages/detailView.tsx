@@ -57,7 +57,7 @@ export default function DetailView() {
         </span>
       </div>
 
-      {/* Tab bar — issue #6: accessible buttons with ARIA */}
+      {/* Tab bar */}
       <div role="tablist" style={{ display: "flex", gap: "16px" }}>
         {TABS.map((tab) => (
           <button
@@ -80,7 +80,7 @@ export default function DetailView() {
         ))}
       </div>
 
-      {/* Tab panels — issue #2: each tab in its own component */}
+      {/* Tab panels */}
       {activeTab === "perustiedot" && (
         <PerustiedotTab item={item} latestYear={latestYear} />
       )}
@@ -94,4 +94,3 @@ export default function DetailView() {
     </div>
   );
 }
-
