@@ -19,14 +19,14 @@ export function laskeYllapito(k: Kiinteisto, year: number): number {
  * Laskee pisteet (painottamaton summa).
  * HUOM! Kun backend alkaa palauttaa "total_points", vaihda siihen.
  */
-export function laskePisteet(k: Kiinteisto): number {
-    try {
-        return Object.values(k.pisteet).reduce((sum, p) => sum + (p ?? 0), 0);
-    } catch (error) {
-        console.error(`Error calculating points for ${k.nimi}:`, error);
-        return 0;
-    }
-}
+// export function laskePisteet(k: Kiinteisto): number {
+//     try {
+//         return Object.values(k.pisteet).reduce((sum, p) => sum + (p ?? 0), 0);
+//     } catch (error) {
+//         console.error(`Error calculating points for ${k.nimi}:`, error);
+//         return 0;
+//     }
+// }
 
 /**
  * Palauttaa tasearvon oikealla tavalla
