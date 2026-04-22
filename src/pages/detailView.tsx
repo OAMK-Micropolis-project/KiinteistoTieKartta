@@ -18,7 +18,7 @@ const TABS: Tab[] = ["perustiedot", "kuntoarviointi", "toimenpiteet", "talous"];
 
 export default function DetailView() {
   const { id } = useParams();
-  const { getById, update, getLatestYear } = useKiinteistot();
+  const { getById, update, getLatestYear, remove } = useKiinteistot();
   const navigate = useNavigate();
 
   const item = getById(Number(id));
@@ -28,6 +28,14 @@ export default function DetailView() {
 
   // Guard: hooks above, render guard below (rules of hooks satisfied)
   if (!item) return <p>Kiinteistöä ei löytynyt.</p>;
+
+  function handleDelete() {
+    const ok = window.confirm(`Haluatko varmasti poistaa kiinteistön "${item.nimi}"?\n\nToimintoa ei voi perua.`);
+    if (!ok) return;
+
+    remove(item.id);
+    navigate("/");
+  }
 
   return (
     <div style={flexContainer}>
