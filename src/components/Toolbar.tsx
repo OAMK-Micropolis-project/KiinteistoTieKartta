@@ -184,7 +184,10 @@ export default function Toolbar() {
 
         {lastRefresh && (
           <span style={lastRefreshLabel}>
-            Päivitetty: {lastRefresh.toLocaleTimeString("fi-FI")}
+            Päivitetty: {lastRefresh.toLocaleTimeString("fi-FI", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </span>
         )}
 
