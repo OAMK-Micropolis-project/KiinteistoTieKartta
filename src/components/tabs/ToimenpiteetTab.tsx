@@ -9,8 +9,6 @@ interface Props {
   onUpdate: (updated: Kiinteisto) => void;
 }
 
-// ── Edit form state (issue #1: consolidated from 5 separate useState calls) ──
-
 interface EditForm {
   id: string; // stable ID of the toimenpide being edited
   otsikko: string;
@@ -112,7 +110,7 @@ export default function ToimenpiteetTab({ item, onUpdate }: Props) {
           </div>
         )}
 
-        {/* Issue #8: keyed by stable t.id, not sort-order index */}
+        {/* Keyed by stable t.id, not sort-order index */}
         {[...item.toimenpiteet].sort(sortByPlannedDate).map((t) => {
           const overdue = isOverdue(t);
           const isOpen = openDescId === t.id;
