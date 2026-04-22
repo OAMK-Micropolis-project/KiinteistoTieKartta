@@ -43,9 +43,26 @@ export default function DetailView() {
         <button style={backButton} onClick={() => navigate(-1)}>
           ← Takaisin
         </button>
-        <button style={backButton} onClick={() => navigate(`/add?id=${item.id}`)}>
-          ✎ Muokkaa
-        </button>
+        <div style={{display: "flex", gap: "12px"}}>
+          <button
+            style={backButton}
+            onClick={() => navigate(`/add/${item.id}`)}
+          >
+            ✎ Muokkaa
+          </button>
+
+          <button
+            style={{
+              ...backButton,
+              backgroundColor: "#b91c1c",
+              color: "#fff",
+              border: "none",
+            }}
+            onClick={() => handleDelete()}
+          >
+            🗑 Poista
+          </button>
+        </div>
       </div>
 
       {/* Header */}

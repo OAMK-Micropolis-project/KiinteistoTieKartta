@@ -21,14 +21,22 @@ import {
     searchInput,
     searchIcon,
     filterBtnPortfolio,
+    filterRow,
+    emptyState,
+    refreshButton,
+    refreshButtonDisabled,
+    lastRefreshLabel,
+    toolbarBottomActions
 } from "./Toolbar.styles";
 import FileButton from "./Pathfinderbutton";
 
 export default function Toolbar() {
   const { kiinteistot } = useKiinteistot();
-
+  const store = useKiinteistot();
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { lastRefresh } = useKiinteistot();
 
   const [activeSalkut, setActiveSalkut] = useState<
     Set<"A" | "B" | "C" | "D">
@@ -100,7 +108,7 @@ export default function Toolbar() {
       <div>
         <strong>Kiinteistöt</strong>
 
-        <div style={{ display: "flex", gap: "6px", marginTop: "6px" }}>
+        <div style={filterRow}>
           {(["A", "B", "C", "D"] as const).map((s) => (
             <button
               key={s}
@@ -131,7 +139,7 @@ export default function Toolbar() {
       {/* ================= PROPERTY LIST ================= */}
       <div style={propertyScroll}>
         {filteredKiinteistot.length === 0 && (
-          <div style={{ padding: "8px", opacity: 0.6 }}>
+          <div style={emptyState}>
             Ei kiinteistöjä
           </div>
         )}
@@ -158,6 +166,31 @@ export default function Toolbar() {
       {/* ================= BOTTOM ================= */}
       <div style={toolbarBottom}>
         <FileButton />
+        <button      
+          onClick={async () => {
+            setIsRefreshing(true);
+            await store.refresh();
+            setIsRefreshing(false);
+          }}
+          disabled={isRefreshing}
+          title="Päivitä tiedosto"
+          style={{
+            ...refreshButton,
+            ...(isRefreshing ? refreshButtonDisabled : {}),
+          }}
+        >
+          {isRefreshing ? "Päivitetään…" : "🔄 Päivitä"}
+        </button>
+
+        {lastRefresh && (
+          <span style={lastRefreshLabel}>
+            Päivitetty: {lastRefresh.toLocaleTimeString("fi-FI", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
+        )}
+
         {/* esim. asetukset / logout */}
       </div>
     </nav>

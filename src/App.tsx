@@ -15,6 +15,7 @@ export default function App() {
           <Route path="/analytics" element={<AnalyticsView />} />
           <Route path="/detail/:id" element={<DetailView />} />
           <Route path="/add" element={<AddProp />} />
+          <Route path="/add/:id" element={<AddProp />} />
         </Route>
       </Routes>
     </Router>

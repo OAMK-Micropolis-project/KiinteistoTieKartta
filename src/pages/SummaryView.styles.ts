@@ -100,12 +100,16 @@ export const realEstateTitle: CSSProperties = {
   fontSize: "clamp(6px, 1.2vw, 28px)",
   textAlign: "center",
   color: theme.colors.textMuted,
+  cursor: "pointer",
+  userSelect: "none",
 };
 
 export const realEstateTitle2: CSSProperties = {
   flex: 2,
   fontSize: "clamp(6px, 1.2vw, 28px)",
   color: theme.colors.textMuted,
+  cursor: "pointer",
+  userSelect: "none",
 };
 
 export const realEstateRowTitles: CSSProperties = {
