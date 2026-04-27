@@ -1,32 +1,66 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Kiinteisto, NewKiinteistoInput } from "../types";
 import { ArviointiParametrit } from "./arviointiParametrit";
 import { KiinteistoContext } from "./KiinteistoContext";
 import type { KiinteistoStore } from "./kiinteistoStore";
 
-export function KiinteistoProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const ALL_SALKUT = new Set<"A" | "B" | "C" | "D">(["A", "B", "C", "D"]);
+
+export function KiinteistoProvider({ children }: { children: React.ReactNode }) {
   const [kiinteistot, setKiinteistot] = useState<Kiinteisto[]>([]);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [activeSalkut, setActiveSalkut] = useState<Set<"A" | "B" | "C" | "D">>(
+    new Set(ALL_SALKUT)
+  );
 
-  useEffect(() => {
-    refresh();
-  }, []);
+  // ── Portfolio filter ──────────────────────────────────────────────────────
 
-  function getAll() {
-    return [...kiinteistot];
+
+  function toggleSalkku(s: "A" | "B" | "C" | "D") {
+    setActiveSalkut(prev => {
+
+      if (prev.size === ALL_SALKUT.size) {
+        return new Set([s])
+      }
+
+      const next = new Set(prev);
+
+      if (next.has(s)) {
+        next.delete(s); // remove
+      } else {
+        next.add(s); // add
+      }
+
+      // Optional UX: if nothing selected, show all again
+      if (next.size === 0) {
+        return new Set(ALL_SALKUT);
+      }
+
+      return next;
+    });
   }
 
-  async function persist(kiinteistot: Kiinteisto[]) {
+
+  const filteredKiinteistot = useMemo(
+    () => kiinteistot.filter((k) => activeSalkut.has(k.oma_salkku)),
+    [kiinteistot, activeSalkut]
+  );
+
+  // ── Persistence ───────────────────────────────────────────────────────────
+
+  async function persist(list: Kiinteisto[]) {
     try {
-      await window.electronFs.writeFile(JSON.stringify(kiinteistot));
+      await window.electronFs.writeFile(JSON.stringify(list));
     } catch (err) {
       console.error("Failed to persist data", err);
       await window.settings.save({ lastFilePath: null });
     }
+  }
+
+  // ── Calculations ──────────────────────────────────────────────────────────
+
+  function getAll() {
+    return [...kiinteistot];
   }
 
   function getById(id: number) {
@@ -42,7 +76,6 @@ export function KiinteistoProvider({
       ...Object.keys(k.yllapitokulut ?? {}).map(Number),
       ...Object.keys(k.vuokrakulut ?? {}).map(Number),
     ]);
-
     return years.length > 0 ? Math.max(...years) : new Date().getFullYear();
   }
 
@@ -108,31 +141,20 @@ export function KiinteistoProvider({
     return (vuokrausaste / k.pinta_ala) * 100;
   }
 
+  // ── CRUD ──────────────────────────────────────────────────────────────────
+
   function add(newKiinteisto: NewKiinteistoInput) {
     const id =
       kiinteistot.length > 0
         ? Math.max(...kiinteistot.map((k) => k.id)) + 1
         : 1;
     const painotetutPisteet = calPainotutPisteet({
-      ...newKiinteisto,
-      id,
-      painotetutPisteet: 0,
-      oma_salkku: "D",
+      ...newKiinteisto, id, painotetutPisteet: 0, oma_salkku: "D",
     });
     const oma_salkku = evalSalkku({
-      ...newKiinteisto,
-      id,
-      painotetutPisteet,
-      oma_salkku: "D",
+      ...newKiinteisto, id, painotetutPisteet, oma_salkku: "D",
     });
-
-    const created: Kiinteisto = {
-      ...newKiinteisto,
-      id,
-      painotetutPisteet,
-      oma_salkku,
-    };
-
+    const created: Kiinteisto = { ...newKiinteisto, id, painotetutPisteet, oma_salkku };
     const newList = [...kiinteistot, created];
     setKiinteistot(newList);
     persist(newList);
@@ -140,21 +162,9 @@ export function KiinteistoProvider({
 
   function update(updated: Kiinteisto) {
     const painotetutPisteet = calPainotutPisteet(updated);
-    const oma_salkku = evalSalkku({
-      ...updated,
-      painotetutPisteet,
-    });
-
-    const normalized: Kiinteisto = {
-      ...updated,
-      painotetutPisteet,
-      oma_salkku,
-    };
-
-    const newList = kiinteistot.map((k) =>
-      k.id === updated.id ? normalized : k
-    );
-
+    const oma_salkku = evalSalkku({ ...updated, painotetutPisteet });
+    const normalized: Kiinteisto = { ...updated, painotetutPisteet, oma_salkku };
+    const newList = kiinteistot.map((k) => k.id === updated.id ? normalized : k);
     setKiinteistot(newList);
     persist(newList);
   }
@@ -165,9 +175,10 @@ export function KiinteistoProvider({
     persist(newList);
   }
 
+  // ── Data loading ──────────────────────────────────────────────────────────
+
   function normalizeKiinteisto(raw: any): Kiinteisto | null {
     try {
-      // 1. Perusnormalisointi (EI johdettuja arvoja)
       const base: Kiinteisto = {
         id: Number(raw.id),
         nimi: String(raw.nimi ?? ""),
@@ -176,123 +187,78 @@ export function KiinteistoProvider({
         pinta_ala: Number(raw.pinta_ala ?? 0),
         rakennusvuosi: Number(raw.rakennusvuosi ?? 0),
         suojelukohde: Boolean(raw.suojelukohde),
-
-        pisteet:
-          raw.pisteet && typeof raw.pisteet === "object"
-            ? raw.pisteet
-            : {},
-
+        pisteet: raw.pisteet && typeof raw.pisteet === "object" ? raw.pisteet : {},
         oma_perusteet: String(raw.oma_perusteet ?? ""),
-
-        // Migration: backfill id for any toimenpide saved before this field existed
         toimenpiteet: Array.isArray(raw.toimenpiteet)
-          ? raw.toimenpiteet.map((t: any) => ({
-              ...t,
-              id: t.id ?? crypto.randomUUID(),
-            }))
+          ? raw.toimenpiteet.map((t: any) => ({ ...t, id: t.id ?? crypto.randomUUID() }))
           : [],
-
-        yllapitokulut:
-          raw.yllapitokulut && typeof raw.yllapitokulut === "object"
-            ? raw.yllapitokulut
-            : {},
-
-        vuokrakulut:
-          raw.vuokrakulut && typeof raw.vuokrakulut === "object"
-            ? raw.vuokrakulut
-            : {},
-
-        // asetetaan väliaikaisesti, korvataan heti
+        yllapitokulut: raw.yllapitokulut && typeof raw.yllapitokulut === "object" ? raw.yllapitokulut : {},
+        vuokrakulut: raw.vuokrakulut && typeof raw.vuokrakulut === "object" ? raw.vuokrakulut : {},
         painotetutPisteet: 0,
         oma_salkku: "D",
       };
-
-      // 2. Johdetut arvot (AINOA TOTUUS)
       const painotetutPisteet = calPainotutPisteet(base);
-      const oma_salkku = evalSalkku({
-        ...base,
-        painotetutPisteet,
-      });
-
-      // 3. Lopullinen, validi Kiinteisto
-      return {
-        ...base,
-        painotetutPisteet,
-        oma_salkku,
-      };
+      const oma_salkku = evalSalkku({ ...base, painotetutPisteet });
+      return { ...base, painotetutPisteet, oma_salkku };
     } catch (error) {
       console.error("Failed to normalize Kiinteisto:", error);
       return null;
     }
   }
 
+  async function refresh() {
+    try {
+      const content = await window.electronFs.readFile();
+      if (!content) { console.warn("No file content found during refresh"); return; }
+      const parsed = JSON.parse(content);
+      if (!Array.isArray(parsed)) throw new Error("Invalid data format");
+      const safeData = parsed
+        .map(normalizeKiinteisto)
+        .filter((k): k is Kiinteisto => k !== null);
+      setKiinteistot(safeData);
+      setLastRefresh(new Date());
+      console.log("Data refreshed");
+    } catch (err) {
+      console.error("Refresh failed", err);
+    }
+  }
+
+  // Initial load
+  useEffect(() => { refresh(); }, []);
+
+  // Poll every 60s
   useEffect(() => {
     let cancelled = false;
-
     async function pollFile() {
       try {
         const content = await window.electronFs.readFile();
-
         if (!content || cancelled) return;
-
         const parsed = JSON.parse(content);
-
         if (!Array.isArray(parsed)) return;
-
         setKiinteistot((prev) => {
           const prevJson = JSON.stringify(prev);
           const nextJson = JSON.stringify(parsed);
-
           return prevJson !== nextJson ? parsed : prev;
         });
         setLastRefresh(new Date());
       } catch (err) {
-        console.error("Invalid data file, resetting", err);
-
-        // Recovery step
+        console.error("Poll failed", err);
         await window.settings.save({ lastFilePath: null });
         setKiinteistot([]);
       }
     }
-
-    const interval = setInterval(pollFile, 60_000); // every 60 seconds
-
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
+    const interval = setInterval(pollFile, 60_000);
+    return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
-  async function refresh() {
-    try {
-      const content = await window.electronFs.readFile();
-
-      if (!content) {
-        console.warn("No file content found during refresh");
-        return;
-      }
-
-      const parsed = JSON.parse(content);
-
-      if (!Array.isArray(parsed)) {
-        throw new Error("Invalid data format");
-      }
-
-      const safeData = parsed
-        .map(normalizeKiinteisto)
-        .filter((k): k is Kiinteisto => k !== null);
-
-      setKiinteistot(safeData);
-      setLastRefresh(new Date());
-      console.log("Data refreshed manually");
-    } catch (err) {
-      console.error("Manual refresh failed", err);
-    }
-  }
-
+  // ── Store ─────────────────────────────────────────────────────────────────
 
   const store: KiinteistoStore = {
     kiinteistot: getAll(),
+    filteredKiinteistot,
+    activeSalkut,
+    toggleSalkku,
+
     add,
     update,
     remove,

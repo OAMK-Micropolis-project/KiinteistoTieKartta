@@ -32,17 +32,16 @@ export function renderMaintenanceChart(canvasId: string, properties: Kiinteisto[
             type: "bar",
             data: {
                 labels,
-                datasets: [
-                    {
-                        label: "Ylläpitokulut (€ / v)",
-                        data: values,
-                        backgroundColor: colors,
-                        borderRadius: 8,
-                    }
-                ]
+                datasets: [{
+                    label: "Ylläpitokulut (€ / v)",
+                    data: values,
+                    backgroundColor: colors,
+                    borderRadius: 8,
+                }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     tooltip: {
                         callbacks: {
@@ -52,9 +51,7 @@ export function renderMaintenanceChart(canvasId: string, properties: Kiinteisto[
                     legend: { display: false }
                 },
                 scales: {
-                    x: {
-                        ticks: { color: theme.colors.text }
-                    }
+                    x: { ticks: { color: theme.colors.text } }
                 }
             }
         });
