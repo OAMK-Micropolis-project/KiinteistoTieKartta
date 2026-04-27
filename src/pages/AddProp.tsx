@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./AddProp.css";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -19,6 +19,24 @@ const AddProp: React.FC = () => {
   const existing = editId ? store.getById(editId) : null;
   const isEditMode = Boolean(existing);
   const navigate = useNavigate();
+  const availableYears = useMemo(() => {
+    if (!existing) return [];
+    const y = new Set<number>([
+      ...Object.keys(existing.yllapitokulut ?? {}).map(Number),
+      ...Object.keys(existing.vuokrakulut ?? {}).map(Number),
+    ]);
+    return Array.from(y).sort((a, b) => b - a);
+  }, [existing]);
+  
+  const [selectedYear, setSelectedYear] = useState<number>(() => {
+    const now = new Date().getFullYear();
+    return availableYears[0] ?? now;
+  });
+  useEffect(() => {
+    if (isEditMode && availableYears.length > 0) {
+      setSelectedYear((prev) => prev ?? availableYears[0]);
+    }
+  }, [isEditMode, availableYears]);
 
   // Lomakedata
   useEffect(() => {
@@ -49,12 +67,14 @@ const AddProp: React.FC = () => {
       });
       return;
     }
-
     // EDIT MODE
     const current = store.getById(editId);
     if (!current) return;
 
     const latestYear = store.getLatestYear();
+
+    const yll = existing.yllapitokulut?.[selectedYear];
+    const vua = existing.vuokrakulut?.[selectedYear];
 
     setFormData({
       nimi: current.nimi,
@@ -317,6 +337,32 @@ const AddProp: React.FC = () => {
                 <option value="Kyllä">Kyllä</option>
               </select>
             </div>
+            {isEditMode && (
+              <div className="grid-item">
+                <label>Vuosi</label>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(Number(e.target.value))}
+                  >
+                    {availableYears.map((y) => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+
+                  <input
+                    type="number"
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(Number(e.target.value))}
+                    style={{ width: "120px" }}
+                    min={1900}
+                    max={2100}
+                    title="Syötä uusi vuosi ja tallenna"
+                  />
+                </div>
+                <small>Voit valita olemassa olevan vuoden tai kirjoittaa uuden.</small>
+              </div>
+            )}
           </div>
 
           {/* --- Ylläpitokustannukset --- */}
