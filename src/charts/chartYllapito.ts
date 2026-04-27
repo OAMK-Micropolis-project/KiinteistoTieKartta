@@ -31,17 +31,16 @@ export function renderYllapitoChart(canvasId: string, properties: Kiinteisto[]) 
             type: "bar",
             data: {
                 labels: properties.map(p => p.nimi),
-                datasets: [
-                    {
-                        label: "Ylläpitokulut (€)",
-                        data: properties.map(p => calcYllapito(p, year)),
-                        backgroundColor: colors,
-                        borderRadius: 6,
-                    }
-                ]
+                datasets: [{
+                    label: "Ylläpitokulut (€)",
+                    data: properties.map(p => calcYllapito(p, year)),
+                    backgroundColor: colors,
+                    borderRadius: 6,
+                }]
             },
             options: {
-                responsive: true
+                responsive: true,
+                maintainAspectRatio: false,
             }
         });
     } catch (error) {

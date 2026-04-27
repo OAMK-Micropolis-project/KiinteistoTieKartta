@@ -15,8 +15,8 @@ export function renderKriteeritChart(canvasId: string, properties: Kiinteisto[])
         const KRITEERIT = ["ika", "vesikatto", "sadevesi", "julkisivu", "ikkunat", "ovet"];
 
         const colors = properties.map(
-                k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
-            );
+            k => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
+        );
 
         kriteeritChart = new Chart(ctx, {
             type: "bar",
@@ -25,11 +25,12 @@ export function renderKriteeritChart(canvasId: string, properties: Kiinteisto[])
                 datasets: properties.map((p, i) => ({
                     label: p.nimi,
                     data: KRITEERIT.map(k => p.pisteet[k] ?? 0),
-                    backgroundColor: colors[i]
+                    backgroundColor: colors[i],
                 })),
             },
             options: {
-                responsive: true
+                responsive: true,
+                maintainAspectRatio: false,
             }
         });
     } catch (error) {

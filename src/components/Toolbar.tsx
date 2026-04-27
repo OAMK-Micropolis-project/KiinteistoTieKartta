@@ -26,53 +26,45 @@ import {
     refreshButton,
     refreshButtonDisabled,
     lastRefreshLabel,
-    toolbarBottomActions
 } from "./Toolbar.styles";
 import FileButton from "./Pathfinderbutton";
 
 export default function Toolbar() {
-  const { kiinteistot } = useKiinteistot();
-  const store = useKiinteistot();
+  const {
+    filteredKiinteistot,
+    activeSalkut,
+    toggleSalkku,
+    refresh,
+    lastRefresh,
+  } = useKiinteistot();
+
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { lastRefresh } = useKiinteistot();
-
-  const [activeSalkut, setActiveSalkut] = useState<
-    Set<"A" | "B" | "C" | "D">
-  >(new Set(["A", "B", "C", "D"]));
 
   const tools = [
-    { id: "summary", label: "Yhteenveto", path: "/" },
-    { id: "analytics", label: "Analytiikka", path: "/analytics" },
-    { id: "add", label: "Lisää kiinteistö", path: "/add" },
+    { id: "summary",   label: "Yhteenveto",      path: "/" },
+    { id: "analytics", label: "Analytiikka",      path: "/analytics" },
+    { id: "add",       label: "Lisää kiinteistö", path: "/add" },
   ];
 
-  function toggleSalkku(s: "A" | "B" | "C" | "D") {
-    setActiveSalkut((prev) => {
-      const next = new Set(prev);
-      next.has(s) ? next.delete(s) : next.add(s);
-      return next;
-    });
-  }
-
-  const filteredKiinteistot = useMemo(() => {
-    return kiinteistot
-      .filter((k) => activeSalkut.has(k.oma_salkku as any))
-      .filter((k) =>
-        k.nimi.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-  }, [kiinteistot, activeSalkut, searchQuery]);
+  // Search is local-only — no need to lift it to context
+  const visibleKiinteistot = useMemo(
+    () => filteredKiinteistot.filter((k) =>
+      k.nimi.toLowerCase().includes(searchQuery.toLowerCase())
+    ),
+    [filteredKiinteistot, searchQuery]
+  );
 
   return (
     <nav style={toolbar}>
-      {/* ================= HEADER ================= */}
+      {/* ── Header ──────────────────────────────────────────────────── */}
       <div style={headerBlock}>
         <h1 style={headerTitle}>Kiinteistösalkku</h1>
         <div style={headerSubtitle}>Hallintajärjestelmä</div>
       </div>
 
-      {/* ================= NAVIGATION ================= */}
+      {/* ── Navigation ──────────────────────────────────────────────── */}
       <div style={toolbarNav}>
         {tools.map((tool) => (
           <NavLink
@@ -81,21 +73,12 @@ export default function Toolbar() {
             style={({ isActive }) => ({
               ...toolbarItem,
               ...(isActive ? toolbarItemActive() : {}),
-              ...(hoverId === tool.id
-                ? toolbarItemHover()
-                : {}),
+              ...(hoverId === tool.id ? toolbarItemHover() : {}),
             })}
             onMouseEnter={() => setHoverId(tool.id)}
             onMouseLeave={() => setHoverId(null)}
           >
-            <div
-              style={{
-                ...toolbarIcon,
-                ...(hoverId === tool.id
-                  ? toolbarIconActive()
-                  : {}),
-              }}
-            >
+            <div style={{ ...toolbarIcon, ...(hoverId === tool.id ? toolbarIconActive() : {}) }}>
               ●
             </div>
             <span style={toolbarLabel}>{tool.label}</span>
@@ -103,8 +86,7 @@ export default function Toolbar() {
         ))}
       </div>
 
-      {/* ================= PROPERTY HEADER ================= */}
-
+      {/* ── Property header + portfolio filter ──────────────────────── */}
       <div>
         <strong>Kiinteistöt</strong>
 
@@ -114,10 +96,7 @@ export default function Toolbar() {
               key={s}
               onClick={() => toggleSalkku(s)}
               title={`Salkku ${s}`}
-              style={filterBtnPortfolio(
-                s,
-                activeSalkut.has(s)
-              )}
+              style={filterBtnPortfolio(s, activeSalkut.has(s))}
             >
               {s}
             </button>
@@ -125,7 +104,7 @@ export default function Toolbar() {
         </div>
       </div>
 
-      {/* ================= SEARCH ================= */}
+      {/* ── Search ──────────────────────────────────────────────────── */}
       <div style={searchContainer}>
         <span style={searchIcon}>🔍</span>
         <input
@@ -136,24 +115,20 @@ export default function Toolbar() {
         />
       </div>
 
-      {/* ================= PROPERTY LIST ================= */}
+      {/* ── Property list ───────────────────────────────────────────── */}
       <div style={propertyScroll}>
-        {filteredKiinteistot.length === 0 && (
-          <div style={emptyState}>
-            Ei kiinteistöjä
-          </div>
+        {visibleKiinteistot.length === 0 && (
+          <div style={emptyState}>Ei kiinteistöjä</div>
         )}
 
-        {filteredKiinteistot.map((k) => (
+        {visibleKiinteistot.map((k) => (
           <NavLink
             key={k.id}
             to={`/detail/${k.id}`}
             style={({ isActive }) => ({
               ...toolbarItem,
               ...(isActive ? toolbarItemActive() : {}),
-              ...(hoverId === String(k.id)
-                ? toolbarItemHover()
-                : {}),
+              ...(hoverId === String(k.id) ? toolbarItemHover() : {}),
             })}
             onMouseEnter={() => setHoverId(String(k.id))}
             onMouseLeave={() => setHoverId(null)}
@@ -163,35 +138,29 @@ export default function Toolbar() {
         ))}
       </div>
 
-      {/* ================= BOTTOM ================= */}
+      {/* ── Bottom ──────────────────────────────────────────────────── */}
       <div style={toolbarBottom}>
         <FileButton />
-        <button      
+
+        <button
           onClick={async () => {
             setIsRefreshing(true);
-            await store.refresh();
+            await refresh();
             setIsRefreshing(false);
           }}
           disabled={isRefreshing}
           title="Päivitä tiedosto"
-          style={{
-            ...refreshButton,
-            ...(isRefreshing ? refreshButtonDisabled : {}),
-          }}
+          style={{ ...refreshButton, ...(isRefreshing ? refreshButtonDisabled : {}) }}
         >
           {isRefreshing ? "Päivitetään…" : "🔄 Päivitä"}
         </button>
 
         {lastRefresh && (
           <span style={lastRefreshLabel}>
-            Päivitetty: {lastRefresh.toLocaleTimeString("fi-FI", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            Päivitetty:{" "}
+            {lastRefresh.toLocaleTimeString("fi-FI", { hour: "2-digit", minute: "2-digit" })}
           </span>
         )}
-
-        {/* esim. asetukset / logout */}
       </div>
     </nav>
   );

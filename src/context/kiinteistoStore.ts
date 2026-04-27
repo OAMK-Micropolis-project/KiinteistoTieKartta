@@ -2,6 +2,10 @@ import { type Kiinteisto, type NewKiinteistoInput } from "../types";
 
 export type KiinteistoStore = {
   kiinteistot: Kiinteisto[];
+  filteredKiinteistot: Kiinteisto[];
+  activeSalkut: Set<"A" | "B" | "C" | "D">;
+  toggleSalkku: (s: "A" | "B" | "C" | "D") => void;
+  
   add: (newKiinteisto: NewKiinteistoInput) => void;
   update: (updated: Kiinteisto) => void;
   remove: (id: number) => void;
