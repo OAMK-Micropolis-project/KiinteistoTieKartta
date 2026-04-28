@@ -76,27 +76,33 @@ const AddProp: React.FC = () => {
     const yll = existing.yllapitokulut?.[selectedYear];
     const vua = existing.vuokrakulut?.[selectedYear];
 
+
     setFormData({
-      nimi: current.nimi,
-      osoite: current.osoite,
-      kayttotarkoitus: current.kayttotarkoitus ?? "",
-      bruttopintaAla: current.pinta_ala,
-      rakennusvuosi: current.rakennusvuosi,
-      tasearvo: current.vuokrakulut?.[latestYear]?.tasearvo ?? 0,
-      vuokrattu: current.vuokrakulut?.[latestYear]?.vuokrausaste_m2 ?? 0,
-      neliovuokra: current.vuokrakulut?.[latestYear]?.neliövuokra ?? 0,
-      suojelukohde: current.suojelukohde ? "Kyllä" : "Ei",
+      nimi: existing.nimi,
+      osoite: existing.osoite,
+      kayttotarkoitus: existing.kayttotarkoitus ?? "",
+      bruttopintaAla: existing.pinta_ala,
+      rakennusvuosi: existing.rakennusvuosi,
+
+      tasearvo: vua?.tasearvo ?? 0,
+      vuokrattu: vua?.vuokrausaste_m2 ?? 0,
+      neliovuokra: vua?.neliövuokra ?? 0,
+
+      suojelukohde: existing.suojelukohde ? "Kyllä" : "Ei",
+
       yllapito: {
-        sahko: current.yllapitokulut?.[latestYear]?.sahko ?? 0,
-        lammitus: current.yllapitokulut?.[latestYear]?.lammitys ?? 0,
-        vesi: current.yllapitokulut?.[latestYear]?.vesi ?? 0,
-        huolto: current.yllapitokulut?.[latestYear]?.huolto ?? 0,
-        kiinteistovero: current.yllapitokulut?.[latestYear]?.vero ?? 0,
-        laina: current.yllapitokulut?.[latestYear]?.laina ?? 0,
+        sahko: yll?.sahko ?? 0,
+        lammitus: yll?.lammitys ?? 0,
+        vesi: yll?.vesi ?? 0,
+        huolto: yll?.huolto ?? 0,
+        kiinteistovero: yll?.vero ?? 0,
+        laina: yll?.laina ?? 0,
       },
-      kunto: { ...current.pisteet },
+
+      kunto: { ...existing.pisteet },
     });
-  }, [editId]);
+}, [editId, existing, selectedYear]);
+
 
 
   if (!formData) {
@@ -140,7 +146,7 @@ const AddProp: React.FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const year = new Date().getFullYear();
+    const year = selectedYear;
 
     // OIKEA dataformaatti providerille + DetailView:lle
     const uusi: NewKiinteistoInput = {
@@ -231,7 +237,7 @@ const AddProp: React.FC = () => {
   return (
     <div className="addprop-container">
       <div className="card-container">
-        <h2>{isEditMode ? "Muokkaa kiinteistöä" : "Lisää kiinteistö"}</h2>
+        <h2>{isEditMode ? `Muokkaa kiinteistöä (${selectedYear})` : "Lisää kiinteistö"}</h2>
 
 
         <form onSubmit={handleSubmit}>
