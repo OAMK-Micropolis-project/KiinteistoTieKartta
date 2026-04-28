@@ -76,10 +76,9 @@ export default function PropertyPdfReport() {
     try {
       const baseUrl = window.location.href.split("#")[0];
       const route = `${baseUrl}#/detail/${item.id}/pdf?print=1`;
-      const outputPath = `/home/andy/Downloads/kiinteisto-${item.nimi}-${item.id}.pdf`;
-      // const outputPath = await window.electronPdf.chooseSavePdfPath(
-      //   `kiinteisto-${item.nimi}-${item.id}`,
-      // );
+      const outputPath = await window.electronPdf.chooseSavePdfPath(
+        `kiinteisto-${item.nimi}-${item.id}`,
+      );
 
       if (!outputPath) {
         return;
