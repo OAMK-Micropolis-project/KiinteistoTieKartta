@@ -18,7 +18,6 @@ export function renderCriteriaComparisonChart(
 
         const labels = properties.map((k) => k.nimi);
         const values = properties.map((k) => k.pisteet[criteria] ?? 0);
-
         const colors = properties.map(
             (k) => theme.colors.salkku[k.oma_salkku as "A" | "B" | "C" | "D"].color
         );
@@ -27,25 +26,23 @@ export function renderCriteriaComparisonChart(
             type: "bar",
             data: {
                 labels,
-                datasets: [
-                    {
-                        label: `Pisteet (${criteria})`,
-                        data: values,
-                        backgroundColor: colors,
-                        borderRadius: 8
-                    }
-                ]
+                datasets: [{
+                    label: `Pisteet (${criteria})`,
+                    data: values,
+                    backgroundColor: colors,
+                    borderRadius: 8,
+                }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } }
                 },
                 plugins: {
                     tooltip: {
                         callbacks: {
-                            label: (ctx) =>
-                                `${ctx.label}: ${ctx.parsed.y} pistettä`
+                            label: (ctx) => `${ctx.label}: ${ctx.parsed.y} pistettä`
                         }
                     },
                     legend: { display: false }

@@ -41,7 +41,7 @@ const salkkuOrder: Record<"A" | "B" | "C" | "D", number> = {
 
 export default function HomePage() {
   const store = useKiinteistot();
-  const realEstates = store.kiinteistot;
+  const realEstates = store.filteredKiinteistot;
 
   const [sortKey, setSortKey] = useState<SortKey>("nimi");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
