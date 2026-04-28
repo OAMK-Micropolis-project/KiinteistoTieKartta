@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const node_path_1 = __importDefault(require("node:path"));
+const fsHandlers_1 = __importDefault(require("./utils/fsHandlers"));
+const pdfHandlers_1 = __importDefault(require("./utils/pdfHandlers"));
 function createWindow() {
     const win = new electron_1.BrowserWindow({
         show: false,
@@ -22,5 +24,7 @@ function createWindow() {
     }
 }
 electron_1.app.whenReady().then(() => {
+    (0, fsHandlers_1.default)();
+    (0, pdfHandlers_1.default)();
     createWindow();
 });

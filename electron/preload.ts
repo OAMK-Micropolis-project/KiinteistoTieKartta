@@ -13,3 +13,9 @@ contextBridge.exposeInMainWorld("settings", {
   save: (data: string) => ipcRenderer.invoke("save-settings", data),
 });
 
+contextBridge.exposeInMainWorld("electronPdf", {
+  chooseSavePdfPath: (suggestedFileName: string) =>
+    ipcRenderer.invoke("choose-save-pdf-path", { suggestedFileName }),
+  exportKiinteistoPdf: (route: string, outputPath: string) =>
+    ipcRenderer.invoke("export-kiinteisto-pdf", { route, outputPath }),
+});

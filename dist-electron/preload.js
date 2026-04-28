@@ -12,3 +12,7 @@ electron_1.contextBridge.exposeInMainWorld("settings", {
     load: () => electron_1.ipcRenderer.invoke("load-settings"),
     save: (data) => electron_1.ipcRenderer.invoke("save-settings", data),
 });
+electron_1.contextBridge.exposeInMainWorld("electronPdf", {
+    chooseSavePdfPath: (suggestedFileName) => electron_1.ipcRenderer.invoke("choose-save-pdf-path", { suggestedFileName }),
+    exportKiinteistoPdf: (route, outputPath) => electron_1.ipcRenderer.invoke("export-kiinteisto-pdf", { route, outputPath }),
+});

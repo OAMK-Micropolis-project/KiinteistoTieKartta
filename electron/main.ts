@@ -1,5 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import path from "node:path";
+import registerFsHandlers from "./utils/fsHandlers";
+import registerPdfHandlers from "./utils/pdfHandlers";
 
 function createWindow() {
   const win = new BrowserWindow({ 
@@ -19,5 +21,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  registerFsHandlers();
+  registerPdfHandlers();
   createWindow()
 });
