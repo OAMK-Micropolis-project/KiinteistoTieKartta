@@ -54,6 +54,13 @@ export default function DetailView() {
         <div style={{display: "flex", gap: "12px"}}>
           <button
             style={backButton}
+            onClick={() => navigate(`/detail/${item.id}/pdf`)}
+          >
+            PDF-esikatselu
+          </button>
+
+          <button
+            style={backButton}
             onClick={() => navigate(`/add/${item.id}`)}
           >
             ✎ Muokkaa
