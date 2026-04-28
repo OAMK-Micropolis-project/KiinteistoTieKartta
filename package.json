@@ -1,8 +1,28 @@
 {
   "name": "kiinteistotiekartta",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "dist-electron/electron/main.js",
+  "build": {
+    "appId": "fi.oamk.kiinteistotiekartta",
+    "productName": "KiinteistoTieKartta",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "dist-electron/**"
+    ],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }]
+    },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }]
+    },
+    "linux": {
+      "target": [{ "target": "AppImage", "arch": ["x64"] }]
+    }
+  },
   "scripts": {
     "dev": "concurrently \"vite\" \"npm:dev:electron\"",
     "dev:electron": "cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
