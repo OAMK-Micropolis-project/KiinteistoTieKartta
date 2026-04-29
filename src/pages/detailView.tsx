@@ -121,7 +121,7 @@ export default function DetailView() {
         <ToimenpiteetTab item={item} onUpdate={update} />
       )}
       {activeTab === "talous" && (
-        <TalousTab item={item} latestYear={latestYear} />
+        <TalousTab item={item} latestYear={latestYear} onUpdate={update}/>
       )}
     </div>
   );

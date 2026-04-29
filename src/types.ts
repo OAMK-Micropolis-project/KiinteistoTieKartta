@@ -1,4 +1,4 @@
-type YllapitoKulut = {
+export type YllapitoKulut = {
     sahko: number;
     lammitys: number;
     vesi: number;
@@ -6,58 +6,58 @@ type YllapitoKulut = {
     vero: number;
     laina: number;
     muut: number;
-}
-
-export type VuokraKulut = {
-  // Perustiedot
-  tasearvo: number;
-  vuokrausaste_m2: number;
-  neliövuokra: number;
-
-  // Kulutus
-  sahkonkulutus: number;
-  lammitysenergia: number;
-  vedenkulutus: number;
-
-  // Kiinteät kulut
-  yllapitoKorjaukset: number;
-  maavuokra: number;
-  vakuutus: number;
-
-  // Vuokratulot (€/v)
-  vuokrattu: number;
-  vuokrattavissa: number;
-  kokonaisvuokra: number;
+    muutKulut?: { [nimi: string]: number };
 };
 
+export type VuokraKulut = {
+    // Perustiedot
+    tasearvo: number;
+    vuokrausaste_m2: number;
+    neliövuokra: number;
+
+    // Kulutus
+    sahkonkulutus: number;
+    lammitysenergia: number;
+    vedenkulutus: number;
+
+    // Kiinteät kulut
+    yllapitoKorjaukset: number;
+    maavuokra: number;
+    vakuutus: number;
+
+    // Vuokratulot — m² values, income derived from these
+    vuokrattu: number;       // rented m²
+    vuokrattavissa: number;  // available m²
+    // kokonaisvuokra is NOT stored — always derived as vuokrattu * neliövuokra * 12
+};
 
 type Pisteet = {
-    ika: number,
-    vesikatto: number,
-    sadevesi: number,
-    salaoja: number,
-    julkisivu: number,
-    ikkunat: number,
-    ovet: number,
-    vaippa: number,
-    tontti: number,
-    lattia: number,
-    sisailma: number,
-    yleisilme: number,
-    lammitys: number,
-    lammlaitteet: number,
-    kayttovesi: number,
-    viemari: number,
-    iv: number,
-    peruskorjaus: number,
-    toimivuus: number,
-    kayttoaste_piste: number,
-    tulevaisuus: number,
-    investointi: number,
-}
+    ika: number;
+    vesikatto: number;
+    sadevesi: number;
+    salaoja: number;
+    julkisivu: number;
+    ikkunat: number;
+    ovet: number;
+    vaippa: number;
+    tontti: number;
+    lattia: number;
+    sisailma: number;
+    yleisilme: number;
+    lammitys: number;
+    lammlaitteet: number;
+    kayttovesi: number;
+    viemari: number;
+    iv: number;
+    peruskorjaus: number;
+    toimivuus: number;
+    kayttoaste_piste: number;
+    tulevaisuus: number;
+    investointi: number;
+};
 
 export interface Toimenpide {
-    id: string;          // stable unique ID – generate with crypto.randomUUID()
+    id: string;
     otsikko: string;
     kuvaus?: string;
     kustannukset: number;
@@ -81,8 +81,8 @@ export interface Kiinteisto {
     oma_perusteet: string;
     toimenpiteet: Toimenpide[];
 
-    yllapitokulut: { [key: number]: YllapitoKulut };
-    vuokrakulut: { [key: number]: VuokraKulut };
+    yllapitokulut: { [year: number]: YllapitoKulut };
+    vuokrakulut: { [year: number]: VuokraKulut };
 }
 
 export type NewKiinteistoInput = Omit<Kiinteisto, "id" | "painotetutPisteet" | "oma_salkku">;
