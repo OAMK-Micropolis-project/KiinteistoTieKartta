@@ -3,7 +3,7 @@ import "./AddProp.css";
 import { useNavigate, useParams } from "react-router-dom";
 
 
-// Ryhmän providerin hook
+// Provider hook
 import { useKiinteistot } from "../context/useKiinteistot";
 import { type NewKiinteistoInput } from "../types";
 import { ArviointiParametrit } from "../context/arviointiParametrit";

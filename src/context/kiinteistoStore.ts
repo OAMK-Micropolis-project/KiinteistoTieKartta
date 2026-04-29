@@ -10,6 +10,7 @@ export type KiinteistoStore = {
   update: (updated: Kiinteisto) => void;
   remove: (id: number) => void;
   deleteKiinteistoWithBackup: (id: number) => void;
+  restoreKiinteisto: (id: number) => void;
 
   refresh: () => Promise<void>;
   lastRefresh: Date | null;
