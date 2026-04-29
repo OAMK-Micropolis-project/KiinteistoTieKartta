@@ -8,14 +8,28 @@ type YllapitoKulut = {
     muut: number;
 }
 
-type VuokraKulut = {
-    tasearvo: number;
-    vuokrausaste_m2: number;
-    neliövuokra: number;
-    sahkonkulutus: number;
-    lammitysenergia: number;
-    vedenkulutus: number;
-}
+export type VuokraKulut = {
+  // Perustiedot
+  tasearvo: number;
+  vuokrausaste_m2: number;
+  neliövuokra: number;
+
+  // Kulutus
+  sahkonkulutus: number;
+  lammitysenergia: number;
+  vedenkulutus: number;
+
+  // Kiinteät kulut
+  yllapitoKorjaukset: number;
+  maavuokra: number;
+  vakuutus: number;
+
+  // Vuokratulot (€/v)
+  vuokrattu: number;
+  vuokrattavissa: number;
+  kokonaisvuokra: number;
+};
+
 
 type Pisteet = {
     ika: number,
