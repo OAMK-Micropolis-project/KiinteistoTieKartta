@@ -24,8 +24,6 @@ export default function Yllapitokulut({ title, item }: Props) {
     );
   }
 
-  
-
   const currentYear = allYears[allYears.length - 1];
 
   const historyYears = allYears
