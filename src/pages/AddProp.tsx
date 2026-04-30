@@ -81,6 +81,11 @@ const AddProp: React.FC = () => {
     const now = new Date().getFullYear();
     return availableYears[0] ?? now;
   });
+  const yearOptions = useMemo(() => {
+    const set = new Set<number>(availableYears);
+    if (isEditMode) set.add(selectedYear);
+      return Array.from(set).sort((a, b) => b - a);
+  }, [availableYears, selectedYear, isEditMode]);
 
   useEffect(() => {
     if (!isEditMode) return;
@@ -321,7 +326,7 @@ const AddProp: React.FC = () => {
                       setSelectedYear(Number(e.target.value));
                     }}
                   >
-                    {availableYears.map((y) => (
+                    {yearOptions.map((y) => (
                       <option key={y} value={y}>
                         {y}
                       </option>
