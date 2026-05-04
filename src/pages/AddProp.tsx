@@ -1,188 +1,34 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import "./AddProp.css";
 import { useNavigate, useParams } from "react-router-dom";
 
-
-// Ryhmän providerin hook
 import { useKiinteistot } from "../context/useKiinteistot";
 import { type NewKiinteistoInput } from "../types";
 import { ArviointiParametrit } from "../context/arviointiParametrit";
 
-const AddProp: React.FC = () => {
-  const firstInputRef = React.useRef<HTMLInputElement | null>(null);
-  const {id} = useParams<{id?: string}>();
-  const editId = id ? Number(id) : null;
-
-  const store = useKiinteistot();
-  const [formData, setFormData] = useState<any>(null);
-
-  const existing = editId ? store.getById(editId) : null;
-  const isEditMode = Boolean(existing);
-  const navigate = useNavigate();
-
-  // Lomakedata
-  useEffect(() => {
-
-    if (!editId) {
-      // ADD MODE
-      setFormData({
-        nimi: "",
-        osoite: "",
-        kayttotarkoitus: "",
-        bruttopintaAla: 0,
-        rakennusvuosi: 0,
-        tasearvo: 0,
-        vuokrattu: 0,
-        neliovuokra: 0,
-        suojelukohde: "Ei",
-        yllapito: {
-          sahko: 0,
-          lammitus: 0,
-          vesi: 0,
-          huolto: 0,
-          kiinteistovero: 0,
-          laina: 0,
-        },
-        kunto: Object.fromEntries(
-          Object.keys(ArviointiParametrit).map((k) => [k, 3])
-        ),
-      });
-      return;
-    }
-
-    // EDIT MODE
-    const current = store.getById(editId);
-    if (!current) return;
-
-    const latestYear = store.getLatestYear();
-
-    setFormData({
-      nimi: current.nimi,
-      osoite: current.osoite,
-      kayttotarkoitus: current.kayttotarkoitus ?? "",
-      bruttopintaAla: current.pinta_ala,
-      rakennusvuosi: current.rakennusvuosi,
-      tasearvo: current.vuokrakulut?.[latestYear]?.tasearvo ?? 0,
-      vuokrattu: current.vuokrakulut?.[latestYear]?.vuokrausaste_m2 ?? 0,
-      neliovuokra: current.vuokrakulut?.[latestYear]?.neliövuokra ?? 0,
-      suojelukohde: current.suojelukohde ? "Kyllä" : "Ei",
-      yllapito: {
-        sahko: current.yllapitokulut?.[latestYear]?.sahko ?? 0,
-        lammitus: current.yllapitokulut?.[latestYear]?.lammitys ?? 0,
-        vesi: current.yllapitokulut?.[latestYear]?.vesi ?? 0,
-        huolto: current.yllapitokulut?.[latestYear]?.huolto ?? 0,
-        kiinteistovero: current.yllapitokulut?.[latestYear]?.vero ?? 0,
-        laina: current.yllapitokulut?.[latestYear]?.laina ?? 0,
-      },
-      kunto: { ...current.pisteet },
-    });
-  }, [editId]);
-
-
-  if (!formData) {
-    return null;
-  }
-
-  // Input-käsittelijä
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-
-    // Ylläpitokulut
-    if (name.startsWith("yllapito.")) {
-      const key = name.split(".")[1];
-      setFormData((prev) => ({
-        ...prev,
-        yllapito: { ...prev.yllapito, [key]: Number(value) },
-      }));
-      return;
-    }
-
-    // Normaalit kentät
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "kayttotarkoitus" || name === "suojelukohde"
-        ? value
-        : isNaN(Number(value))
-          ? value
-          : Number(value),
-    }));
+type FormData = {
+  nimi: string;
+  osoite: string;
+  kayttotarkoitus: string;
+  bruttopintaAla: number;
+  rakennusvuosi: number;
+  tasearvo: number;
+  vuokrattu: number;
+  neliovuokra: number;
+  suojelukohde: "Ei" | "Kyllä";
+  yllapito: {
+    sahko: number;
+    lammitus: number;
+    vesi: number;
+    huolto: number;
+    kiinteistovero: number;
+    laina: number;
   };
+  kunto: Record<string, number>;
+};
 
-  // Sliderien muutos
-  const changeSlider = (field: string, val: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      kunto: { ...prev.kunto, [field]: val },
-    }));
-  };
-
-  // Lomakkeen lähetys
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const year = new Date().getFullYear();
-
-    // OIKEA dataformaatti providerille + DetailView:lle
-    const uusi: NewKiinteistoInput = {
-      nimi: formData.nimi,
-      osoite: formData.osoite,
-      kayttotarkoitus: formData.kayttotarkoitus,
-      pinta_ala: formData.bruttopintaAla,
-      rakennusvuosi: formData.rakennusvuosi,
-      suojelukohde: formData.suojelukohde === "Kyllä",
-
-      pisteet: { ...formData.kunto },
-
-      yllapitokulut: {
-        ...(existing?.yllapitokulut ?? {}),
-        [year]: {
-          sahko: formData.yllapito.sahko,
-          lammitys: formData.yllapito.lammitus,
-          vesi: formData.yllapito.vesi,
-          huolto: formData.yllapito.huolto,
-          vero: formData.yllapito.kiinteistovero,
-          laina: formData.yllapito.laina,
-          muut: 0,
-        },
-      },
-
-      vuokrakulut: {
-        ...(existing?.vuokrakulut ?? {}),
-        [year]: {
-          tasearvo: formData.tasearvo,
-          vuokrausaste_m2: formData.vuokrattu,
-          neliövuokra: formData.neliovuokra,
-          sahkonkulutus: 0,
-          lammitysenergia: 0,
-          vedenkulutus: 0,
-        },
-      },
-
-
-      oma_perusteet: "",
-      toimenpiteet: [],
-    };
-
-  if (isEditMode && existing) {
-    store.update({
-      ...existing,
-      ...uusi,
-      id: existing.id,
-      painotetutPisteet: store.calPainotutPisteet({
-        ...existing,
-        pisteet: uusi.pisteet,
-      }),
-      oma_salkku: store.evalSalkku({
-        ...existing,
-        pisteet: uusi.pisteet,
-      }),
-    });
-
-    navigate(`/detail/${existing.id}`)
-  } else {
-    store.add(uusi);
-    
-  setFormData({
+function makeEmptyForm(): FormData {
+  return {
     nimi: "",
     osoite: "",
     kayttotarkoitus: "",
@@ -200,27 +46,212 @@ const AddProp: React.FC = () => {
       kiinteistovero: 0,
       laina: 0,
     },
-    kunto: Object.fromEntries(Object.keys(ArviointiParametrit).map(k => [k, 3])),
-  });
-  setTimeout(() => firstInputRef.current?.focus(), 0);
-  navigate("/add", { replace: true});
-  }
+    kunto: Object.fromEntries(Object.keys(ArviointiParametrit).map((k) => [k, 3])),
+  };
+}
 
+const AddProp: React.FC = () => {
+  const firstInputRef = useRef<HTMLInputElement | null>(null);
+
+  const { id } = useParams<{ id?: string }>();
+  const editId = id ? Number(id) : null;
+
+  const store = useKiinteistot();
+  const navigate = useNavigate();
+
+  const [newYear, setNewYear] = useState<number>(new Date().getFullYear());
+  const [yearTouched, setYearTouched] = useState(false);
+
+  // EDIT MODE snapshot (ei dependencyyn)
+  const existing = editId ? store.getById(editId) : null;
+  const isEditMode = Boolean(existing);
+
+  // Saatavilla olevat vuodet (editissä)
+  const availableYears = useMemo(() => {
+    if (!existing) return [];
+    const y = new Set<number>([
+      ...Object.keys(existing.yllapitokulut ?? {}).map(Number),
+      ...Object.keys(existing.vuokrakulut ?? {}).map(Number),
+    ]);
+    return Array.from(y).sort((a, b) => b - a);
+  }, [existing]);
+
+  // Valittu vuosi (addissa voi syöttää uuden)
+  const [selectedYear, setSelectedYear] = useState<number>(() => {
+    const now = new Date().getFullYear();
+    return availableYears[0] ?? now;
+  });
+  const yearOptions = useMemo(() => {
+    const set = new Set<number>(availableYears);
+    if (isEditMode) set.add(selectedYear);
+      return Array.from(set).sort((a, b) => b - a);
+  }, [availableYears, selectedYear, isEditMode]);
+
+  useEffect(() => {
+    if (!isEditMode) return;
+    if (availableYears.length === 0) return;
+
+    if (!yearTouched) {
+      setSelectedYear(availableYears[0]);
+    }
+  }, [isEditMode, availableYears, yearTouched]);
+
+  const [formData, setFormData] = useState<FormData | null>(null);
+
+  // Täytä formData aina kun mode tai selectedYear muuttuu
+  useEffect(() => {
+    // ADD MODE
+    if (!editId) {
+      setFormData(makeEmptyForm());
+      return;
+    }
+
+    // EDIT MODE
+    const current = store.getById(editId);
+    if (!current) return;
+
+    const yll = current.yllapitokulut?.[selectedYear];
+    const vua = current.vuokrakulut?.[selectedYear];
+
+    setFormData({
+      nimi: current.nimi,
+      osoite: current.osoite,
+      kayttotarkoitus: current.kayttotarkoitus ?? "",
+      bruttopintaAla: current.pinta_ala,
+      rakennusvuosi: current.rakennusvuosi,
+
+      tasearvo: vua?.tasearvo ?? 0,
+      vuokrattu: vua?.vuokrausaste_m2 ?? 0,
+      neliovuokra: vua?.neliövuokra ?? 0,
+
+      suojelukohde: current.suojelukohde ? "Kyllä" : "Ei",
+
+      yllapito: {
+        sahko: yll?.sahko ?? 0,
+        lammitus: yll?.lammitys ?? 0,
+        vesi: yll?.vesi ?? 0,
+        huolto: yll?.huolto ?? 0,
+        kiinteistovero: yll?.vero ?? 0,
+        laina: yll?.laina ?? 0,
+      },
+
+      kunto: { ...current.pisteet },
+    });
+
+    const t = setTimeout(() => firstInputRef.current?.focus(), 0);
+    return () => clearTimeout(t);
+  }, [editId, selectedYear, store]);
+
+  if (!formData) return null;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+
+    if (name.startsWith("yllapito.")) {
+      const key = name.split(".")[1] as keyof FormData["yllapito"];
+      setFormData((prev) =>
+        prev
+          ? { ...prev, yllapito: { ...prev.yllapito, [key]: Number(value) } }
+          : prev
+      );
+      return;
+    }
+
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            [name]:
+              name === "kayttotarkoitus" || name === "suojelukohde"
+                ? value
+                : isNaN(Number(value))
+                  ? value
+                  : Number(value),
+          }
+        : prev
+    );
+  };
+
+  const changeSlider = (field: string, val: number) => {
+    setFormData((prev) =>
+      prev ? { ...prev, kunto: { ...prev.kunto, [field]: val } } : prev
+    );
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const year = selectedYear;
+    const base = editId ? store.getById(editId) : null;
+
+    const uusi: NewKiinteistoInput = {
+      nimi: formData.nimi,
+      osoite: formData.osoite,
+      kayttotarkoitus: formData.kayttotarkoitus,
+      pinta_ala: formData.bruttopintaAla,
+      rakennusvuosi: formData.rakennusvuosi,
+      suojelukohde: formData.suojelukohde === "Kyllä",
+
+      pisteet: { ...formData.kunto },
+
+      yllapitokulut: {
+        ...(base?.yllapitokulut ?? {}),
+        [year]: {
+          sahko: formData.yllapito.sahko,
+          lammitys: formData.yllapito.lammitus,
+          vesi: formData.yllapito.vesi,
+          huolto: formData.yllapito.huolto,
+          vero: formData.yllapito.kiinteistovero,
+          laina: formData.yllapito.laina,
+          muut: 0,
+        },
+      },
+
+      vuokrakulut: {
+        ...(base?.vuokrakulut ?? {}),
+        [year]: {
+          tasearvo: formData.tasearvo,
+          vuokrausaste_m2: formData.vuokrattu,
+          neliövuokra: formData.neliovuokra,
+          sahkonkulutus: 0,
+          lammitysenergia: 0,
+          vedenkulutus: 0,
+        },
+      },
+
+      oma_perusteet: base?.oma_perusteet ?? "",
+      toimenpiteet: base?.toimenpiteet ?? [],
+    };
+
+    if (editId && base) {
+      store.update({
+        ...base,
+        ...uusi,
+        id: base.id,
+        painotetutPisteet: store.calPainotutPisteet({ ...base, pisteet: uusi.pisteet }),
+        oma_salkku: store.evalSalkku({ ...base, pisteet: uusi.pisteet }),
+      });
+      navigate(`/detail/${base.id}`);
+      return;
+    }
+
+    store.add(uusi);
+
+    // resetoi lomake uuden lisäämistä varten
+    setFormData(makeEmptyForm());
+    setTimeout(() => firstInputRef.current?.focus(), 0);
+    navigate("/add", { replace: true });
   };
 
   return (
     <div className="addprop-container">
       <div className="card-container">
-        <h2>{isEditMode ? "Muokkaa kiinteistöä" : "Lisää kiinteistö"}</h2>
-
+        <h2>{isEditMode ? `Muokkaa kiinteistöä (${selectedYear})` : `Lisää kiinteistö (${selectedYear})`}</h2>
 
         <form onSubmit={handleSubmit}>
-
-          {/* --- Perustiedot --- */}
           <div className="section-title">Perustiedot</div>
 
           <div className="grid-2col">
-
             <div className="grid-item">
               <label>Kiinteistön nimi *</label>
               <input
@@ -234,20 +265,12 @@ const AddProp: React.FC = () => {
 
             <div className="grid-item">
               <label>Osoite</label>
-              <input
-                name="osoite"
-                value={formData.osoite}
-                onChange={handleChange}
-              />
+              <input name="osoite" value={formData.osoite} onChange={handleChange} />
             </div>
 
             <div className="grid-item">
               <label>Käyttötarkoitus</label>
-              <select
-                name="kayttotarkoitus"
-                value={formData.kayttotarkoitus}
-                onChange={handleChange}
-              >
+              <select name="kayttotarkoitus" value={formData.kayttotarkoitus} onChange={handleChange}>
                 <option value="">Valitse...</option>
                 <option value="Julkinen kiinteistö">Julkinen kiinteistö</option>
                 <option value="Asuinrakennus">Asuinrakennus</option>
@@ -258,68 +281,102 @@ const AddProp: React.FC = () => {
 
             <div className="grid-item">
               <label>Bruttopinta-ala (m²)</label>
-              <input
-                type="number"
-                name="bruttopintaAla"
-                value={formData.bruttopintaAla}
-                onChange={handleChange}
-              />
+              <input type="number" name="bruttopintaAla" value={formData.bruttopintaAla} onChange={handleChange} />
             </div>
 
             <div className="grid-item">
               <label>Rakennusvuosi</label>
-              <input
-                type="number"
-                name="rakennusvuosi"
-                value={formData.rakennusvuosi}
-                onChange={handleChange}
-              />
+              <input type="number" name="rakennusvuosi" value={formData.rakennusvuosi} onChange={handleChange} />
             </div>
 
             <div className="grid-item">
               <label>Tasearvo (€)</label>
-              <input
-                type="number"
-                name="tasearvo"
-                value={formData.tasearvo}
-                onChange={handleChange}
-              />
+              <input type="number" name="tasearvo" value={formData.tasearvo} onChange={handleChange} />
             </div>
 
             <div className="grid-item">
               <label>Vuokralla olevat m²</label>
-              <input
-                type="number"
-                name="vuokrattu"
-                value={formData.vuokrattu}
-                onChange={handleChange}
-              />
+              <input type="number" name="vuokrattu" value={formData.vuokrattu} onChange={handleChange} />
             </div>
 
             <div className="grid-item">
               <label>Neliövuokra (€/m²)</label>
-              <input
-                type="number"
-                name="neliovuokra"
-                value={formData.neliovuokra}
-                onChange={handleChange}
-              />
+              <input type="number" name="neliovuokra" value={formData.neliovuokra} onChange={handleChange} />
             </div>
 
             <div className="grid-item">
               <label>Suojelukohde</label>
-              <select
-                name="suojelukohde"
-                value={formData.suojelukohde}
-                onChange={handleChange}
-              >
+              <select name="suojelukohde" value={formData.suojelukohde} onChange={handleChange}>
                 <option value="Ei">Ei</option>
                 <option value="Kyllä">Kyllä</option>
               </select>
             </div>
+
+            <div className="grid-item">
+            <label>Vuosi</label>
+
+            {isEditMode ? (
+              <>
+                <div className="year-row">
+                  <select
+                    className="year-select"
+                    value={selectedYear}
+                    onChange={(e) => {
+                      setYearTouched(true);
+                      setSelectedYear(Number(e.target.value));
+                    }}
+                  >
+                    {yearOptions.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+
+                  <span className="year-separator">tai</span>
+
+                  <input
+                    className="year-input year-input--full"
+                    type="number"
+                    value={newYear}
+                    min={1900}
+                    max={2100}
+                    style={{ width: "110px" }}
+                    onChange={(e) => setNewYear(Number(e.target.value))}
+                  />
+
+                  <button
+                    className="year-add-button"
+                    type="button"
+                    onClick={() => {
+                      setYearTouched(true);
+                      setSelectedYear(newYear);
+                    }}
+                  >
+                    Lisää vuosi
+                  </button>
+                </div>
+
+                <small className="year-help">
+                  Valitse olemassa oleva vuosi dropdownista tai lisää uusi vuosi ja tallenna.
+                </small>
+              </>
+            ) : (
+              <input
+                className="year-input year-input--compact"
+                type="number"
+                value={selectedYear}
+                min={1900}
+                max={2100}
+                onChange={(e) => {
+                  setYearTouched(true);
+                  setSelectedYear(Number(e.target.value));
+                }}
+              />
+            )}
+          </div>
           </div>
 
-          {/* --- Ylläpitokustannukset --- */}
           <div className="section-title">Ylläpitokustannukset (€/v)</div>
 
           <div className="grid-2col">
@@ -327,38 +384,31 @@ const AddProp: React.FC = () => {
               <label>Sähkökustannus</label>
               <input name="yllapito.sahko" type="number" value={formData.yllapito.sahko} onChange={handleChange} />
             </div>
-
             <div className="grid-item">
               <label>Lämmityskustannus</label>
               <input name="yllapito.lammitus" type="number" value={formData.yllapito.lammitus} onChange={handleChange} />
             </div>
-
             <div className="grid-item">
               <label>Vesikustannus</label>
               <input name="yllapito.vesi" type="number" value={formData.yllapito.vesi} onChange={handleChange} />
             </div>
-
             <div className="grid-item">
               <label>Huoltokustannus</label>
               <input name="yllapito.huolto" type="number" value={formData.yllapito.huolto} onChange={handleChange} />
             </div>
-
             <div className="grid-item">
               <label>Kiinteistövero</label>
               <input name="yllapito.kiinteistovero" type="number" value={formData.yllapito.kiinteistovero} onChange={handleChange} />
             </div>
-
             <div className="grid-item">
               <label>Lainakustannukset</label>
               <input name="yllapito.laina" type="number" value={formData.yllapito.laina} onChange={handleChange} />
             </div>
           </div>
 
-          {/* --- Kuntoarvio --- */}
           <div className="section-title">Kuntoarvio</div>
 
           <div className="slider-grid">
-
             {Object.entries(ArviointiParametrit).map(([field, { nimi }]) => (
               <div className="slider-item" key={field}>
                 <label>{nimi}</label>
@@ -366,19 +416,17 @@ const AddProp: React.FC = () => {
                   type="range"
                   min={1}
                   max={5}
-                  value={(formData.kunto as { [key: string]: number })[field]}
+                  value={(formData.kunto as Record<string, number>)[field]}
                   onChange={(e) => changeSlider(field, Number(e.target.value))}
                 />
-                <span>{(formData.kunto as { [key: string]: number })[field]}</span>
+                <span>{(formData.kunto as Record<string, number>)[field]}</span>
               </div>
             ))}
-
           </div>
 
-        <button className="save-button" type="submit">
-          {isEditMode ? "Tallenna muutokset" : "Tallenna"}
-        </button>
-
+          <button className="save-button" type="submit">
+            {isEditMode ? "Tallenna muutokset" : "Tallenna"}
+          </button>
         </form>
       </div>
     </div>
