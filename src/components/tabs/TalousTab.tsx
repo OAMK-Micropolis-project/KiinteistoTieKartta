@@ -65,7 +65,6 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
       <Yllapitokulut
         title="Ylläpitokulut (€/v)"
         item={item}
-        onUpdate={onUpdate}
       />
 
       {/* Rental information */}
