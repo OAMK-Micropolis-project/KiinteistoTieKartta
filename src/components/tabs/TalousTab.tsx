@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { cardStyle, sectionTitle } from "../../styles";
 import type { Kiinteisto, VuokraKulut } from "../../types";
-import { computeFinancials } from "../../utils/kiinteistoUtils";
+import { computeFinancials, laskeKuukausitulo } from "../../utils/kiinteistoUtils";
 import { theme } from "../../theme";
 import InfoRow from "../InfoRow";
 import Yllapitokulut from "../Yllapitokulut";
@@ -24,6 +24,9 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
     .sort((a, b) => b - a); // newest first
 
   const [selectedYear, setSelectedYear] = useState<number>(latestYear);
+
+  type ViewMode = "year" | "month";
+  const [viewMode, setViewMode] = useState<ViewMode>("year");
 
   const { vuokratulot, kayttoaste, kulutYhteensa, tulos, toimenpiteetYhteensa } =
     computeFinancials(item, selectedYear);
@@ -52,6 +55,9 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
 
   const tulosColor = tulos >= 0 ? theme.colors.accent : "#d32f2f";
 
+  const vuositulo = vuokratulot;
+  const kuukausitulo = laskeKuukausitulo(vuokratulot);
+
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
 
@@ -68,6 +74,10 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
         {/* Header with add button */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <h3 style={sectionTitle}>Vuokraustiedot</h3>
+          <div>
+            <button onClick={() => setViewMode("year")}>Vuosi</button>
+            <button onClick={() => setViewMode("month")}>Kuukausi</button>
+          </div>
           <button onClick={() => setShowModal(true)}>+ Lisää vuosi</button>
         </div>
 
@@ -121,7 +131,14 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
             <InfoRow label="Vuokrattu" value={`${vuokra.vuokrattu ?? vuokra.vuokrausaste_m2} m²`} />
             <InfoRow label="Neliövuokra" value={`${vuokra.neliövuokra} €/m²`} />
             <InfoRow label="Käyttöaste" value={`${kayttoaste} %`} />
-            <InfoRow label="Vuokratulot / v" value={fmt(vuokratulot)} />
+            <InfoRow
+              label="Vuokratulot"
+              value={
+                viewMode === "year"
+                  ? `${fmt(vuositulo)} / vuosi`
+                  : `${fmt(kuukausitulo)} / kk`
+              }
+            />
 
             {/* Fixed costs section */}
             <div style={{
