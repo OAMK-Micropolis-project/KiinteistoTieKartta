@@ -5,6 +5,7 @@ import { useKiinteistot } from "../context/useKiinteistot";
 import PointsBarChart from "../components/charts/Barchart";
 import DonutChart from "../components/charts/DonutChart";
 import formatNumberShort from "../utils/formatUtils";
+import Tooltip from "../components/Tooltip";
 
 import {
   box,
@@ -12,6 +13,7 @@ import {
   boxName,
   boxTitle,
   boxValue,
+  boxValueWrapper,
   chartContainer,
   estateName,
   estateNumber,
@@ -77,28 +79,42 @@ export default function HomePage() {
     }
   }, [years, selectedYear]);
 
-  // ✅ always use a valid year number
+  // always use a valid year number
   const effectiveYear = selectedYear ?? years[0] ?? new Date().getFullYear();
 
   const [hoverId, setHoverId] = useState<string | null>(null);
 
   const summaryBoxes = [
-    { name: "KIINTEISTÖJÄ", value: formatNumberShort(realEstates.length) },
+    {
+      name: "KIINTEISTÖJÄ",
+      value: formatNumberShort(realEstates.length),
+      tooltip: `Kiinteistöjen määrä = kiinteistöt.length`,
+    },
     {
       name: "KOKONAISPINTA-ALA",
       value: formatNumberShort(store.calAllPintaAla()) + " m²",
+      tooltip: `Kokonaispinta-ala = Σ kiinteistöt.pinta_ala`,
     },
     {
       name: "TASEARVO YHTEENSÄ",
       value: formatNumberShort(store.calAllTasearvo(effectiveYear)) + " €",
+      tooltip:
+        `Tasearvo (${effectiveYear})\n` +
+        `= Σ kiinteistöt (vuokrakulut[${effectiveYear}].tasearvo)`,
     },
     {
       name: "YLLÄPITÖKULUT / V",
       value: formatNumberShort(store.calAllYllapito(effectiveYear)) + " €",
+      tooltip:
+        `Ylläpitö (${effectiveYear})\n` +
+        `= Σ kiinteistöt ( Σ yllapitokulut[${effectiveYear}][kululaji] )`,
     },
     {
       name: "VUOKRATULOT / V",
       value: formatNumberShort(store.calAllVuokra(effectiveYear)) + " €",
+      tooltip:
+        `Vuokratulot (${effectiveYear})\n` +
+        `= Σ kiinteistöt (vuokrausaste_m2 * neliövuokra * 12)`,
     },
   ];
 
@@ -168,7 +184,14 @@ export default function HomePage() {
         {summaryBoxes.map((boxItem, i) => (
           <div key={i} style={box}>
             <span style={boxName}>{boxItem.name}</span>
-            <span style={boxValue}>{boxItem.value}</span>
+            <span style={boxValueWrapper}>
+              <Tooltip
+                label={
+                  <div>{boxItem.tooltip}</div>
+                }>
+                <span style={boxValue}>{boxItem.value}</span>
+              </Tooltip>
+            </span>
           </div>
         ))}
       </div>
