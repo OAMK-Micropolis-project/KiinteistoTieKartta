@@ -94,6 +94,10 @@ export function computeFinancials(item: Kiinteisto, year: number): Financials {
   return { yllapitoYhteensa, toimenpiteetYhteensa, vuokratulot, kayttoaste, kulutYhteensa, tulos };
 }
 
+export function laskeKuukausitulo(vuositulo: number): number {
+  return +(vuositulo / 12).toFixed(2);
+}
+
 // ── Arviointi ─────────────────────────────────────────────────────────────────
 
 export interface ArviointiRivi {
