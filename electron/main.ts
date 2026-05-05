@@ -75,10 +75,13 @@ if (!instance) {
   writeLog("app.requestSingleInstanceLock: failed");
   app.quit();
 } else {
+  writeLog("app.requestSingleInstanceLock: succeeded");
   app.on("second-instance", () => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.focus();
+    } else {
+      createWindow();
     }
   });
 
