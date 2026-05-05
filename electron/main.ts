@@ -88,9 +88,8 @@ if (!instance) {
   app.whenReady().then(() => {
     writeLog("app.whenReady: starting");
     registerFsHandlers();
-    writeLog("app.whenReady: fs handlers registered");
     registerPdfHandlers();
-    writeLog("app.whenReady: pdf handlers registered");
+    writeLog("app.whenReady: handlers registered");
     createWindow();
     writeLog("app.whenReady: window created");
   });
@@ -98,5 +97,6 @@ if (!instance) {
 
 app.on("window-all-closed", () => {
   writeLog("window-all-closed: ");
+  mainWindow = null;
   app.quit();
 });
