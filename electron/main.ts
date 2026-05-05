@@ -28,27 +28,29 @@ if (squirrelStartup) {
   app.quit();
 }
 
+let mainWindow: BrowserWindow | null = null;
+
 function createWindow() {
   writeLog("createWindow: starting");
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     show: false,
     webPreferences: {
       preload: path.join(__dirname, "./preload.js"),
     },
   });
 
-  win.webContents.on(
+  mainWindow.webContents.on(
     "did-fail-load",
     (event, errorCode, errorDescription, url) => {
       writeLog(`did-fail-load: ${errorCode} ${errorDescription} ${url}`);
     },
   );
 
-  win.webContents.on("render-process-gone", (event, details) => {
+  mainWindow.webContents.on("render-process-gone", (event, details) => {
     writeLog(`render-process-gone: ${details.reason}`);
   });
 
-  win.webContents.on("did-finish-load", () => {
+  mainWindow.webContents.on("did-finish-load", () => {
     writeLog("did-finish-load: finished");
   });
 
@@ -56,23 +58,42 @@ function createWindow() {
   writeLog(`preload path: ${path.join(__dirname, "./preload.js")}`);
   writeLog(`index path: ${indexPath}`);
 
-  win.maximize();
-  win.show();
+  mainWindow.maximize();
+  mainWindow.show();
 
   if (process.env.VITE_DEV_SERVER_URL) {
-    win.loadURL(process.env.VITE_DEV_SERVER_URL);
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
     writeLog(`loading file: ${indexPath}`);
-    win.loadFile(indexPath);
+    mainWindow.loadFile(indexPath);
   }
 }
 
-app.whenReady().then(() => {
-  writeLog("app.whenReady: starting");
-  registerFsHandlers();
-  writeLog("app.whenReady: fs handlers registered");
-  registerPdfHandlers();
-  writeLog("app.whenReady: pdf handlers registered");
-  createWindow();
-  writeLog("app.whenReady: window created");
+const instance = app.requestSingleInstanceLock();
+
+if (!instance) {
+  writeLog("app.requestSingleInstanceLock: failed");
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  app.whenReady().then(() => {
+    writeLog("app.whenReady: starting");
+    registerFsHandlers();
+    writeLog("app.whenReady: fs handlers registered");
+    registerPdfHandlers();
+    writeLog("app.whenReady: pdf handlers registered");
+    createWindow();
+    writeLog("app.whenReady: window created");
+  });
+}
+
+app.on("window-all-closed", () => {
+  writeLog("window-all-closed: ");
+  app.quit();
 });
