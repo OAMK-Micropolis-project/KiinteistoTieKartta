@@ -88,32 +88,32 @@ export default function HomePage() {
     {
       name: "KIINTEISTÖJÄ",
       value: formatNumberShort(realEstates.length),
-      tooltip: `Kiinteistöjen määrä = kiinteistöt.length`,
+      tooltip: `Kiinteistöjen yhteenlaskettu määrä`,
     },
     {
       name: "KOKONAISPINTA-ALA",
       value: formatNumberShort(store.calAllPintaAla()) + " m²",
-      tooltip: `Kokonaispinta-ala = Σ kiinteistöt.pinta_ala`,
+      tooltip: `Kiinteistöjen yhteenlaskettu pinta-ala`,
     },
     {
       name: "TASEARVO YHTEENSÄ",
       value: formatNumberShort(store.calAllTasearvo(effectiveYear)) + " €",
       tooltip:
-        `Tasearvo (${effectiveYear})\n` +
+        `Tasearvo vuonna ${effectiveYear}\n` +
         `= Σ kiinteistöt (vuokrakulut[${effectiveYear}].tasearvo)`,
     },
     {
       name: "YLLÄPITÖKULUT / V",
       value: formatNumberShort(store.calAllYllapito(effectiveYear)) + " €",
       tooltip:
-        `Ylläpitö (${effectiveYear})\n` +
+        `Ylläpitö vuonna ${effectiveYear}\n` +
         `= Σ kiinteistöt ( Σ yllapitokulut[${effectiveYear}][kululaji] )`,
     },
     {
       name: "VUOKRATULOT / V",
       value: formatNumberShort(store.calAllVuokra(effectiveYear)) + " €",
       tooltip:
-        `Vuokratulot (${effectiveYear})\n` +
+        `Vuokratulot vuonna ${effectiveYear}\n` +
         `= Σ kiinteistöt (vuokrausaste_m2 * neliövuokra * 12)`,
     },
   ];
