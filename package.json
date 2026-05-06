@@ -2,7 +2,7 @@
   "name": "kiinteistotiekartta",
   "author": "OAMK",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0-alpha",
   "description": "Kiinteistotiekartta on kiinteistö manageri, jolla käyttäjä voi tarkkailla ja hallita kiinteistöjään.",
   "main": "dist-electron/main.js",
   "scripts": {
