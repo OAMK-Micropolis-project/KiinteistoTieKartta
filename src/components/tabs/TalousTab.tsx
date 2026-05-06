@@ -6,6 +6,7 @@ import { computeFinancials } from "../../utils/kiinteistoUtils";
 import InfoRow from "../InfoRow";
 import VuokrakulutModal from "../VuokrakulutModal";
 import YllapitokulutModal from "../YllapitokulutModal";
+import { ErrorBoundary } from "../ErrorBoundary";
 
 interface Props {
   item: Kiinteisto;
@@ -128,267 +129,269 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
   );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-      {/* ── YEAR FILTER ───────────────────────────────────────────── */}
-      <div
-        style={{
-          display: "flex",
-          gap: 6,
-          flexWrap: "wrap",
-          paddingBottom: 12,
-          borderBottom: `1px solid ${theme.colors.border}`,
-          marginBottom: 4,
-        }}
-      >
-        {years.map(({ year }) => (
-          <button
-            key={year}
-            onClick={() => setSelectedYear(year)}
-            style={yearBtn(year)}
-          >
-            {year}
-          </button>
-        ))}
-      </div>
-
-      {/* ── VIEW MODE FILTER ──────────────────────────────────────── */}
-      <div
-        style={{
-          display: "flex",
-          gap: 6,
-          flexWrap: "wrap",
-          paddingBottom: 12,
-          borderBottom: `1px solid ${theme.colors.border}`,
-        }}
-      >
-        <button style={viewBtn("year")} onClick={() => setViewMode("year")}>
-          Vuosi
-        </button>
-        <button style={viewBtn("month")} onClick={() => setViewMode("month")}>
-          Kuukausi
-        </button>
-      </div>
-
-      {/* ── CONTENT CARDS ─────────────────────────────────────────── */}
-      <div
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}
-      >
-        {/* ── MAINTENANCE EXPENSES ─────────────────────────────────── */}
-        <div style={cardStyle}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 12,
-            }}
-          >
-            <h3 style={sectionTitle}>Ylläpitokulut</h3>
-            <button onClick={() => setShowYllapitoModal(true)}>✎ Muokkaa</button>
-          </div>
-
-        {!yllapito ? (
-          <p style={{ color: theme.colors.textMuted }}>
-            Ei tietoja vuodelle {selectedYear}.
-          </p>
-        ) : (
-          <>
-            {divider("Kiinteät kulut")}
-            <InfoRow label="Sähkö" value={fmt(yllapito.sahko)} />
-            <InfoRow label="Lämmitys" value={fmt(yllapito.lammitys)} />
-            <InfoRow label="Vesi" value={fmt(yllapito.vesi)} />
-            <InfoRow label="Huolto" value={fmt(yllapito.huolto)} />
-            <InfoRow label="Kiinteistövero" value={fmt(yllapito.vero)} />
-            <InfoRow label="Laina" value={fmt(yllapito.laina)} />
-
-            {/* User-defined extra rows */}
-            {Object.keys(yllapito.muutKulut ?? {}).length > 0 && (
-              <>
-                {divider("Muut kulut")}
-                {Object.entries(yllapito.muutKulut ?? {}).map(
-                  ([nimi, summa]) => (
-                    <InfoRow key={nimi} label={nimi} value={fmt(summa)} />
-                  ),
-                )}
-              </>
-            )}
-
-            {/* Total */}
-            <div
-              style={{
-                marginTop: 12,
-                paddingTop: 10,
-                borderTop: `2px solid ${theme.colors.border}`,
-                display: "flex",
-                justifyContent: "space-between",
-                fontWeight: 700,
-              }}
-            >
-              <span>Yhteensä</span>
-              <span>{fmt(calcYllapitoTotal(yllapito))}</span>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* ── RENTAL INFORMATION ───────────────────────────────────── */}
-      <div style={cardStyle}>
+    <ErrorBoundary>
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        {/* ── YEAR FILTER ───────────────────────────────────────────── */}
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 12,
+            gap: 6,
+            flexWrap: "wrap",
+            paddingBottom: 12,
+            borderBottom: `1px solid ${theme.colors.border}`,
+            marginBottom: 4,
           }}
         >
-          <h3 style={sectionTitle}>Vuokraustiedot</h3>
-          <div style={{ display: "flex", gap: 6 }}>
-            <button onClick={() => setEditingVuokraYear(selectedYear)}>
-              ✎ Muokkaa
-            </button>
+          {years.map(({ year }) => (
             <button
-              onClick={() => {
-                const updated = { ...item.vuokrakulut };
-                delete updated[selectedYear];
-                onUpdate({ ...item, vuokrakulut: updated });
-                setSelectedYear(latestYear);
-              }}
-              style={{ color: "#d32f2f" }}
+              key={year}
+              onClick={() => setSelectedYear(year)}
+              style={yearBtn(year)}
             >
-              ✕ Poista
+              {year}
             </button>
-            <button onClick={() => setShowVuokraAddModal(true)}>
-              + Lisää vuosi
-            </button>
+          ))}
+        </div>
+
+        {/* ── VIEW MODE FILTER ──────────────────────────────────────── */}
+        <div
+          style={{
+            display: "flex",
+            gap: 6,
+            flexWrap: "wrap",
+            paddingBottom: 12,
+            borderBottom: `1px solid ${theme.colors.border}`,
+          }}
+        >
+          <button style={viewBtn("year")} onClick={() => setViewMode("year")}>
+            Vuosi
+          </button>
+          <button style={viewBtn("month")} onClick={() => setViewMode("month")}>
+            Kuukausi
+          </button>
+        </div>
+
+        {/* ── CONTENT CARDS ─────────────────────────────────────────── */}
+        <div
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}
+        >
+          {/* ── MAINTENANCE EXPENSES ─────────────────────────────────── */}
+          <div style={cardStyle}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 12,
+              }}
+            >
+              <h3 style={sectionTitle}>Ylläpitokulut</h3>
+              <button onClick={() => setShowYllapitoModal(true)}>✎ Muokkaa</button>
+            </div>
+
+            {!yllapito ? (
+              <p style={{ color: theme.colors.textMuted }}>
+                Ei tietoja vuodelle {selectedYear}.
+              </p>
+            ) : (
+              <>
+                {divider("Kiinteät kulut")}
+                <InfoRow label="Sähkö" value={fmt(yllapito.sahko)} />
+                <InfoRow label="Lämmitys" value={fmt(yllapito.lammitys)} />
+                <InfoRow label="Vesi" value={fmt(yllapito.vesi)} />
+                <InfoRow label="Huolto" value={fmt(yllapito.huolto)} />
+                <InfoRow label="Kiinteistövero" value={fmt(yllapito.vero)} />
+                <InfoRow label="Laina" value={fmt(yllapito.laina)} />
+
+                {/* User-defined extra rows */}
+                {Object.keys(yllapito.muutKulut ?? {}).length > 0 && (
+                  <>
+                    {divider("Muut kulut")}
+                    {Object.entries(yllapito.muutKulut ?? {}).map(
+                      ([nimi, summa]) => (
+                        <InfoRow key={nimi} label={nimi} value={fmt(summa)} />
+                      ),
+                    )}
+                  </>
+                )}
+
+                {/* Total */}
+                <div
+                  style={{
+                    marginTop: 12,
+                    paddingTop: 10,
+                    borderTop: `2px solid ${theme.colors.border}`,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontWeight: 700,
+                  }}
+                >
+                  <span>Yhteensä</span>
+                  <span>{fmt(calcYllapitoTotal(yllapito))}</span>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* ── RENTAL INFORMATION ───────────────────────────────────── */}
+          <div style={cardStyle}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 12,
+              }}
+            >
+              <h3 style={sectionTitle}>Vuokraustiedot</h3>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button onClick={() => setEditingVuokraYear(selectedYear)}>
+                  ✎ Muokkaa
+                </button>
+                <button
+                  onClick={() => {
+                    const updated = { ...item.vuokrakulut };
+                    delete updated[selectedYear];
+                    onUpdate({ ...item, vuokrakulut: updated });
+                    setSelectedYear(latestYear);
+                  }}
+                  style={{ color: "#d32f2f" }}
+                >
+                  ✕ Poista
+                </button>
+                <button onClick={() => setShowVuokraAddModal(true)}>
+                  + Lisää vuosi
+                </button>
+              </div>
+            </div>
+
+            {vuokra ? (
+              <>
+                {divider("Vuokratulot")}
+                <InfoRow
+                  label="Vuokrattavissa"
+                  value={`${vuokra.vuokrattavissa ?? "—"} m²`}
+                />
+                <InfoRow
+                  label="Vuokrattu"
+                  value={`${vuokra.vuokrattu ?? vuokra.vuokrausaste_m2} m²`}
+                />
+                <InfoRow label="Neliövuokra" value={`${fmtDec(neliövuokra)} /m²`} />
+                <InfoRow label="Käyttöaste" value={`${kayttoaste} %`} />
+                <InfoRow
+                  label="Vuokratulot"
+                  value={
+                    viewMode === "year"
+                      ? `${fmt(vuokratulot)} / vuosi`
+                      : `${fmt(kuukausitulo)} / kk`
+                  }
+                />
+
+                {divider("Kiinteät kulut")}
+                <InfoRow
+                  label="Ylläpitokorjaukset"
+                  value={fmt(vuokra.yllapitoKorjaukset ?? 0)}
+                />
+                <InfoRow label="Maavuokra" value={fmt(vuokra.maavuokra ?? 0)} />
+                <InfoRow label="Vakuutus" value={fmt(vuokra.vakuutus ?? 0)} />
+
+                {toimenpiteetYhteensa > 0 && (
+                  <>
+                    {divider("Toimenpiteet")}
+                    <InfoRow
+                      label={`Toimenpiteet ${selectedYear}`}
+                      value={fmt(toimenpiteetYhteensa)}
+                    />
+                  </>
+                )}
+
+                {/* Financial period result */}
+                <div
+                  style={{
+                    marginTop: 16,
+                    paddingTop: 12,
+                    borderTop: `2px solid ${theme.colors.border}`,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      fontWeight: 700,
+                      fontSize: "1rem",
+                    }}
+                  >
+                    <span>Tilikauden tulos</span>
+                    <span style={{ color: tulosColor }}>
+                      {tulos >= 0 ? "+" : ""}
+                      {Math.round(tulos).toLocaleString("fi-FI")} €
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.75rem",
+                      color: theme.colors.textMuted,
+                      marginTop: 4,
+                    }}
+                  >
+                    Vuokratulot {fmt(vuokratulot)} − kulut {fmt(kulutYhteensa)}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p style={{ color: theme.colors.textMuted }}>
+                Ei vuokratietoja vuodelle {selectedYear}.
+              </p>
+            )}
           </div>
         </div>
 
-        {vuokra ? (
-          <>
-            {divider("Vuokratulot")}
-            <InfoRow
-              label="Vuokrattavissa"
-              value={`${vuokra.vuokrattavissa ?? "—"} m²`}
-            />
-            <InfoRow
-              label="Vuokrattu"
-              value={`${vuokra.vuokrattu ?? vuokra.vuokrausaste_m2} m²`}
-            />
-            <InfoRow label="Neliövuokra" value={`${fmtDec(neliövuokra)} /m²`} />
-            <InfoRow label="Käyttöaste" value={`${kayttoaste} %`} />
-            <InfoRow
-              label="Vuokratulot"
-              value={
-                viewMode === "year"
-                  ? `${fmt(vuokratulot)} / vuosi`
-                  : `${fmt(kuukausitulo)} / kk`
-              }
-            />
+        {/* ── MODALS ───────────────────────────────────────────────── */}
+        <YllapitokulutModal
+          open={showYllapitoModal}
+          item={item}
+          year={selectedYear}
+          onClose={() => setShowYllapitoModal(false)}
+          onSave={(year, data) =>
+            onUpdate({
+              ...item,
+              yllapitokulut: { ...item.yllapitokulut, [year]: data },
+            })
+          }
+        />
 
-            {divider("Kiinteät kulut")}
-            <InfoRow
-              label="Ylläpitokorjaukset"
-              value={fmt(vuokra.yllapitoKorjaukset ?? 0)}
-            />
-            <InfoRow label="Maavuokra" value={fmt(vuokra.maavuokra ?? 0)} />
-            <InfoRow label="Vakuutus" value={fmt(vuokra.vakuutus ?? 0)} />
+        {showVuokraAddModal && (
+          <VuokrakulutModal
+            mode="add"
+            existingYears={years.map((y) => y.year)}
+            onSave={(year, data) =>
+              onUpdate({
+                ...item,
+                vuokrakulut: { ...item.vuokrakulut, [year]: data },
+              })
+            }
+            onClose={() => setShowVuokraAddModal(false)}
+          />
+        )}
 
-            {toimenpiteetYhteensa > 0 && (
-              <>
-                {divider("Toimenpiteet")}
-                <InfoRow
-                  label={`Toimenpiteet ${selectedYear}`}
-                  value={fmt(toimenpiteetYhteensa)}
-                />
-              </>
-            )}
-
-            {/* Financial period result */}
-            <div
-              style={{
-                marginTop: 16,
-                paddingTop: 12,
-                borderTop: `2px solid ${theme.colors.border}`,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontWeight: 700,
-                  fontSize: "1rem",
-                }}
-              >
-                <span>Tilikauden tulos</span>
-                <span style={{ color: tulosColor }}>
-                  {tulos >= 0 ? "+" : ""}
-                  {Math.round(tulos).toLocaleString("fi-FI")} €
-                </span>
-              </div>
-              <div
-                style={{
-                  fontSize: "0.75rem",
-                  color: theme.colors.textMuted,
-                  marginTop: 4,
-                }}
-              >
-                Vuokratulot {fmt(vuokratulot)} − kulut {fmt(kulutYhteensa)}
-              </div>
-            </div>
-          </>
-        ) : (
-          <p style={{ color: theme.colors.textMuted }}>
-            Ei vuokratietoja vuodelle {selectedYear}.
-          </p>
+        {editingVuokraYear != null && (
+          <VuokrakulutModal
+            mode="edit"
+            existingYears={years.map((y) => y.year)}
+            initial={{
+              year: editingVuokraYear,
+              data: item.vuokrakulut[editingVuokraYear],
+            }}
+            onSave={(year, data) =>
+              onUpdate({
+                ...item,
+                vuokrakulut: { ...item.vuokrakulut, [year]: data },
+              })
+            }
+            onClose={() => setEditingVuokraYear(null)}
+          />
         )}
       </div>
-      </div>
-
-      {/* ── MODALS ───────────────────────────────────────────────── */}
-      <YllapitokulutModal
-        open={showYllapitoModal}
-        item={item}
-        year={selectedYear}
-        onClose={() => setShowYllapitoModal(false)}
-        onSave={(year, data) =>
-          onUpdate({
-            ...item,
-            yllapitokulut: { ...item.yllapitokulut, [year]: data },
-          })
-        }
-      />
-
-      {showVuokraAddModal && (
-        <VuokrakulutModal
-          mode="add"
-          existingYears={years.map((y) => y.year)}
-          onSave={(year, data) =>
-            onUpdate({
-              ...item,
-              vuokrakulut: { ...item.vuokrakulut, [year]: data },
-            })
-          }
-          onClose={() => setShowVuokraAddModal(false)}
-        />
-      )}
-
-      {editingVuokraYear != null && (
-        <VuokrakulutModal
-          mode="edit"
-          existingYears={years.map((y) => y.year)}
-          initial={{
-            year: editingVuokraYear,
-            data: item.vuokrakulut[editingVuokraYear],
-          }}
-          onSave={(year, data) =>
-            onUpdate({
-              ...item,
-              vuokrakulut: { ...item.vuokrakulut, [year]: data },
-            })
-          }
-          onClose={() => setEditingVuokraYear(null)}
-        />
-      )}
-    </div>
+    </ErrorBoundary>
   );
 }

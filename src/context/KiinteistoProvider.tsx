@@ -108,7 +108,7 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
 
   function calVuokra(k: Kiinteisto, year: number) {
     const vuokrausaste = k.vuokrakulut[year]?.vuokrausaste_m2 ?? 0;
-    const neliövuokra = k.vuokrakulut[year]?.neliövuokra ?? 0;
+    const neliövuokra = k.vuokrakulut[year]?.neliovuokra ?? 0;
     return vuokrausaste * neliövuokra;
   }
 
