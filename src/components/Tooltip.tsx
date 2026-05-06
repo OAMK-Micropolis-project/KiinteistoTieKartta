@@ -74,7 +74,7 @@ export default function Tooltip({
     top: number;
     left: number;
     actualPlacement: "bottom" | "top";
-    arrowLeft: number; // nuolen x bubbleen sisällä
+    arrowLeft: number; 
   } | null>(null);
 
   useLayoutEffect(() => {
@@ -84,11 +84,10 @@ export default function Tooltip({
     const bubbleEl = bubbleRef.current;
     if (!targetEl || !bubbleEl) return;
 
-    const margin = 12; // etäisyys viewportin reunoista
+    const margin = 12; 
 
     const targetRect = targetEl.getBoundingClientRect();
 
-    // Asetetaan ensin maxWidth/minWidth jotta mittaus on oikein
     bubbleEl.style.minWidth = `${minWidth}px`;
     bubbleEl.style.maxWidth = `${maxWidth}px`;
 
@@ -99,12 +98,9 @@ export default function Tooltip({
 
     const targetCenterX = targetRect.left + targetRect.width / 2;
 
-    // Ehdotettu left keskelle
     let left = targetCenterX - bubbleRect.width / 2;
-    // ✅ clamp ikkunan sisään
     left = clamp(left, margin, viewportW - bubbleRect.width - margin);
 
-    // placement flip jos alhaalla ei tilaa
     const spaceBelow = viewportH - targetRect.bottom;
     const spaceAbove = targetRect.top;
 
@@ -122,10 +118,8 @@ export default function Tooltip({
         ? targetRect.bottom + offset
         : targetRect.top - bubbleRect.height - offset;
 
-    // clamp myös y-suuntaan varmuuden vuoksi
     top = clamp(top, margin, viewportH - bubbleRect.height - margin);
 
-    // Nuolen paikka bubbleen sisällä: kohdista targetin keskelle
     const arrowLeft = clamp(targetCenterX - left, 12, bubbleRect.width - 12);
 
     setPos({ top, left, actualPlacement, arrowLeft });
