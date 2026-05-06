@@ -6,6 +6,7 @@ import { computeFinancials } from "../../utils/kiinteistoUtils";
 import InfoRow from "../InfoRow";
 import VuokrakulutModal from "../VuokrakulutModal";
 import YllapitokulutModal from "../YllapitokulutModal";
+import Tooltip from "../Tooltip";
 
 interface Props {
   item: Kiinteisto;
@@ -52,6 +53,17 @@ function yearsIndex(item: Kiinteisto) {
 export default function TalousTab({ item, latestYear, onUpdate }: Props) {
   const years = yearsIndex(item);
 
+  const TT = ({
+    text,
+    children,
+  }: {
+    text: string;
+    children: React.ReactNode;
+  }) => (
+    <Tooltip label={<div style={{ whiteSpace: "pre-wrap" }}>{text}</div>}>
+      <span>{children}</span>
+    </Tooltip>
+  );
   const [selectedYear, setSelectedYear] = useState<number>(latestYear);
   const [viewMode, setViewMode] = useState<"year" | "month">("year");
 
@@ -225,7 +237,15 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
               }}
             >
               <span>Yhteensä</span>
-              <span>{fmt(calcYllapitoTotal(yllapito))}</span>
+              <span>
+                <TT          
+                  text={
+                    `Ylläpitokulut yhteensä (${selectedYear})\n` +
+                    `= (sahko + lammitys + vesi + huolto + vero + laina)\n` +
+                    `+ Σ(muutKulut)\n` +
+                    `= calcYllapitoTotal(yllapito)`
+                  }
+                >{fmt(calcYllapitoTotal(yllapito))}</TT></span>
             </div>
           </>
         )}
@@ -274,14 +294,71 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
               label="Vuokrattu"
               value={`${vuokra.vuokrattu ?? vuokra.vuokrausaste_m2} m²`}
             />
-            <InfoRow label="Neliövuokra" value={`${fmtDec(neliövuokra)} /m²`} />
-            <InfoRow label="Käyttöaste" value={`${kayttoaste} %`} />
             <InfoRow
-              label="Vuokratulot"
+              label={
+                <TT
+                  text={
+                    `Neliövuokra (€/m²/kk)\n` +
+                    `= kokonaisvuokra / vuokrattu / 12\n` +
+                    `Jos vuokrattu <= 0 → 0`
+                  }
+                >
+                  Neliövuokra
+                </TT>
+              }
               value={
-                viewMode === "year"
-                  ? `${fmt(vuokratulot)} / vuosi`
-                  : `${fmt(kuukausitulo)} / kk`
+                <TT
+                  text={
+                    `Neliövuokra (${selectedYear})\n` +
+                    `= ${vuokra?.kokonaisvuokra ?? 0} / ${vuokra?.vuokrattu ?? 0} / 12`
+                  }
+                >
+                  {`${fmtDec(neliövuokra)} /m²`}
+                </TT>
+              }
+            />
+            <InfoRow
+              label={
+                <TT
+                  text={
+                    `Käyttöaste (%)\n` +
+                    `= (vuokrattu m² / pinta-ala) * 100\n` +
+                    `Tulos pyöristetään/formatoinnista riippuen`
+                  }
+                >
+                  Käyttöaste
+                </TT>
+              }
+              value={
+                <TT text={`Käyttöaste (${selectedYear}) = ${kayttoaste} %`}>
+                  {`${kayttoaste} %`}
+                </TT>
+              }
+            />
+            <InfoRow
+              label={
+                <TT
+                  text={
+                    `Vuokratulot\n` +
+                    `= vuokrattu m² * neliövuokra * 12 (vuositaso)\n` +
+                    `Kuukausitaso = vuositulot / 12`
+                  }
+                >
+                  Vuokratulot
+                </TT>
+              }
+              value={
+                <TT
+                  text={
+                    viewMode === "year"
+                      ? `Vuositulot (${selectedYear}) = ${fmt(vuokratulot)}`
+                      : `Kuukausitulot (${selectedYear}) = round(${fmt(vuokratulot)} / 12) = ${fmt(kuukausitulo)}`
+                  }
+                >
+                  {viewMode === "year"
+                    ? `${fmt(vuokratulot)} / vuosi`
+                    : `${fmt(kuukausitulo)} / kk`}
+                </TT>
               }
             />
 
@@ -321,9 +398,20 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
               >
                 <span>Tilikauden tulos</span>
                 <span style={{ color: tulosColor }}>
-                  {tulos >= 0 ? "+" : ""}
-                  {Math.round(tulos).toLocaleString("fi-FI")} €
-                </span>
+                <TT
+                  text={
+                    `Tilikauden tulos (${selectedYear})\n` +
+                    `= vuokratulot − kulutYhteensa\n` +
+                    `= ${fmt(vuokratulot)} − ${fmt(kulutYhteensa)}\n` +
+                    `= ${Math.round(tulos).toLocaleString("fi-FI")} €`
+                  }
+                >
+                  <>
+                    {tulos >= 0 ? "+" : ""}
+                    {Math.round(tulos).toLocaleString("fi-FI")} €
+                  </>
+                </TT>
+              </span>
               </div>
               <div
                 style={{
