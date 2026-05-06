@@ -15,7 +15,7 @@ interface Props {
 }
 
 function fmt(value: number) {
-  return `${Math.round(value).toLocaleString("fi-FI")} €`;
+  return `${value.toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 }
 
 function fmtDec(value: number, decimals = 2) {
@@ -34,14 +34,24 @@ function calcYllapitoTotal(
   return Math.round(fixed + extra);
 }
 
+function yearsIndex(item: Kiinteisto) {
+  return [
+    ...new Set([
+      ...Object.keys(item.yllapitokulut ?? {}),
+      ...Object.keys(item.vuokrakulut ?? {}),
+    ]),
+  ]
+    .map(Number)
+    .sort((a, b) => b - a)
+    .map((year) => ({
+      year,
+      yllapito: item.yllapitokulut?.[year] ?? null,
+      vuokra: item.vuokrakulut?.[year] ?? null,
+    }));
+}
+
 export default function TalousTab({ item, latestYear, onUpdate }: Props) {
-  // Shared year selection — both panels follow the same selected year
-  const allYllapitoYears = Object.keys(item.yllapitokulut ?? {})
-    .map(Number)
-    .sort((a, b) => b - a);
-  const allVuokraYears = Object.keys(item.vuokrakulut ?? {})
-    .map(Number)
-    .sort((a, b) => b - a);
+  const years = yearsIndex(item);
 
   const TT = ({
     text,
@@ -76,8 +86,8 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
   const vuokra = item.vuokrakulut?.[selectedYear];
 
   const neliövuokra =
-    vuokra?.vuokrattu && vuokra.vuokrattu > 0
-      ? vuokra.kokonaisvuokra / vuokra.vuokrattu / 12
+    vuokra?.vuokrattavissa && vuokra.vuokrattavissa > 0
+      ? vuokra.kokonaisvuokra / vuokra.vuokrattavissa
       : 0;
 
   const kuukausitulo = Math.round(vuokratulot / 12);
@@ -130,42 +140,64 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
   );
 
   return (
-    <div
-      style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}
-    >
-      {/* ── MAINTENANCE EXPENSES ─────────────────────────────────── */}
-      <div style={cardStyle}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 12,
-          }}
-        >
-          <h3 style={sectionTitle}>Ylläpitokulut</h3>
-          <button onClick={() => setShowYllapitoModal(true)}>✎ Muokkaa</button>
-        </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      {/* ── YEAR FILTER ───────────────────────────────────────────── */}
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          flexWrap: "wrap",
+          paddingBottom: 12,
+          borderBottom: `1px solid ${theme.colors.border}`,
+          marginBottom: 4,
+        }}
+      >
+        {years.map(({ year }) => (
+          <button
+            key={year}
+            onClick={() => setSelectedYear(year)}
+            style={yearBtn(year)}
+          >
+            {year}
+          </button>
+        ))}
+      </div>
 
-        {/* Year pills */}
-        <div
-          style={{
-            display: "flex",
-            gap: 6,
-            flexWrap: "wrap",
-            marginBottom: 12,
-          }}
-        >
-          {allYllapitoYears.map((y) => (
-            <button
-              key={y}
-              onClick={() => setSelectedYear(y)}
-              style={yearBtn(y)}
-            >
-              {y}
-            </button>
-          ))}
-        </div>
+      {/* ── VIEW MODE FILTER ──────────────────────────────────────── */}
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          flexWrap: "wrap",
+          paddingBottom: 12,
+          borderBottom: `1px solid ${theme.colors.border}`,
+        }}
+      >
+        <button style={viewBtn("year")} onClick={() => setViewMode("year")}>
+          Vuosi
+        </button>
+        <button style={viewBtn("month")} onClick={() => setViewMode("month")}>
+          Kuukausi
+        </button>
+      </div>
+
+      {/* ── CONTENT CARDS ─────────────────────────────────────────── */}
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}
+      >
+        {/* ── MAINTENANCE EXPENSES ─────────────────────────────────── */}
+        <div style={cardStyle}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 12,
+            }}
+          >
+            <h3 style={sectionTitle}>Ylläpitokulut</h3>
+            <button onClick={() => setShowYllapitoModal(true)}>✎ Muokkaa</button>
+          </div>
 
         {!yllapito ? (
           <p style={{ color: theme.colors.textMuted }}>
@@ -231,15 +263,6 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
         >
           <h3 style={sectionTitle}>Vuokraustiedot</h3>
           <div style={{ display: "flex", gap: 6 }}>
-            <button style={viewBtn("year")} onClick={() => setViewMode("year")}>
-              Vuosi
-            </button>
-            <button
-              style={viewBtn("month")}
-              onClick={() => setViewMode("month")}
-            >
-              Kuukausi
-            </button>
             <button onClick={() => setEditingVuokraYear(selectedYear)}>
               ✎ Muokkaa
             </button>
@@ -259,31 +282,6 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
             </button>
           </div>
         </div>
-
-        {/* Year pills */}
-        <div
-          style={{
-            display: "flex",
-            gap: 6,
-            flexWrap: "wrap",
-            marginBottom: 12,
-          }}
-        >
-          {allVuokraYears.map((y) => (
-            <button
-              key={y}
-              onClick={() => setSelectedYear(y)}
-              style={yearBtn(y)}
-            >
-              {y}
-            </button>
-          ))}
-        </div>
-
-        {/* Edit / delete for selected year */}
-        {vuokra && (
-          <div style={{ display: "flex", gap: 6, marginBottom: 12 }}></div>
-        )}
 
         {vuokra ? (
           <>
@@ -432,6 +430,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
           </p>
         )}
       </div>
+      </div>
 
       {/* ── MODALS ───────────────────────────────────────────────── */}
       <YllapitokulutModal
@@ -450,7 +449,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
       {showVuokraAddModal && (
         <VuokrakulutModal
           mode="add"
-          existingYears={allVuokraYears}
+          existingYears={years.map((y) => y.year)}
           onSave={(year, data) =>
             onUpdate({
               ...item,
@@ -464,7 +463,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
       {editingVuokraYear != null && (
         <VuokrakulutModal
           mode="edit"
-          existingYears={allVuokraYears}
+          existingYears={years.map((y) => y.year)}
           initial={{
             year: editingVuokraYear,
             data: item.vuokrakulut[editingVuokraYear],

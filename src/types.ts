@@ -13,7 +13,8 @@ export type VuokraKulut = {
     // Perustiedot
     tasearvo: number;
     vuokrausaste_m2: number;
-    neliövuokra: number;
+    kokonaisvuokra: number; 
+    neliovuokra: number;
 
     // Kulutus
     sahkonkulutus: number;
@@ -24,11 +25,9 @@ export type VuokraKulut = {
     yllapitoKorjaukset: number;
     maavuokra: number;
     vakuutus: number;
-
-    // Vuokratulot — m² values, income derived from these
+    
     vuokrattu: number;       // rented m²
     vuokrattavissa: number;  // available m²
-    // kokonaisvuokra is NOT stored — always derived as vuokrattu * neliövuokra * 12
 };
 
 type Pisteet = {

@@ -3,30 +3,100 @@ import path from "node:path";
 import registerFsHandlers from "./utils/fsHandlers";
 import registerPdfHandlers from "./utils/pdfHandlers";
 import squirrelStartup from "electron-squirrel-startup";
+import { appendFileSync, mkdirSync } from "node:fs";
+
+function writeLog(message: string) {
+  const logDir = app.getPath("userData");
+  mkdirSync(logDir, { recursive: true });
+  const logPath = path.join(logDir, "log.txt");
+  const line = `${new Date().toISOString()} - ${message}\n`;
+  appendFileSync(logPath, line, { encoding: "utf8" });
+}
+
+process.on("uncaughtException", (error) => {
+  writeLog(`uncaughtException: ${error.message}`);
+});
+
+process.on("unhandledRejection", (reason) => {
+  writeLog(`unhandledRejection: ${reason}`);
+});
+
+writeLog("app started");
 
 if (squirrelStartup) {
+  writeLog("squirrelStartup: quitting");
   app.quit();
 }
 
+let mainWindow: BrowserWindow | null = null;
+
 function createWindow() {
-  const win = new BrowserWindow({
+  writeLog("createWindow: starting");
+  mainWindow = new BrowserWindow({
     show: false,
     webPreferences: {
       preload: path.join(__dirname, "./preload.js"),
     },
   });
-  win.maximize();
-  win.show();
+
+  mainWindow.webContents.on(
+    "did-fail-load",
+    (event, errorCode, errorDescription, url) => {
+      writeLog(`did-fail-load: ${errorCode} ${errorDescription} ${url}`);
+    },
+  );
+
+  mainWindow.webContents.on("render-process-gone", (event, details) => {
+    writeLog(`render-process-gone: ${details.reason}`);
+  });
+
+  mainWindow.webContents.on("did-finish-load", () => {
+    writeLog("did-finish-load: finished");
+  });
+
+  const indexPath = path.join(__dirname, "../dist/index.html");
+  writeLog(`preload path: ${path.join(__dirname, "./preload.js")}`);
+  writeLog(`index path: ${indexPath}`);
+
+  mainWindow.maximize();
+  mainWindow.show();
 
   if (process.env.VITE_DEV_SERVER_URL) {
-    win.loadURL(process.env.VITE_DEV_SERVER_URL);
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
-    win.loadFile(path.join(__dirname, "../dist/index.html"));
+    writeLog(`loading file: ${indexPath}`);
+    mainWindow.loadFile(indexPath);
   }
 }
 
-app.whenReady().then(() => {
-  registerFsHandlers();
-  registerPdfHandlers();
-  createWindow();
+const instance = app.requestSingleInstanceLock();
+
+if (!instance) {
+  writeLog("app.requestSingleInstanceLock: failed");
+  app.quit();
+} else {
+  writeLog("app.requestSingleInstanceLock: succeeded");
+  app.on("second-instance", () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    } else {
+      createWindow();
+    }
+  });
+
+  app.whenReady().then(() => {
+    writeLog("app.whenReady: starting");
+    registerFsHandlers();
+    registerPdfHandlers();
+    writeLog("app.whenReady: handlers registered");
+    createWindow();
+    writeLog("app.whenReady: window created");
+  });
+}
+
+app.on("window-all-closed", () => {
+  writeLog("window-all-closed: ");
+  mainWindow = null;
+  app.quit();
 });
