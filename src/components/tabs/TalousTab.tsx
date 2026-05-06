@@ -33,14 +33,24 @@ function calcYllapitoTotal(
   return Math.round(fixed + extra);
 }
 
+function yearsIndex(item: Kiinteisto) {
+  return [
+    ...new Set([
+      ...Object.keys(item.yllapitokulut ?? {}),
+      ...Object.keys(item.vuokrakulut ?? {}),
+    ]),
+  ]
+    .map(Number)
+    .sort((a, b) => b - a)
+    .map((year) => ({
+      year,
+      yllapito: item.yllapitokulut?.[year] ?? null,
+      vuokra: item.vuokrakulut?.[year] ?? null,
+    }));
+}
+
 export default function TalousTab({ item, latestYear, onUpdate }: Props) {
-  // Shared year selection — both panels follow the same selected year
-  const allYllapitoYears = Object.keys(item.yllapitokulut ?? {})
-    .map(Number)
-    .sort((a, b) => b - a);
-  const allVuokraYears = Object.keys(item.vuokrakulut ?? {})
-    .map(Number)
-    .sort((a, b) => b - a);
+  const years = yearsIndex(item);
 
   const [selectedYear, setSelectedYear] = useState<number>(latestYear);
   const [viewMode, setViewMode] = useState<"year" | "month">("year");
@@ -144,13 +154,13 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
             marginBottom: 12,
           }}
         >
-          {allYllapitoYears.map((y) => (
+          {years.map(({ year }) => (
             <button
-              key={y}
-              onClick={() => setSelectedYear(y)}
-              style={yearBtn(y)}
+              key={year}
+              onClick={() => setSelectedYear(year)}
+              style={yearBtn(year)}
             >
-              {y}
+              {year}
             </button>
           ))}
         </div>
@@ -249,13 +259,13 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
             marginBottom: 12,
           }}
         >
-          {allVuokraYears.map((y) => (
+          {years.map(({ year }) => (
             <button
-              key={y}
-              onClick={() => setSelectedYear(y)}
-              style={yearBtn(y)}
+              key={year}
+              onClick={() => setSelectedYear(year)}
+              style={yearBtn(year)}
             >
-              {y}
+              {year}
             </button>
           ))}
         </div>
@@ -362,7 +372,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
       {showVuokraAddModal && (
         <VuokrakulutModal
           mode="add"
-          existingYears={allVuokraYears}
+          existingYears={years.map((y) => y.year)}
           onSave={(year, data) =>
             onUpdate({
               ...item,
@@ -376,7 +386,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
       {editingVuokraYear != null && (
         <VuokrakulutModal
           mode="edit"
-          existingYears={allVuokraYears}
+          existingYears={years.map((y) => y.year)}
           initial={{
             year: editingVuokraYear,
             data: item.vuokrakulut[editingVuokraYear],
