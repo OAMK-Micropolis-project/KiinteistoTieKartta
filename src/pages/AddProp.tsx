@@ -12,9 +12,12 @@ type FormData = {
   kayttotarkoitus: string;
   bruttopintaAla: number;
   rakennusvuosi: number;
+  hiilijalanjälki: number;
   tasearvo: number;
+  rakennusArvo: number;
+  maapohjaArvo: number;
+  liittymisarvo: number;
   vuokrattu: number;
-  neliovuokra: number;
   suojelukohde: "Ei" | "Kyllä";
   yllapito: {
     sahko: number;
@@ -34,9 +37,12 @@ function makeEmptyForm(): FormData {
     kayttotarkoitus: "",
     bruttopintaAla: 0,
     rakennusvuosi: 0,
+    hiilijalanjälki: 0,
     tasearvo: 0,
+    rakennusArvo: 0,
+    maapohjaArvo: 0,
+    liittymisarvo: 0,
     vuokrattu: 0,
-    neliovuokra: 0,
     suojelukohde: "Ei",
     yllapito: {
       sahko: 0,
@@ -119,10 +125,13 @@ const AddProp: React.FC = () => {
       kayttotarkoitus: current.kayttotarkoitus ?? "",
       bruttopintaAla: current.pinta_ala,
       rakennusvuosi: current.rakennusvuosi,
+      hiilijalanjälki: current.hiilijalanjälki ?? 0,
 
       tasearvo: vua?.tasearvo ?? 0,
+      rakennusArvo: vua?.rakennusArvo ?? 0,
+      maapohjaArvo: vua?.maapohjaArvo ?? 0,
+      liittymisarvo: vua?.liittymisarvo ?? 0,
       vuokrattu: vua?.vuokrausaste_m2 ?? 0,
-      neliovuokra: vua?.neliövuokra ?? 0,
 
       suojelukohde: current.suojelukohde ? "Kyllä" : "Ei",
 
@@ -190,6 +199,7 @@ const AddProp: React.FC = () => {
       kayttotarkoitus: formData.kayttotarkoitus,
       pinta_ala: formData.bruttopintaAla,
       rakennusvuosi: formData.rakennusvuosi,
+      hiilijalanjälki: formData.hiilijalanjälki,
       suojelukohde: formData.suojelukohde === "Kyllä",
 
       pisteet: { ...formData.kunto },
@@ -211,11 +221,19 @@ const AddProp: React.FC = () => {
         ...(base?.vuokrakulut ?? {}),
         [year]: {
           tasearvo: formData.tasearvo,
+          rakennusArvo: formData.rakennusArvo,
+          maapohjaArvo: formData.maapohjaArvo,
+          liittymisarvo: formData.liittymisarvo,
           vuokrausaste_m2: formData.vuokrattu,
-          neliövuokra: formData.neliovuokra,
+          kokonaisvuokra: 0,
           sahkonkulutus: 0,
           lammitysenergia: 0,
           vedenkulutus: 0,
+          yllapitoKorjaukset: 0,
+          maavuokra: 0,
+          vakuutus: 0,
+          vuokrattu: 0,
+          vuokrattavissa: 0,
         },
       },
 
@@ -295,13 +313,18 @@ const AddProp: React.FC = () => {
             </div>
 
             <div className="grid-item">
-              <label>Vuokralla olevat m²</label>
-              <input type="number" name="vuokrattu" value={formData.vuokrattu} onChange={handleChange} />
+              <label>Rakennus arvo (€)</label>
+              <input type="number" name="rakennusArvo" value={formData.rakennusArvo} onChange={handleChange} />
             </div>
 
             <div className="grid-item">
-              <label>Neliövuokra (€/m²)</label>
-              <input type="number" name="neliovuokra" value={formData.neliovuokra} onChange={handleChange} />
+              <label>Maapohja arvo (€)</label>
+              <input type="number" name="maapohjaArvo" value={formData.maapohjaArvo} onChange={handleChange} />
+            </div>
+
+            <div className="grid-item">
+              <label>Liittymisarvo (€)</label>
+              <input type="number" name="liittymisarvo" value={formData.liittymisarvo} onChange={handleChange} />
             </div>
 
             <div className="grid-item">
@@ -310,6 +333,11 @@ const AddProp: React.FC = () => {
                 <option value="Ei">Ei</option>
                 <option value="Kyllä">Kyllä</option>
               </select>
+            </div>
+
+            <div className="grid-item">
+              <label>Hiilijalanjälki (kg CO₂/v)</label>
+              <input type="number" name="hiilijalanjälki" value={formData.hiilijalanjälki} onChange={handleChange} />
             </div>
 
             <div className="grid-item">

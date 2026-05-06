@@ -15,6 +15,11 @@ export type VuokraKulut = {
     vuokrausaste_m2: number;
     kokonaisvuokra: number; 
     neliovuokra: number;
+    
+    // Tasearvo breakdown
+    rakennusArvo: number;      // rakennus arvo
+    maapohjaArvo: number;      // maapohja arvo
+    liittymisarvo: number;     // liittymisarvo
 
     // Kulutus
     sahkonkulutus: number;
@@ -72,6 +77,7 @@ export interface Kiinteisto {
     kayttotarkoitus: string;
     rakennusvuosi: number;
     suojelukohde: boolean;
+    hiilijalanjälki: number;  // CO2-jalanjälki (esim. kg CO2/v)
 
     pisteet: Pisteet;
     painotetutPisteet: number;

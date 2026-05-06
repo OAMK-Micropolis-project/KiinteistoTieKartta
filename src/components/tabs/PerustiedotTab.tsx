@@ -26,6 +26,7 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
             ["Rakennusvuosi", item.rakennusvuosi ?? "Ei tietoa"],
             ["Käyttötarkoitus", item.kayttotarkoitus ?? "Ei tietoa"],
             ["Suojelukohde", item.suojelukohde ? "Kyllä" : "Ei"],
+            ["Hiilijalanjälki", `${(item.hiilijalanjälki ?? 0).toLocaleString("fi-FI")} kg CO₂/v`],
 
             [
               "Tasearvo",
@@ -40,6 +41,27 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
                   {(item.vuokrakulut?.[latestYear]?.tasearvo ?? 0).toLocaleString("fi-FI")} €
                 </span>
               </Tooltip>,
+            ],
+
+            [
+              "  - Rakennus arvo",
+              <span>
+                {(item.vuokrakulut?.[latestYear]?.rakennusArvo ?? 0).toLocaleString("fi-FI")} €
+              </span>,
+            ],
+
+            [
+              "  - Maapohja arvo",
+              <span>
+                {(item.vuokrakulut?.[latestYear]?.maapohjaArvo ?? 0).toLocaleString("fi-FI")} €
+              </span>,
+            ],
+
+            [
+              "  - Liittymisarvo",
+              <span>
+                {(item.vuokrakulut?.[latestYear]?.liittymisarvo ?? 0).toLocaleString("fi-FI")} €
+              </span>,
             ],
 
             [
