@@ -15,7 +15,7 @@ function emptyVuokra(): VuokraKulut {
   return {
     tasearvo: 0,
     vuokrausaste_m2: 0,
-    neliövuokra: 0,
+    kokonaisvuokra: 0,
     sahkonkulutus: 0,
     lammitysenergia: 0,
     vedenkulutus: 0,
@@ -45,7 +45,9 @@ export default function VuokrakulutModal({
   }
 
   // Derived — not stored
-  const kokonaisvuokra = Math.round(form.vuokrattu * form.neliövuokra * 12);
+  const neliövuokra = form.vuokrattavissa > 0
+    ? form.kokonaisvuokra / form.vuokrattavissa
+    : 0;
   const kayttoaste = form.vuokrattavissa > 0
     ? Math.round((form.vuokrattu / form.vuokrattavissa) * 100)
     : 0;
@@ -122,9 +124,9 @@ export default function VuokrakulutModal({
               onChange={(e) => update("vuokrattavissa", Number(e.target.value))} style={inputStyle} />
           </div>
           <div>
-            <p style={labelStyle}>Neliövuokra (€/m²)</p>
-            <input type="number" value={form.neliövuokra || ""} placeholder="0"
-              onChange={(e) => update("neliövuokra", Number(e.target.value))} style={inputStyle} />
+            <p style={labelStyle}>Kokonaisvuokra / vuosi (€)</p>
+            <input type="number" value={form.kokonaisvuokra || ""} placeholder="0"
+              onChange={(e) => update("kokonaisvuokra", Number(e.target.value))} style={inputStyle} />
           </div>
           <div>
             <p style={labelStyle}>Vuokrausaste m² (legacy)</p>
@@ -143,8 +145,8 @@ export default function VuokrakulutModal({
           display: "flex",
           justifyContent: "space-between",
         }}>
-          <span>Kokonaisvuokra / v</span>
-          <strong>{kokonaisvuokra.toLocaleString("fi-FI")} €</strong>
+          <span>Neliövuokra</span>
+          <strong>{neliövuokra.toFixed(2)} €/m²</strong>
           <span style={{ marginLeft: 16 }}>Käyttöaste</span>
           <strong>{kayttoaste} %</strong>
         </div>

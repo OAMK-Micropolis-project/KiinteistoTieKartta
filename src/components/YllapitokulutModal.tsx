@@ -12,12 +12,12 @@ interface Props {
 }
 
 const FIXED_FIELDS: { key: keyof Omit<YllapitoKulut, "muut" | "muutKulut">; label: string }[] = [
-  { key: "sahko",    label: "Sähkö" },
+  { key: "sahko", label: "Sähkö" },
   { key: "lammitys", label: "Lämmitys" },
-  { key: "vesi",     label: "Vesi" },
-  { key: "huolto",   label: "Huolto" },
-  { key: "vero",     label: "Kiinteistövero" },
-  { key: "laina",    label: "Laina" },
+  { key: "vesi", label: "Vesi" },
+  { key: "huolto", label: "Huolto" },
+  { key: "vero", label: "Kiinteistövero" },
+  { key: "laina", label: "Laina" },
 ];
 
 function emptyYllapito(): YllapitoKulut {

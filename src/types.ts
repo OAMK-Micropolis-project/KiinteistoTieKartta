@@ -13,7 +13,6 @@ export type VuokraKulut = {
     // Perustiedot
     tasearvo: number;
     vuokrausaste_m2: number;
-    neliövuokra: number; // calculated as = kokonaisvuokra / vuokrattavissa / 12
     kokonaisvuokra: number; 
 
     // Kulutus
