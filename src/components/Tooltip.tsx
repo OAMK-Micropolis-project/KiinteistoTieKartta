@@ -26,7 +26,7 @@ const baseStyles = {
   } as CSSProperties,
 
   bubble: {
-    position: "fixed", // ✅ fixed = suhteessa viewportiin
+    position: "fixed", 
     background: "rgba(17, 24, 39, 0.95)",
     color: "#ffffff",
     border: "1px solid rgba(255,255,255,0.08)",
