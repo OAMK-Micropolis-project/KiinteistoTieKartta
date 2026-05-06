@@ -56,7 +56,7 @@ export function toimenpiteetByYear(item: Kiinteisto): Record<number, number> {
 export interface Financials {
   yllapitoYhteensa: number;     // maintenance expenses
   toimenpiteetYhteensa: number; // actions cost for the year (auto from toimenpiteet)
-  vuokratulot: number;          // vuokrattu m² × neliövuokra × 12
+  vuokratulot: number;          // kokonaisvuokra (vuosittain)
   kayttoaste: number;           // vuokrattu / vuokrattavissa %
   kulutYhteensa: number;        // yllapito + toimenpiteet + korjaukset + maavuokra + vakuutus
   tulos: number;                // vuokratulot − kulutYhteensa
@@ -70,11 +70,11 @@ export function computeFinancials(item: Kiinteisto, year: number): Financials {
 
   const toimenpiteetYhteensa = Math.round(toimenpiteetByYear(item)[year] ?? 0);
 
-  // Income: rented m² × price per m² × 12 months
-  const vuokrattu = vuokra?.vuokrattu ?? vuokra?.vuokrausaste_m2 ?? 0; // fallback for legacy data
-  const vuokratulot = vuokra?.neliövuokra
-    ? Math.round(vuokrattu * vuokra.neliövuokra * 12)
-    : 0;
+  // Income: use kokonaisvuokra directly (already annual)
+  const vuokratulot = Math.round(vuokra?.kokonaisvuokra ?? 0);
+
+  // Rented m²
+  const vuokrattu = vuokra?.vuokrattu ?? vuokra?.vuokrausaste_m2 ?? 0;
 
   // Occupancy: rented / available
   const vuokrattavissa = vuokra?.vuokrattavissa ?? item.pinta_ala;
