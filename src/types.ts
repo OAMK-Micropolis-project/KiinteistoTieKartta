@@ -14,6 +14,7 @@ export type VuokraKulut = {
     tasearvo: number;
     vuokrausaste_m2: number;
     kokonaisvuokra: number; 
+    neliovuokra: number;
 
     // Kulutus
     sahkonkulutus: number;
