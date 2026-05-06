@@ -2,6 +2,7 @@ import { badgeStyle } from "../../styles";
 import type { Kiinteisto } from "../../types";
 import { computeFinancials } from "../../utils/kiinteistoUtils";
 import DetailCard from "../DetailCard";
+import Tooltip from "../Tooltip";
 
 interface Props {
   item: Kiinteisto;
