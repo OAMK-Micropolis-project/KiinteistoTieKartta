@@ -39,6 +39,7 @@ export const boxesContainer: CSSProperties = {
   width: "100%",
   gap: "16px",
   marginTop: "20px",
+  overflow: "visible",
 };
 
 export const box: CSSProperties = {
@@ -58,7 +59,15 @@ export const box: CSSProperties = {
   wordBreak: "break-word",
 
   boxShadow: theme.shadowStrong,
+  overflow: "visible",
 };
+
+export const boxValueWrapper: CSSProperties = {
+  alignSelf: "center",
+  display: "inline-flex",
+  justifyContent: "center",
+};
+
 
 export const boxName: CSSProperties = {
   fontSize: "clamp(6px, 1.2vw, 28px)",
