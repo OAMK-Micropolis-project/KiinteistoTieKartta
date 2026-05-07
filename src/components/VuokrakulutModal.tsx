@@ -26,6 +26,10 @@ function emptyVuokra(): VuokraKulut {
     vakuutus: 0,
     vuokrattu: 0,
     vuokrattavissa: 0,
+    neliovuokra: 0,
+    rakennusArvo: 0,
+    maapohjaArvo: 0,
+    liittymisarvo: 0,
   };
 }
 

@@ -108,8 +108,8 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
 
   function calVuokra(k: Kiinteisto, year: number) {
     const vuokrausaste = k.vuokrakulut[year]?.vuokrausaste_m2 ?? 0;
-    const neliövuokra = k.vuokrakulut[year]?.neliovuokra ?? 0;
-    return vuokrausaste * neliövuokra;
+    const neliovuokra = k.vuokrakulut[year]?.neliovuokra ?? 0;
+    return vuokrausaste * neliovuokra;
   }
 
   function calAllVuokra(year: number) {
@@ -196,6 +196,7 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
         vuokrakulut: raw.vuokrakulut && typeof raw.vuokrakulut === "object" ? raw.vuokrakulut : {},
         painotetutPisteet: 0,
         oma_salkku: "D",
+        hiilijalanjalki: 0
       };
       const painotetutPisteet = calPainotutPisteet(base);
       const oma_salkku = evalSalkku({ ...base, painotetutPisteet });
