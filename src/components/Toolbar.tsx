@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import { useKiinteistot } from "../context/useKiinteistot";
+import Tooltip from "./Tooltip";
 
 import {
     toolbar,
@@ -26,6 +27,10 @@ import {
     refreshButton,
     refreshButtonDisabled,
     lastRefreshLabel,
+    filePathRow,
+    filePathText,
+    filePathMuted,
+    copyPathButton,
 } from "./Toolbar.styles";
 import FileButton from "./Pathfinderbutton";
 
@@ -55,7 +60,17 @@ export default function Toolbar() {
     ),
     [filteredKiinteistot, searchQuery]
   );
+  const [filePath, setFilePath] = useState<string | null>(null);
+  const fileName = filePath?.split(/[\\/]/).pop();
 
+
+  useEffect(() => {
+    async function loadPath() {
+      const settings = await window.settings.load();
+      setFilePath(settings?.lastFilePath ?? null);
+    }
+    loadPath();
+  }, []);
   return (
     <nav style={toolbar}>
       {/* ── Header ──────────────────────────────────────────────────── */}
@@ -152,7 +167,7 @@ export default function Toolbar() {
           title="Päivitä tiedosto"
           style={{ ...refreshButton, ...(isRefreshing ? refreshButtonDisabled : {}) }}
         >
-          {isRefreshing ? "Päivitetään…" : "🔄 Päivitä"}
+          {isRefreshing ? "Päivitetään…" : "Päivitä"}
         </button>
 
         {lastRefresh && (
@@ -161,6 +176,31 @@ export default function Toolbar() {
             {lastRefresh.toLocaleTimeString("fi-FI", { hour: "2-digit", minute: "2-digit" })}
           </span>
         )}
+        {filePath ? (
+        <div style={filePathRow}>
+          <Tooltip label={<div style={{ whiteSpace: "pre-wrap" }}>{filePath}</div>}>
+            <span style={filePathText}>{fileName}</span>
+          </Tooltip>
+
+          <button
+            type="button"
+            style={copyPathButton}
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(filePath);
+              } catch {
+                console.warn("Clipboard write failed");
+              }
+            }}
+            title="Kopioi polku"
+          >
+            Kopioi
+          </button>
+        </div>
+      ) : (
+        <div style={filePathMuted}>Ei tiedostoa valittuna</div>
+      )}
+
       </div>
     </nav>
   );
