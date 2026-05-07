@@ -35,18 +35,38 @@ function calcTotal(data: YllapitoKulut): number {
 }
 
 export default function YllapitokulutModal({ open, item, year, onClose, onSave }: Props) {
+  const [selectedYear, setSelectedYear] = useState<number>(year);
   const [local, setLocal] = useState<YllapitoKulut>(emptyYllapito());
   const [newRowNimi, setNewRowNimi] = useState("");
   const [newRowSumma, setNewRowSumma] = useState("");
+  const [newYear, setNewYear] = useState("");
+  const [localYears, setLocalYears] = useState<number[]>([]);
 
-  // Sync state when modal opens or year changes
+  // Get all available years (both existing and the initial year)
+  const availableYears = Array.from(
+  new Set([
+    year,
+    ...Object.keys(item.yllapitokulut ?? {}).map(Number),
+    ...localYears,
+  ])
+).sort((a, b) => b - a);
+
+  // Sync state when modal opens or year prop changes
   useEffect(() => {
     if (open) {
+      setSelectedYear(year);
       setLocal(item.yllapitokulut?.[year] ?? emptyYllapito());
+      setLocalYears([]);
       setNewRowNimi("");
       setNewRowSumma("");
+      setNewYear("");
     }
   }, [open, year, item]);
+
+  // Update local data when selectedYear changes (separate effect to avoid cascading)
+  useEffect(() => {
+    setLocal(item.yllapitokulut?.[selectedYear] ?? emptyYllapito());
+  }, [selectedYear, item]);
 
   if (!open) return null;
 
@@ -79,8 +99,28 @@ export default function YllapitokulutModal({ open, item, year, onClose, onSave }
     }));
   }
 
+  function addNewYear() {
+  const yearNum = Number(newYear);
+  if (!newYear.trim() || isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) return;
+  if (availableYears.includes(yearNum)) return;
+
+  const existingYears = Object.keys(item.yllapitokulut ?? {})
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  const previousYear = existingYears.find((y) => y < yearNum);
+  const dataFromPreviousYear = previousYear
+    ? item.yllapitokulut?.[previousYear] ?? emptyYllapito()
+    : emptyYllapito();
+
+  setLocalYears((prev) => [...prev, yearNum]);
+  setSelectedYear(yearNum);
+  setLocal(dataFromPreviousYear);
+  setNewYear("");
+}
+
   function handleSave() {
-    onSave(year, local);
+    onSave(selectedYear, local);
     onClose();
   }
 
@@ -110,10 +150,88 @@ export default function YllapitokulutModal({ open, item, year, onClose, onSave }
     borderBottom: `1px solid ${theme.colors.border}`,
   };
 
+  const selectStyle: React.CSSProperties = {
+    padding: "6px 8px",
+    borderRadius: 6,
+    border: `1px solid ${theme.colors.border}`,
+    fontSize: "0.9rem",
+    background: theme.colors.surface,
+    color: theme.colors.text,
+    cursor: "pointer",
+  };
+
+  const isNewYearValid = 
+    newYear.trim() &&
+    !isNaN(Number(newYear)) &&
+    Number(newYear) >= 1900 &&
+    Number(newYear) <= 2100 &&
+    !availableYears.includes(Number(newYear));
+
   return (
     <div style={overlayStyle}>
       <div style={{ ...cardStyle, width: 500, maxHeight: "88vh", overflowY: "auto" }}>
-        <h3 style={sectionTitle}>Ylläpitokulut – {year}</h3>
+        {/* Header with title and year selector */}
+        <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 16 }}>
+          <h3 style={{ ...sectionTitle, margin: 0 }}>Ylläpitokulut</h3>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            style={selectStyle}
+          >
+            {availableYears.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Add new year section */}
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-end", marginBottom: 16 }}>
+          <div style={{ flex: 1 }}>
+            <p style={labelStyle}>Lisää uusi vuosi</p>
+            <input
+              type="number"
+              placeholder="esim. 2025"
+              value={newYear}
+              onChange={(e) => setNewYear(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && isNewYearValid && addNewYear()}
+              style={{ ...inputStyle, marginBottom: 0 }}
+              min="1900"
+              max="2100"
+            />
+          </div>
+          <button
+            onClick={addNewYear}
+            disabled={!isNewYearValid}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 6,
+              border: `1px solid ${theme.colors.border}`,
+              background: theme.colors.surface,
+              cursor: isNewYearValid ? "pointer" : "not-allowed",
+              fontSize: "0.9rem",
+              whiteSpace: "nowrap",
+              opacity: isNewYearValid ? 1 : 0.5,
+            }}
+          >
+            + Lisää
+          </button>
+        </div>
+
+        {/* Show currently selected year info when adding new year */}
+        {newYear && isNewYearValid && (
+          <div style={{
+            padding: "8px 10px",
+            borderRadius: 6,
+            background: theme.colors.accentLight,
+            fontSize: "0.85rem",
+            marginBottom: 12,
+            fontWeight: 500,
+          }}>
+            Lisää vuosi <strong>{newYear}</strong> edellisen vuoden tiedoilla
+          </div>
+        )}
 
         {/* Fixed cost fields in a 2-col grid */}
         <div style={dividerStyle}>Kiinteät kulut</div>

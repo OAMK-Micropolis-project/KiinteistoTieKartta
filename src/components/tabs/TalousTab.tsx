@@ -364,6 +364,11 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
           <VuokrakulutModal
             mode="add"
             existingYears={years.map((y) => y.year)}
+            existingRentalYears={Object.keys(item.vuokrakulut ?? {}).map(Number)}
+            allYears={Object.entries(item.vuokrakulut ?? {}).map(([y, data]) => ({
+              year: Number(y),
+              data,
+            }))}
             onSave={(year, data) =>
               onUpdate({
                 ...item,
@@ -378,6 +383,11 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
           <VuokrakulutModal
             mode="edit"
             existingYears={years.map((y) => y.year)}
+            existingRentalYears={Object.keys(item.vuokrakulut ?? {}).map(Number)}
+            allYears={Object.entries(item.vuokrakulut ?? {}).map(([y, data]) => ({
+              year: Number(y),
+              data,
+            }))}
             initial={{
               year: editingVuokraYear,
               data: item.vuokrakulut[editingVuokraYear],
