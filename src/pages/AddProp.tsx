@@ -12,7 +12,7 @@ type FormData = {
   kayttotarkoitus: string;
   bruttopintaAla: number;
   rakennusvuosi: number;
-  hiilijalanjälki: number;
+  hiilijalanjalki: number;
   tasearvo: number;
   rakennusArvo: number;
   maapohjaArvo: number;
@@ -37,7 +37,7 @@ function makeEmptyForm(): FormData {
     kayttotarkoitus: "",
     bruttopintaAla: 0,
     rakennusvuosi: 0,
-    hiilijalanjälki: 0,
+    hiilijalanjalki: 0,
     tasearvo: 0,
     rakennusArvo: 0,
     maapohjaArvo: 0,
@@ -125,7 +125,7 @@ const AddProp: React.FC = () => {
       kayttotarkoitus: current.kayttotarkoitus ?? "",
       bruttopintaAla: current.pinta_ala,
       rakennusvuosi: current.rakennusvuosi,
-      hiilijalanjälki: current.hiilijalanjälki ?? 0,
+      hiilijalanjalki: current.hiilijalanjalki ?? 0,
 
       tasearvo: vua?.tasearvo ?? 0,
       rakennusArvo: vua?.rakennusArvo ?? 0,
@@ -199,7 +199,7 @@ const AddProp: React.FC = () => {
       kayttotarkoitus: formData.kayttotarkoitus,
       pinta_ala: formData.bruttopintaAla,
       rakennusvuosi: formData.rakennusvuosi,
-      hiilijalanjälki: formData.hiilijalanjälki,
+      hiilijalanjalki: formData.hiilijalanjalki,
       suojelukohde: formData.suojelukohde === "Kyllä",
 
       pisteet: { ...formData.kunto },
@@ -337,7 +337,7 @@ const AddProp: React.FC = () => {
 
             <div className="grid-item">
               <label>Hiilijalanjälki (kg CO₂/v)</label>
-              <input type="number" name="hiilijalanjälki" value={formData.hiilijalanjälki} onChange={handleChange} />
+              <input type="number" name="hiilijalanjälki" value={formData.hiilijalanjalki} onChange={handleChange} />
             </div>
 
             <div className="grid-item">

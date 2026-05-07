@@ -74,7 +74,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
   const yllapito = item.yllapitokulut?.[selectedYear];
   const vuokra = item.vuokrakulut?.[selectedYear];
 
-  const neliövuokra =
+  const neliovuokra =
     vuokra?.vuokrattavissa && vuokra.vuokrattavissa > 0
       ? vuokra.kokonaisvuokra / vuokra.vuokrattavissa
       : 0;
@@ -276,7 +276,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
                   label="Vuokrattu"
                   value={`${vuokra.vuokrattu ?? vuokra.vuokrausaste_m2} m²`}
                 />
-                <InfoRow label="Neliövuokra" value={`${fmtDec(neliövuokra)} /m²`} />
+                <InfoRow label="Neliövuokra" value={`${fmtDec(neliovuokra)} /m²`} />
                 <InfoRow label="Käyttöaste" value={`${kayttoaste} %`} />
                 <InfoRow
                   label="Vuokratulot"
