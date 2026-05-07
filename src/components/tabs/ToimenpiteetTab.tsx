@@ -7,6 +7,7 @@ import {
   cardStyle,
   sectionTitle,
 } from "../../styles";
+import { ErrorBoundary } from "../ErrorBoundary";
 
 /**
  * ToimenpiteetTab
@@ -76,95 +77,97 @@ export default function ToimenpiteetTab({ item, onUpdate }: Props) {
   // ─────────────────────────────────────────────────────────────
 
   return (
-    <div style={cardStyle}>
-      {/* Header */}
-      <h3 style={sectionTitle}>Toimenpiteet</h3>
+    <ErrorBoundary>
+      <div style={cardStyle}>
+        {/* Header */}
+        <h3 style={sectionTitle}>Toimenpiteet</h3>
 
-      {/* Add button */}
-      <button onClick={() => setShowAddModal(true)}>
-        Lisää toimenpide
-      </button>
+        {/* Add button */}
+        <button onClick={() => setShowAddModal(true)}>
+          Lisää toimenpide
+        </button>
 
-      {/* Feedback */}
-      {saveMessage && <div>✅ {saveMessage}</div>}
+        {/* Feedback */}
+        {saveMessage && <div>✅ {saveMessage}</div>}
 
-      {/* Empty state */}
-      {item.toimenpiteet.length === 0 && (
-        <p>Ei kirjattuja toimenpiteitä.</p>
-      )}
+        {/* Empty state */}
+        {item.toimenpiteet.length === 0 && (
+          <p>Ei kirjattuja toimenpiteitä.</p>
+        )}
 
-      {/* List */}
-      {[...item.toimenpiteet]
-        .sort(sortByPlannedDate)
-        .map((t) => {
-          const overdue = isOverdue(t);
+        {/* List */}
+        {[...item.toimenpiteet]
+          .sort(sortByPlannedDate)
+          .map((t) => {
+            const overdue = isOverdue(t);
 
-          return (
-            <div key={t.id} style={{ border: "1px solid #ccc", padding: 8, borderRadius: 4, margin: "8px 0" }}>
+            return (
+              <div key={t.id} style={{ border: "1px solid #ccc", padding: 8, borderRadius: 4, margin: "8px 0" }}>
 
-              <strong>{t.otsikko}</strong>
+                <strong>{t.otsikko}</strong>
 
-              <div>Kustannus: {t.kustannukset} €</div>
+                <div>Kustannus: {t.kustannukset} €</div>
 
-              {t.suunniteltuPvm && (
-                <div>Suunniteltu: {t.suunniteltuPvm}</div>
-              )}
+                {t.suunniteltuPvm && (
+                  <div>Suunniteltu: {t.suunniteltuPvm}</div>
+                )}
 
-              {t.tehtyPvm && (
-                <div>✅ Tehty: {t.tehtyPvm}</div>
-              )}
+                {t.tehtyPvm && (
+                  <div>✅ Tehty: {t.tehtyPvm}</div>
+                )}
 
-              {overdue && (
-                <div style={{ color: "#d32f2f" }}>⚠ Myöhässä</div>
-              )}
+                {overdue && (
+                  <div style={{ color: "#d32f2f" }}>⚠ Myöhässä</div>
+                )}
 
 
-              <button
-                onClick={() =>
-                  setOpenDescriptionId(
-                    openDescriptionId === t.id ? null : t.id
-                  )
-                }
-                disabled={!t.kuvaus}
-              >
-                {openDescriptionId === t.id
-                  ? "Piilota kuvaus"
-                  : "Näytä kuvaus"}
-              </button>
+                <button
+                  onClick={() =>
+                    setOpenDescriptionId(
+                      openDescriptionId === t.id ? null : t.id
+                    )
+                  }
+                  disabled={!t.kuvaus}
+                >
+                  {openDescriptionId === t.id
+                    ? "Piilota kuvaus"
+                    : "Näytä kuvaus"}
+                </button>
 
-              {openDescriptionId === t.id && t.kuvaus && (
-                <p>{t.kuvaus}</p>
-              )}
+                {openDescriptionId === t.id && t.kuvaus && (
+                  <p>{t.kuvaus}</p>
+                )}
 
-              {/* Actions */}
-              <button onClick={() => setEditing(t)}>Muokkaa</button>
-              <button onClick={() => handleDelete(t.id)}>Poista</button>
-            </div>
-          );
-        })}
+                {/* Actions */}
+                <button onClick={() => setEditing(t)}>Muokkaa</button>
+                <button onClick={() => handleDelete(t.id)}>Poista</button>
+              </div>
+            );
+          })}
 
-      {/* Add modal */}
-      {
-        showAddModal && (
-          <ToimenpideModal
-            mode="add"
-            onClose={() => setShowAddModal(false)}
-            onSave={handleAdd}
-          />
-        )
-      }
+        {/* Add modal */}
+        {
+          showAddModal && (
+            <ToimenpideModal
+              mode="add"
+              onClose={() => setShowAddModal(false)}
+              onSave={handleAdd}
+            />
+          )
+        }
 
-      {/* Edit modal */}
-      {
-        editing && (
-          <ToimenpideModal
-            mode="edit"
-            initial={editing}
-            onClose={() => setEditing(null)}
-            onSave={handleEdit}
-          />
-        )
-      }
-    </div >
+        {/* Edit modal */}
+        {
+          editing && (
+            <ToimenpideModal
+              mode="edit"
+              initial={editing}
+              onClose={() => setEditing(null)}
+              onSave={handleEdit}
+            />
+          )
+        }
+      </div >
+    </ErrorBoundary>
   );
 }

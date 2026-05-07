@@ -9,17 +9,17 @@ import PropertyPdfReport from "./pages/PropertyPdfReport";
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/detail/:id/pdf" element={<PropertyPdfReport />} />
-        <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/analytics" element={<AnalyticsView />} />
-          <Route path="/detail/:id" element={<DetailView />} />
-          <Route path="/add" element={<AddProp />} />
-          <Route path="/add/:id" element={<AddProp />} />
-        </Route>
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          <Route path="/detail/:id/pdf" element={<PropertyPdfReport />} />
+          <Route element={<Layout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/analytics" element={<AnalyticsView />} />
+            <Route path="/detail/:id" element={<DetailView />} />
+            <Route path="/add" element={<AddProp />} />
+            <Route path="/add/:id" element={<AddProp />} />
+          </Route>
+        </Routes>
+      </Router>
   );
 }
