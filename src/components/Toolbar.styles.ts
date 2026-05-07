@@ -275,3 +275,42 @@ export const toolbarBottomActions: CSSProperties = {
   alignItems: "center",
   gap: "8px",
 };
+
+/* =========================
+   FILEPATH DISPLAY
+========================= */
+
+export const filePathRow: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  marginTop: "8px",
+  width: "100%",
+};
+
+export const filePathText: CSSProperties = {
+  flex: 1,
+  fontSize: "12px",
+  color: theme.colors.textMuted,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+export const filePathMuted: CSSProperties = {
+  marginTop: "8px",
+  fontSize: "12px",
+  color: theme.colors.textMuted,
+  opacity: 0.7,
+};
+
+export const copyPathButton: CSSProperties = {
+  padding: "6px 10px",
+  borderRadius: "6px",
+  border: `1px solid ${theme.colors.border}`,
+  background: theme.colors.surface,
+  color: theme.colors.text,
+  cursor: "pointer",
+  fontSize: "12px",
+  fontWeight: 600,
+};
