@@ -7,6 +7,7 @@ import InfoRow from "../InfoRow";
 import VuokrakulutModal from "../VuokrakulutModal";
 import YllapitokulutModal from "../YllapitokulutModal";
 import { ErrorBoundary } from "../ErrorBoundary";
+import Tooltip from "../Tooltip";
 
 interface Props {
   item: Kiinteisto;
@@ -53,6 +54,17 @@ function yearsIndex(item: Kiinteisto) {
 export default function TalousTab({ item, latestYear, onUpdate }: Props) {
   const years = yearsIndex(item);
 
+  const TT = ({
+    text,
+    children,
+  }: {
+    text: string;
+    children: React.ReactNode;
+  }) => (
+    <Tooltip label={<div style={{ whiteSpace: "pre-wrap" }}>{text}</div>}>
+      <span>{children}</span>
+    </Tooltip>
+  );
   const [selectedYear, setSelectedYear] = useState<number>(latestYear);
   const [viewMode, setViewMode] = useState<"year" | "month">("year");
 
@@ -132,6 +144,119 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
     <ErrorBoundary>
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         {/* ── YEAR FILTER ───────────────────────────────────────────── */}
+    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      {/* ── YEAR FILTER ───────────────────────────────────────────── */}
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          flexWrap: "wrap",
+          paddingBottom: 12,
+          borderBottom: `1px solid ${theme.colors.border}`,
+          marginBottom: 4,
+        }}
+      >
+        {years.map(({ year }) => (
+          <button
+            key={year}
+            onClick={() => setSelectedYear(year)}
+            style={yearBtn(year)}
+          >
+            {year}
+          </button>
+        ))}
+      </div>
+
+      {/* ── VIEW MODE FILTER ──────────────────────────────────────── */}
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          flexWrap: "wrap",
+          paddingBottom: 12,
+          borderBottom: `1px solid ${theme.colors.border}`,
+        }}
+      >
+        <button style={viewBtn("year")} onClick={() => setViewMode("year")}>
+          Vuosi
+        </button>
+        <button style={viewBtn("month")} onClick={() => setViewMode("month")}>
+          Kuukausi
+        </button>
+      </div>
+
+      {/* ── CONTENT CARDS ─────────────────────────────────────────── */}
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}
+      >
+        {/* ── MAINTENANCE EXPENSES ─────────────────────────────────── */}
+        <div style={cardStyle}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 12,
+            }}
+          >
+            <h3 style={sectionTitle}>Ylläpitokulut</h3>
+            <button onClick={() => setShowYllapitoModal(true)}>✎ Muokkaa</button>
+          </div>
+
+        {!yllapito ? (
+          <p style={{ color: theme.colors.textMuted }}>
+            Ei tietoja vuodelle {selectedYear}.
+          </p>
+        ) : (
+          <>
+            {divider("Kiinteät kulut")}
+            <InfoRow label="Sähkö" value={fmt(yllapito.sahko)} />
+            <InfoRow label="Lämmitys" value={fmt(yllapito.lammitys)} />
+            <InfoRow label="Vesi" value={fmt(yllapito.vesi)} />
+            <InfoRow label="Huolto" value={fmt(yllapito.huolto)} />
+            <InfoRow label="Kiinteistövero" value={fmt(yllapito.vero)} />
+            <InfoRow label="Laina" value={fmt(yllapito.laina)} />
+
+            {/* User-defined extra rows */}
+            {Object.keys(yllapito.muutKulut ?? {}).length > 0 && (
+              <>
+                {divider("Muut kulut")}
+                {Object.entries(yllapito.muutKulut ?? {}).map(
+                  ([nimi, summa]) => (
+                    <InfoRow key={nimi} label={nimi} value={fmt(summa)} />
+                  ),
+                )}
+              </>
+            )}
+
+            {/* Total */}
+            <div
+              style={{
+                marginTop: 12,
+                paddingTop: 10,
+                borderTop: `2px solid ${theme.colors.border}`,
+                display: "flex",
+                justifyContent: "space-between",
+                fontWeight: 700,
+              }}
+            >
+              <span>Yhteensä</span>
+              <span>
+                <TT          
+                  text={
+                    `Ylläpitokulut yhteensä (${selectedYear})\n` +
+                    `= (sahko + lammitys + vesi + huolto + vero + laina)\n` +
+                    `+ Σ(muutKulut)\n` +
+                    `= calcYllapitoTotal(yllapito)`
+                  }
+                >{fmt(calcYllapitoTotal(yllapito))}</TT></span>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* ── RENTAL INFORMATION ───────────────────────────────────── */}
+      <div style={cardStyle}>
         <div
           style={{
             display: "flex",
@@ -170,6 +295,84 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
             Kuukausi
           </button>
         </div>
+        {vuokra ? (
+          <>
+            {divider("Vuokratulot")}
+            <InfoRow
+              label="Vuokrattavissa"
+              value={`${vuokra.vuokrattavissa ?? "—"} m²`}
+            />
+            <InfoRow
+              label="Vuokrattu"
+              value={`${vuokra.vuokrattu ?? vuokra.vuokrausaste_m2} m²`}
+            />
+            <InfoRow
+              label={
+                <TT
+                  text={
+                    `Neliövuokra (€/m²/kk)\n` +
+                    `= kokonaisvuokra / vuokrattu / 12\n` +
+                    `Jos vuokrattu <= 0 → 0`
+                  }
+                >
+                  Neliövuokra
+                </TT>
+              }
+              value={
+                <TT
+                  text={
+                    `Neliövuokra (${selectedYear})\n` +
+                    `= ${vuokra?.kokonaisvuokra ?? 0} / ${vuokra?.vuokrattu ?? 0} / 12`
+                  }
+                >
+                  {`${fmtDec(neliövuokra)} /m²`}
+                </TT>
+              }
+            />
+            <InfoRow
+              label={
+                <TT
+                  text={
+                    `Käyttöaste (%)\n` +
+                    `= (vuokrattu m² / pinta-ala) * 100\n` +
+                    `Tulos pyöristetään/formatoinnista riippuen`
+                  }
+                >
+                  Käyttöaste
+                </TT>
+              }
+              value={
+                <TT text={`Käyttöaste (${selectedYear}) = ${kayttoaste} %`}>
+                  {`${kayttoaste} %`}
+                </TT>
+              }
+            />
+            <InfoRow
+              label={
+                <TT
+                  text={
+                    `Vuokratulot\n` +
+                    `= vuokrattu m² * neliövuokra * 12 (vuositaso)\n` +
+                    `Kuukausitaso = vuositulot / 12`
+                  }
+                >
+                  Vuokratulot
+                </TT>
+              }
+              value={
+                <TT
+                  text={
+                    viewMode === "year"
+                      ? `Vuositulot (${selectedYear}) = ${fmt(vuokratulot)}`
+                      : `Kuukausitulot (${selectedYear}) = round(${fmt(vuokratulot)} / 12) = ${fmt(kuukausitulo)}`
+                  }
+                >
+                  {viewMode === "year"
+                    ? `${fmt(vuokratulot)} / vuosi`
+                    : `${fmt(kuukausitulo)} / kk`}
+                </TT>
+              }
+            />
 
         {/* ── CONTENT CARDS ─────────────────────────────────────────── */}
         <div
@@ -262,6 +465,39 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
                 <button onClick={() => setShowVuokraAddModal(true)}>
                   + Lisää vuosi
                 </button>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontWeight: 700,
+                  fontSize: "1rem",
+                }}
+              >
+                <span>Tilikauden tulos</span>
+                <span style={{ color: tulosColor }}>
+                <TT
+                  text={
+                    `Tilikauden tulos (${selectedYear})\n` +
+                    `= vuokratulot − kulutYhteensa\n` +
+                    `= ${fmt(vuokratulot)} − ${fmt(kulutYhteensa)}\n` +
+                    `= ${Math.round(tulos).toLocaleString("fi-FI")} €`
+                  }
+                >
+                  <>
+                    {tulos >= 0 ? "+" : ""}
+                    {Math.round(tulos).toLocaleString("fi-FI")} €
+                  </>
+                </TT>
+              </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  color: theme.colors.textMuted,
+                  marginTop: 4,
+                }}
+              >
+                Vuokratulot {fmt(vuokratulot)} − kulut {fmt(kulutYhteensa)}
               </div>
             </div>
 
