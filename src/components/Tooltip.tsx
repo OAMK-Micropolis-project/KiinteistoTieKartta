@@ -1,4 +1,4 @@
-import React, { useId, useMemo, useState } from "react";
+import React, { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 
 type TooltipProps = {
@@ -26,9 +26,7 @@ const baseStyles = {
   } as CSSProperties,
 
   bubble: {
-    position: "absolute",
-    left: "50%",
-    transform: "translateX(-50%)",
+    position: "fixed", 
     background: "rgba(17, 24, 39, 0.95)",
     color: "#ffffff",
     border: "1px solid rgba(255,255,255,0.08)",
@@ -38,23 +36,24 @@ const baseStyles = {
     lineHeight: 1.35,
     boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
     whiteSpace: "pre-wrap",
-
-    // ✅ TÄRKEÄ: anna bubblelle pointer events
-    // jotta hiiri "osuu" siihen ja wrapper ei laukaise mouseleavea
+    wordBreak: "break-word",
     pointerEvents: "auto",
   } as CSSProperties,
 
   arrow: {
     position: "absolute",
-    left: "50%",
     width: "10px",
     height: "10px",
-    transform: "translateX(-50%) rotate(45deg)",
+    transform: "rotate(45deg)",
     background: "rgba(17, 24, 39, 0.95)",
     borderLeft: "1px solid rgba(255,255,255,0.08)",
     borderTop: "1px solid rgba(255,255,255,0.08)",
   } as CSSProperties,
 };
+
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
 
 export default function Tooltip({
   label,
@@ -68,19 +67,91 @@ export default function Tooltip({
   const id = useId();
   const [open, setOpen] = useState(false);
 
-  const bubblePos = useMemo((): CSSProperties => {
-    const common: CSSProperties = { minWidth, maxWidth, zIndex };
+  const targetRef = useRef<HTMLSpanElement | null>(null);
+  const bubbleRef = useRef<HTMLSpanElement | null>(null);
 
-    return placement === "top"
-      ? { ...common, bottom: `calc(100% + ${offset}px)` }
-      : { ...common, top: `calc(100% + ${offset}px)` };
-  }, [minWidth, maxWidth, placement, offset, zIndex]);
+  const [pos, setPos] = useState<{
+    top: number;
+    left: number;
+    actualPlacement: "bottom" | "top";
+    arrowLeft: number; 
+  } | null>(null);
 
-  const arrowPos = useMemo((): CSSProperties => {
-    return placement === "top"
-      ? { ...baseStyles.arrow, bottom: "-6px" }
-      : { ...baseStyles.arrow, top: "-6px" };
-  }, [placement]);
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    const targetEl = targetRef.current;
+    const bubbleEl = bubbleRef.current;
+    if (!targetEl || !bubbleEl) return;
+
+    const margin = 12; 
+
+    const targetRect = targetEl.getBoundingClientRect();
+
+    bubbleEl.style.minWidth = `${minWidth}px`;
+    bubbleEl.style.maxWidth = `${maxWidth}px`;
+
+    const bubbleRect = bubbleEl.getBoundingClientRect();
+
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+
+    const targetCenterX = targetRect.left + targetRect.width / 2;
+
+    let left = targetCenterX - bubbleRect.width / 2;
+    left = clamp(left, margin, viewportW - bubbleRect.width - margin);
+
+    const spaceBelow = viewportH - targetRect.bottom;
+    const spaceAbove = targetRect.top;
+
+    let actualPlacement: "bottom" | "top" = placement;
+
+    if (placement === "bottom" && spaceBelow < bubbleRect.height + offset && spaceAbove > bubbleRect.height + offset) {
+      actualPlacement = "top";
+    }
+    if (placement === "top" && spaceAbove < bubbleRect.height + offset && spaceBelow > bubbleRect.height + offset) {
+      actualPlacement = "bottom";
+    }
+
+    let top =
+      actualPlacement === "bottom"
+        ? targetRect.bottom + offset
+        : targetRect.top - bubbleRect.height - offset;
+
+    top = clamp(top, margin, viewportH - bubbleRect.height - margin);
+
+    const arrowLeft = clamp(targetCenterX - left, 12, bubbleRect.width - 12);
+
+    setPos({ top, left, actualPlacement, arrowLeft });
+  }, [open, minWidth, maxWidth, placement, offset]);
+
+  const bubbleStyle = useMemo((): CSSProperties => {
+    if (!pos) return { ...baseStyles.bubble, visibility: "hidden" };
+    return {
+      ...baseStyles.bubble,
+      top: pos.top,
+      left: pos.left,
+      zIndex,
+      minWidth,
+      maxWidth,
+    };
+  }, [pos, zIndex, minWidth, maxWidth]);
+
+  const arrowStyle = useMemo((): CSSProperties => {
+    if (!pos) return { ...baseStyles.arrow, display: "none" };
+
+    return pos.actualPlacement === "bottom"
+      ? {
+          ...baseStyles.arrow,
+          top: "-6px",
+          left: pos.arrowLeft,
+        }
+      : {
+          ...baseStyles.arrow,
+          bottom: "-6px",
+          left: pos.arrowLeft,
+        };
+  }, [pos]);
 
   return (
     <span
@@ -89,6 +160,7 @@ export default function Tooltip({
       onMouseLeave={() => setOpen(false)}
     >
       <span
+        ref={targetRef}
         tabIndex={0}
         aria-describedby={id}
         style={baseStyles.target}
@@ -100,13 +172,14 @@ export default function Tooltip({
 
       {open && (
         <span
+          ref={bubbleRef}
           role="tooltip"
           id={id}
-          style={{ ...baseStyles.bubble, ...bubblePos }}
+          style={bubbleStyle}
           onMouseEnter={() => setOpen(true)}
           onMouseLeave={() => setOpen(false)}
         >
-          <span aria-hidden="true" style={arrowPos} />
+          <span aria-hidden="true" style={arrowStyle} />
           {label}
         </span>
       )}
