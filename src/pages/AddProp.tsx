@@ -3,7 +3,7 @@ import "./AddProp.css";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useKiinteistot } from "../context/useKiinteistot";
-import { type NewKiinteistoInput } from "../types";
+import { type NewKiinteistoInput, type Pisteet } from "../types";
 import { ArviointiParametrit } from "../context/arviointiParametrit";
 
 type FormData = {
@@ -27,7 +27,7 @@ type FormData = {
     kiinteistovero: number;
     laina: number;
   };
-  kunto: Record<string, number>;
+  kunto: Pisteet;
 };
 
 function makeEmptyForm(): FormData {
@@ -52,7 +52,7 @@ function makeEmptyForm(): FormData {
       kiinteistovero: 0,
       laina: 0,
     },
-    kunto: Object.fromEntries(Object.keys(ArviointiParametrit).map((k) => [k, 3])),
+    kunto: Object.fromEntries(Object.keys(ArviointiParametrit).map((k) => [k, 3])) as Pisteet,
   };
 }
 
@@ -225,6 +225,7 @@ const AddProp: React.FC = () => {
           maapohjaArvo: formData.maapohjaArvo,
           liittymisarvo: formData.liittymisarvo,
           vuokrausaste_m2: formData.vuokrattu,
+          neliovuokra: 0,
           kokonaisvuokra: 0,
           sahkonkulutus: 0,
           lammitysenergia: 0,

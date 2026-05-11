@@ -26,7 +26,7 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
             ["Rakennusvuosi", item.rakennusvuosi ?? "Ei tietoa"],
             ["Käyttötarkoitus", item.kayttotarkoitus ?? "Ei tietoa"],
             ["Suojelukohde", item.suojelukohde ? "Kyllä" : "Ei"],
-            ["Hiilijalanjälki", `${(item.hiilijalanjälki ?? 0).toLocaleString("fi-FI")} kg CO₂/v`],
+            ["Hiilijalanjälki", `${(item.hiilijalanjalki ?? 0).toLocaleString("fi-FI")} kg CO₂/v`],
 
             [
               "Tasearvo",

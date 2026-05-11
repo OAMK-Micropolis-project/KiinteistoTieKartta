@@ -196,6 +196,7 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
         vuokrakulut: raw.vuokrakulut && typeof raw.vuokrakulut === "object" ? raw.vuokrakulut : {},
         painotetutPisteet: 0,
         oma_salkku: "D",
+        hiilijalanjalki: 0
       };
       const painotetutPisteet = calPainotutPisteet(base);
       const oma_salkku = evalSalkku({ ...base, painotetutPisteet });

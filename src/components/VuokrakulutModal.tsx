@@ -9,6 +9,8 @@ type Props = {
   initial?: { year: number; data: VuokraKulut };
   mode?: "add" | "edit";
   existingYears: number[];
+  existingRentalYears?: number[];
+  allYears?: { year: number; data: VuokraKulut }[];
 };
 
 function emptyVuokra(): VuokraKulut {
@@ -24,6 +26,10 @@ function emptyVuokra(): VuokraKulut {
     vakuutus: 0,
     vuokrattu: 0,
     vuokrattavissa: 0,
+    neliovuokra: 0,
+    rakennusArvo: 0,
+    maapohjaArvo: 0,
+    liittymisarvo: 0,
   };
 }
 
@@ -33,12 +39,17 @@ export default function VuokrakulutModal({
   initial,
   mode = "add",
   existingYears,
+  existingRentalYears = [],
+  allYears = [],
 }: Props) {
   const [year, setYear] = useState<number>(
     initial?.year ?? new Date().getFullYear()
   );
   const [form, setForm] = useState<VuokraKulut>(initial?.data ?? emptyVuokra());
   const [yearError, setYearError] = useState<string | null>(null);
+
+  // Use existingRentalYears if provided, otherwise fall back to existingYears
+  const yearsToCheck = existingRentalYears.length > 0 ? existingRentalYears : existingYears;
 
   function update<K extends keyof VuokraKulut>(key: K, value: number) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -53,13 +64,30 @@ export default function VuokrakulutModal({
     : 0;
 
   function handleSave() {
-    if (mode === "add" && existingYears.includes(year)) {
+    if (mode === "add" && yearsToCheck.includes(year)) {
       setYearError(`Vuodelle ${year} on jo tiedot. Valitse toinen vuosi.`);
       return;
     }
     // kokonaisvuokra is always derived — never stored in the data
     onSave(year, form);
     onClose();
+  }
+
+  function handleYearChange(newYear: number) {
+    setYear(newYear);
+    setYearError(null);
+
+    // If mode is add and we have existing years, populate with previous year's data
+    if (mode === "add" && !yearsToCheck.includes(newYear)) {
+      const previousYears = yearsToCheck.filter(y => y < newYear).sort((a, b) => b - a);
+      if (previousYears.length > 0) {
+        const closestPreviousYear = previousYears[0];
+        const previousData = allYears.find(y => y.year === closestPreviousYear)?.data;
+        if (previousData) {
+          setForm(previousData);
+        }
+      }
+    }
   }
 
   const inputStyle: React.CSSProperties = {
@@ -102,7 +130,7 @@ export default function VuokrakulutModal({
             type="number"
             value={year}
             disabled={mode === "edit"}
-            onChange={(e) => { setYear(Number(e.target.value)); setYearError(null); }}
+            onChange={(e) => handleYearChange(Number(e.target.value))}
             style={{ ...inputStyle, width: 110 }}
           />
           {yearError && (

@@ -203,8 +203,8 @@ export default function PropertyPdfReport() {
               <div>
                 <dt>Neliövuokra</dt>
                 <dd>
-                  {latestVuokra?.neliövuokra
-                    ? latestVuokra.neliövuokra + " €/m²"
+                  {latestVuokra?.neliovuokra
+                    ? latestVuokra.neliovuokra + " €/m²"
                     : "-"}
                 </dd>
               </div>

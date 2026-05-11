@@ -15,7 +15,7 @@ export type VuokraKulut = {
     vuokrausaste_m2: number;
     kokonaisvuokra: number;
     neliovuokra: number;
-
+    
     // Tasearvo breakdown
     rakennusArvo: number;      // rakennus arvo
     maapohjaArvo: number;      // maapohja arvo
@@ -35,7 +35,7 @@ export type VuokraKulut = {
     vuokrattavissa: number;  // available m²
 };
 
-type Pisteet = {
+export type Pisteet = {
     ika: number;
     vesikatto: number;
     sadevesi: number;

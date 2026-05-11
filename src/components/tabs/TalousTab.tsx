@@ -47,6 +47,20 @@ function yearsIndex(item: Kiinteisto) {
     .map(Number)
     .sort((a, b) => b - a);
 }
+// tooltip helper
+function TT({
+  text,
+  children,
+}: {
+  text: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Tooltip label={<div style={{ whiteSpace: "pre-wrap" }}>{text}</div>}>
+      <span>{children}</span>
+    </Tooltip>
+  );
+}
 
 export default function TalousTab({ item, latestYear, onUpdate }: Props) {
   const years = useMemo(() => yearsIndex(item), [item]);
@@ -80,13 +94,6 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
 
   const kuukausitulo = Math.round(vuokratulot / 12);
   const tulosColor = tulos >= 0 ? theme.colors.accent : "#d32f2f";
-
-  // tooltip helper
-  const TT = ({ text, children }: { text: string; children: React.ReactNode }) => (
-    <Tooltip label={<div style={{ whiteSpace: "pre-wrap" }}>{text}</div>}>
-      <span>{children}</span>
-    </Tooltip>
-  );
 
   // year pill styles
   function pill(active: boolean): React.CSSProperties {
@@ -239,7 +246,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
                 <button
                   onClick={() => {
                     const updated = { ...(item.vuokrakulut ?? {}) };
-                    delete (updated as any)[selectedYear];
+                    delete (updated)[selectedYear];
                     onUpdate({ ...item, vuokrakulut: updated });
                     setSelectedYear(years[0] ?? latestYear);
                   }}
@@ -343,7 +350,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
                   </>
                 )}
 
-                {/* Result */}
+                {/* Financial period result */}
                 <div
                   style={{
                     marginTop: 16,
@@ -386,7 +393,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
           </div>
         </div>
 
-        {/* MODALS */}
+        {/* ── MODALS ───────────────────────────────────────────────── */}
         <YllapitokulutModal
           open={showYllapitoModal}
           item={item}
@@ -400,38 +407,52 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
           }
         />
 
-        {showVuokraAddModal && (
-          <VuokrakulutModal
-            mode="add"
-            existingYears={years}
-            onSave={(year, data) =>
-              onUpdate({
-                ...item,
-                vuokrakulut: { ...item.vuokrakulut, [year]: data },
-              })
-            }
-            onClose={() => setShowVuokraAddModal(false)}
-          />
-        )}
+        {
+          showVuokraAddModal && (
+            <VuokrakulutModal
+              mode="add"
+              existingYears={years}
+              existingRentalYears={Object.keys(item.vuokrakulut ?? {}).map(Number)}
+              allYears={Object.entries(item.vuokrakulut ?? {}).map(([y, data]) => ({
+                year: Number(y),
+                data,
+              }))}
+              onSave={(year, data) =>
+                onUpdate({
+                  ...item,
+                  vuokrakulut: { ...item.vuokrakulut, [year]: data },
+                })
+              }
+              onClose={() => setShowVuokraAddModal(false)}
+            />
+          )
+        }
 
-        {editingVuokraYear != null && (
-          <VuokrakulutModal
-            mode="edit"
-            existingYears={years}
-            initial={{
-              year: editingVuokraYear,
-              data: item.vuokrakulut[editingVuokraYear],
-            }}
-            onSave={(year, data) =>
-              onUpdate({
-                ...item,
-                vuokrakulut: { ...item.vuokrakulut, [year]: data },
-              })
-            }
-            onClose={() => setEditingVuokraYear(null)}
-          />
-        )}
-      </div>
-    </ErrorBoundary>
+        {
+          editingVuokraYear != null && (
+            <VuokrakulutModal
+              mode="edit"
+              existingYears={years}
+              existingRentalYears={Object.keys(item.vuokrakulut ?? {}).map(Number)}
+              allYears={Object.entries(item.vuokrakulut ?? {}).map(([y, data]) => ({
+                year: Number(y),
+                data,
+              }))}
+              initial={{
+                year: editingVuokraYear,
+                data: item.vuokrakulut[editingVuokraYear],
+              }}
+              onSave={(year, data) =>
+                onUpdate({
+                  ...item,
+                  vuokrakulut: { ...item.vuokrakulut, [year]: data },
+                })
+              }
+              onClose={() => setEditingVuokraYear(null)}
+            />
+          )
+        }
+      </div >
+    </ErrorBoundary >
   );
 }
