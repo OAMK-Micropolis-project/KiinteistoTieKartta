@@ -30,10 +30,9 @@ function fmtDec(value: number, decimals = 2) {
 function calcYllapitoTotal(data: Record<string, any>): number {
   const FIXED = ["sahko", "lammitys", "vesi", "huolto", "vero", "laina"];
   const fixed = FIXED.reduce((sum, k) => sum + (Number(data?.[k]) || 0), 0);
-  const extra = Object.values((data?.muutKulut as Record<string, number>) ?? {}).reduce(
-    (s, v) => s + (Number(v) || 0),
-    0
-  );
+  const extra = Object.values(
+    (data?.muutKulut as Record<string, number>) ?? {},
+  ).reduce((s, v) => s + (Number(v) || 0), 0);
   return Math.round(fixed + extra);
 }
 
@@ -42,19 +41,13 @@ function yearsIndex(item: Kiinteisto) {
     new Set([
       ...Object.keys(item.yllapitokulut ?? {}),
       ...Object.keys(item.vuokrakulut ?? {}),
-    ])
+    ]),
   )
     .map(Number)
     .sort((a, b) => b - a);
 }
 // tooltip helper
-function TT({
-  text,
-  children,
-}: {
-  text: string;
-  children: React.ReactNode;
-}) {
+function TT({ text, children }: { text: string; children: React.ReactNode }) {
   return (
     <Tooltip label={<div style={{ whiteSpace: "pre-wrap" }}>{text}</div>}>
       <span>{children}</span>
@@ -66,14 +59,16 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
   const years = useMemo(() => yearsIndex(item), [item]);
 
   const [selectedYear, setSelectedYear] = useState<number>(
-    years[0] ?? latestYear ?? new Date().getFullYear()
+    years[0] ?? latestYear ?? new Date().getFullYear(),
   );
   const [viewMode, setViewMode] = useState<"year" | "month">("year");
 
   // modals
   const [showYllapitoModal, setShowYllapitoModal] = useState(false);
   const [showVuokraAddModal, setShowVuokraAddModal] = useState(false);
-  const [editingVuokraYear, setEditingVuokraYear] = useState<number | null>(null);
+  const [editingVuokraYear, setEditingVuokraYear] = useState<number | null>(
+    null,
+  );
 
   const {
     vuokratulot,
@@ -86,11 +81,12 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
   const yllapito = item.yllapitokulut?.[selectedYear];
   const vuokra = item.vuokrakulut?.[selectedYear];
 
-  const rentedM2 = (vuokra?.vuokrattu ?? vuokra?.vuokrausaste_m2 ?? 0) as number;
+  const rentedM2 = (vuokra?.vuokrattu ??
+    vuokra?.vuokrausaste_m2 ??
+    0) as number;
   const kokonaisvuokra = (vuokra?.kokonaisvuokra ?? 0) as number;
 
-  const neliovuokra =
-    rentedM2 > 0 ? kokonaisvuokra / rentedM2 / 12 : 0;
+  const neliovuokra = rentedM2 > 0 ? kokonaisvuokra / rentedM2 / 12 : 0;
 
   const kuukausitulo = Math.round(vuokratulot / 12);
   const tulosColor = tulos >= 0 ? theme.colors.accent : "#d32f2f";
@@ -140,7 +136,11 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
           }}
         >
           {years.map((y) => (
-            <button key={y} onClick={() => setSelectedYear(y)} style={pill(y === selectedYear)}>
+            <button
+              key={y}
+              onClick={() => setSelectedYear(y)}
+              style={pill(y === selectedYear)}
+            >
               {y}
             </button>
           ))}
@@ -163,7 +163,9 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
         </div>
 
         {/* CONTENT */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}
+        >
           {/* YLLÄPITO */}
           <div style={{ ...cardStyle, overflow: "visible" }}>
             <div
@@ -175,7 +177,26 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
               }}
             >
               <h3 style={sectionTitle}>Ylläpitokulut</h3>
-              <button onClick={() => setShowYllapitoModal(true)}>✎ Muokkaa</button>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button
+                  onClick={() => {
+                    const updated = { ...(item.yllapitokulut ?? {}) };
+                    delete updated[selectedYear];
+                    onUpdate({ ...item, yllapitokulut: updated });
+                    setSelectedYear(years[0] ?? latestYear);
+                  }}
+                  style={{ color: "#d32f2f" }}
+                >
+                  ✕ Poista
+                </button>
+
+                <button onClick={() => setShowYllapitoModal(true)}>
+                  + Lisää vuosi
+                </button>
+                <button onClick={() => setShowYllapitoModal(true)}>
+                  ✎ Muokkaa
+                </button>
+              </div>
             </div>
 
             {!yllapito ? (
@@ -189,15 +210,24 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
                 <InfoRow label="Lämmitys" value={fmt(yllapito.lammitys ?? 0)} />
                 <InfoRow label="Vesi" value={fmt(yllapito.vesi ?? 0)} />
                 <InfoRow label="Huolto" value={fmt(yllapito.huolto ?? 0)} />
-                <InfoRow label="Kiinteistövero" value={fmt(yllapito.vero ?? 0)} />
+                <InfoRow
+                  label="Kiinteistövero"
+                  value={fmt(yllapito.vero ?? 0)}
+                />
                 <InfoRow label="Laina" value={fmt(yllapito.laina ?? 0)} />
 
                 {Object.keys(yllapito.muutKulut ?? {}).length > 0 && (
                   <>
                     {divider("Muut kulut")}
-                    {Object.entries(yllapito.muutKulut ?? {}).map(([nimi, summa]) => (
-                      <InfoRow key={nimi} label={nimi} value={fmt(Number(summa) || 0)} />
-                    ))}
+                    {Object.entries(yllapito.muutKulut ?? {}).map(
+                      ([nimi, summa]) => (
+                        <InfoRow
+                          key={nimi}
+                          label={nimi}
+                          value={fmt(Number(summa) || 0)}
+                        />
+                      ),
+                    )}
                   </>
                 )}
 
@@ -241,12 +271,14 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
             >
               <h3 style={sectionTitle}>Vuokraustiedot</h3>
               <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={() => setEditingVuokraYear(selectedYear)}>✎ Muokkaa</button>
+                <button onClick={() => setEditingVuokraYear(selectedYear)}>
+                  ✎ Muokkaa
+                </button>
 
                 <button
                   onClick={() => {
                     const updated = { ...(item.vuokrakulut ?? {}) };
-                    delete (updated)[selectedYear];
+                    delete updated[selectedYear];
                     onUpdate({ ...item, vuokrakulut: updated });
                     setSelectedYear(years[0] ?? latestYear);
                   }}
@@ -255,7 +287,9 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
                   ✕ Poista
                 </button>
 
-                <button onClick={() => setShowVuokraAddModal(true)}>+ Lisää vuosi</button>
+                <button onClick={() => setShowVuokraAddModal(true)}>
+                  + Lisää vuosi
+                </button>
               </div>
             </div>
 
@@ -266,7 +300,10 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
             ) : (
               <>
                 {divider("Vuokratulot")}
-                <InfoRow label="Vuokrattavissa" value={`${vuokra.vuokrattavissa ?? "—"} m²`} />
+                <InfoRow
+                  label="Vuokrattavissa"
+                  value={`${vuokra.vuokrattavissa ?? "—"} m²`}
+                />
                 <InfoRow label="Vuokrattu" value={`${rentedM2} m²`} />
 
                 <InfoRow
@@ -304,7 +341,11 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
                       Käyttöaste
                     </TT>
                   }
-                  value={<TT text={`Käyttöaste (${selectedYear}) = ${kayttoaste} %`}>{`${kayttoaste} %`}</TT>}
+                  value={
+                    <TT
+                      text={`Käyttöaste (${selectedYear}) = ${kayttoaste} %`}
+                    >{`${kayttoaste} %`}</TT>
+                  }
                 />
 
                 <InfoRow
@@ -384,7 +425,13 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
                     </span>
                   </div>
 
-                  <div style={{ fontSize: "0.75rem", color: theme.colors.textMuted, marginTop: 4 }}>
+                  <div
+                    style={{
+                      fontSize: "0.75rem",
+                      color: theme.colors.textMuted,
+                      marginTop: 4,
+                    }}
+                  >
                     Vuokratulot {fmt(vuokratulot)} − kulut {fmt(kulutYhteensa)}
                   </div>
                 </div>
@@ -407,52 +454,56 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
           }
         />
 
-        {
-          showVuokraAddModal && (
-            <VuokrakulutModal
-              mode="add"
-              existingYears={years}
-              existingRentalYears={Object.keys(item.vuokrakulut ?? {}).map(Number)}
-              allYears={Object.entries(item.vuokrakulut ?? {}).map(([y, data]) => ({
+        {showVuokraAddModal && (
+          <VuokrakulutModal
+            mode="add"
+            existingYears={years}
+            existingRentalYears={Object.keys(item.vuokrakulut ?? {}).map(
+              Number,
+            )}
+            allYears={Object.entries(item.vuokrakulut ?? {}).map(
+              ([y, data]) => ({
                 year: Number(y),
                 data,
-              }))}
-              onSave={(year, data) =>
-                onUpdate({
-                  ...item,
-                  vuokrakulut: { ...item.vuokrakulut, [year]: data },
-                })
-              }
-              onClose={() => setShowVuokraAddModal(false)}
-            />
-          )
-        }
+              }),
+            )}
+            onSave={(year, data) =>
+              onUpdate({
+                ...item,
+                vuokrakulut: { ...item.vuokrakulut, [year]: data },
+              })
+            }
+            onClose={() => setShowVuokraAddModal(false)}
+          />
+        )}
 
-        {
-          editingVuokraYear != null && (
-            <VuokrakulutModal
-              mode="edit"
-              existingYears={years}
-              existingRentalYears={Object.keys(item.vuokrakulut ?? {}).map(Number)}
-              allYears={Object.entries(item.vuokrakulut ?? {}).map(([y, data]) => ({
+        {editingVuokraYear != null && (
+          <VuokrakulutModal
+            mode="edit"
+            existingYears={years}
+            existingRentalYears={Object.keys(item.vuokrakulut ?? {}).map(
+              Number,
+            )}
+            allYears={Object.entries(item.vuokrakulut ?? {}).map(
+              ([y, data]) => ({
                 year: Number(y),
                 data,
-              }))}
-              initial={{
-                year: editingVuokraYear,
-                data: item.vuokrakulut[editingVuokraYear],
-              }}
-              onSave={(year, data) =>
-                onUpdate({
-                  ...item,
-                  vuokrakulut: { ...item.vuokrakulut, [year]: data },
-                })
-              }
-              onClose={() => setEditingVuokraYear(null)}
-            />
-          )
-        }
-      </div >
-    </ErrorBoundary >
+              }),
+            )}
+            initial={{
+              year: editingVuokraYear,
+              data: item.vuokrakulut[editingVuokraYear],
+            }}
+            onSave={(year, data) =>
+              onUpdate({
+                ...item,
+                vuokrakulut: { ...item.vuokrakulut, [year]: data },
+              })
+            }
+            onClose={() => setEditingVuokraYear(null)}
+          />
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }

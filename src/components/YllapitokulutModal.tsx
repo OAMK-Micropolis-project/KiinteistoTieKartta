@@ -53,20 +53,16 @@ export default function YllapitokulutModal({ open, item, year, onClose, onSave }
 
   // Sync state when modal opens or year prop changes
   useEffect(() => {
-    if (open) {
-      setSelectedYear(year);
-      setLocal(item.yllapitokulut?.[year] ?? emptyYllapito());
-      setLocalYears([]);
-      setNewRowNimi("");
-      setNewRowSumma("");
-      setNewYear("");
-    }
-  }, [open, year, item]);
-
-  // Update local data when selectedYear changes (separate effect to avoid cascading)
-  useEffect(() => {
-    setLocal(item.yllapitokulut?.[selectedYear] ?? emptyYllapito());
-  }, [selectedYear, item]);
+  if (open) {
+    const yearToLoad = year;
+    setSelectedYear(yearToLoad);
+    setLocal(item.yllapitokulut?.[yearToLoad] ?? emptyYllapito());
+    setLocalYears([]);
+    setNewRowNimi("");
+    setNewRowSumma("");
+    setNewYear("");
+  }
+}, [open, year, item]);
 
   if (!open) return null;
 

@@ -52,12 +52,15 @@ function makeEmptyForm(): FormData {
       kiinteistovero: 0,
       laina: 0,
     },
-    kunto: Object.fromEntries(Object.keys(ArviointiParametrit).map((k) => [k, 3])) as Pisteet,
+    kunto: Object.fromEntries(
+      Object.keys(ArviointiParametrit).map((k) => [k, 3]),
+    ) as Pisteet,
   };
 }
 
 const AddProp: React.FC = () => {
   const firstInputRef = useRef<HTMLInputElement | null>(null);
+  const previousYearRef = useRef<number | null>(null);
 
   const { id } = useParams<{ id?: string }>();
   const editId = id ? Number(id) : null;
@@ -87,32 +90,24 @@ const AddProp: React.FC = () => {
     const now = new Date().getFullYear();
     return availableYears[0] ?? now;
   });
+
   const yearOptions = useMemo(() => {
     const set = new Set<number>(availableYears);
     if (isEditMode) set.add(selectedYear);
-      return Array.from(set).sort((a, b) => b - a);
+    return Array.from(set).sort((a, b) => b - a);
   }, [availableYears, selectedYear, isEditMode]);
-
-  useEffect(() => {
-    if (!isEditMode) return;
-    if (availableYears.length === 0) return;
-
-    if (!yearTouched) {
-      setSelectedYear(availableYears[0]);
-    }
-  }, [isEditMode, availableYears, yearTouched]);
 
   const [formData, setFormData] = useState<FormData | null>(null);
 
-  // Täytä formData aina kun mode tai selectedYear muuttuu
   useEffect(() => {
     // ADD MODE
     if (!editId) {
       setFormData(makeEmptyForm());
+      previousYearRef.current = null;
       return;
     }
 
-    // EDIT MODE
+    // EDIT MODE - Initialize with first available year
     const current = store.getById(editId);
     if (!current) return;
 
@@ -146,14 +141,18 @@ const AddProp: React.FC = () => {
 
       kunto: { ...current.pisteet },
     });
+    
+    previousYearRef.current = selectedYear;
 
     const t = setTimeout(() => firstInputRef.current?.focus(), 0);
-    return () => clearTimeout(t);
-  }, [editId, selectedYear, store]);
-
+    return () => clearTimeout(t);    
+  }, [editId, store, selectedYear]);
+  
   if (!formData) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
 
     if (name.startsWith("yllapito.")) {
@@ -161,7 +160,7 @@ const AddProp: React.FC = () => {
       setFormData((prev) =>
         prev
           ? { ...prev, yllapito: { ...prev.yllapito, [key]: Number(value) } }
-          : prev
+          : prev,
       );
       return;
     }
@@ -177,13 +176,13 @@ const AddProp: React.FC = () => {
                   ? value
                   : Number(value),
           }
-        : prev
+        : prev,
     );
   };
 
   const changeSlider = (field: string, val: number) => {
     setFormData((prev) =>
-      prev ? { ...prev, kunto: { ...prev.kunto, [field]: val } } : prev
+      prev ? { ...prev, kunto: { ...prev.kunto, [field]: val } } : prev,
     );
   };
 
@@ -201,11 +200,9 @@ const AddProp: React.FC = () => {
       rakennusvuosi: formData.rakennusvuosi,
       hiilijalanjalki: formData.hiilijalanjalki,
       suojelukohde: formData.suojelukohde === "Kyllä",
-
       pisteet: { ...formData.kunto },
 
       yllapitokulut: {
-        ...(base?.yllapitokulut ?? {}),
         [year]: {
           sahko: formData.yllapito.sahko,
           lammitys: formData.yllapito.lammitus,
@@ -214,11 +211,11 @@ const AddProp: React.FC = () => {
           vero: formData.yllapito.kiinteistovero,
           laina: formData.yllapito.laina,
           muut: 0,
+          muutKulut: {},
         },
       },
 
       vuokrakulut: {
-        ...(base?.vuokrakulut ?? {}),
         [year]: {
           tasearvo: formData.tasearvo,
           rakennusArvo: formData.rakennusArvo,
@@ -247,7 +244,10 @@ const AddProp: React.FC = () => {
         ...base,
         ...uusi,
         id: base.id,
-        painotetutPisteet: store.calPainotutPisteet({ ...base, pisteet: uusi.pisteet }),
+        painotetutPisteet: store.calPainotutPisteet({
+          ...base,
+          pisteet: uusi.pisteet,
+        }),
         oma_salkku: store.evalSalkku({ ...base, pisteet: uusi.pisteet }),
       });
       navigate(`/detail/${base.id}`);
@@ -265,7 +265,11 @@ const AddProp: React.FC = () => {
   return (
     <div className="addprop-container">
       <div className="card-container">
-        <h2>{isEditMode ? `Muokkaa kiinteistöä (${selectedYear})` : `Lisää kiinteistö (${selectedYear})`}</h2>
+        <h2>
+          {isEditMode
+            ? `Muokkaa kiinteistöä (${selectedYear})`
+            : `Lisää kiinteistö (${selectedYear})`}
+        </h2>
 
         <form onSubmit={handleSubmit}>
           <div className="section-title">Perustiedot</div>
@@ -284,12 +288,20 @@ const AddProp: React.FC = () => {
 
             <div className="grid-item">
               <label>Osoite</label>
-              <input name="osoite" value={formData.osoite} onChange={handleChange} />
+              <input
+                name="osoite"
+                value={formData.osoite}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="grid-item">
               <label>Käyttötarkoitus</label>
-              <select name="kayttotarkoitus" value={formData.kayttotarkoitus} onChange={handleChange}>
+              <select
+                name="kayttotarkoitus"
+                value={formData.kayttotarkoitus}
+                onChange={handleChange}
+              >
                 <option value="">Valitse...</option>
                 <option value="Julkinen kiinteistö">Julkinen kiinteistö</option>
                 <option value="Asuinrakennus">Asuinrakennus</option>
@@ -300,110 +312,150 @@ const AddProp: React.FC = () => {
 
             <div className="grid-item">
               <label>Bruttopinta-ala (m²)</label>
-              <input type="number" name="bruttopintaAla" value={formData.bruttopintaAla} onChange={handleChange} />
+              <input
+                type="number"
+                name="bruttopintaAla"
+                value={formData.bruttopintaAla}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="grid-item">
               <label>Rakennusvuosi</label>
-              <input type="number" name="rakennusvuosi" value={formData.rakennusvuosi} onChange={handleChange} />
+              <input
+                type="number"
+                name="rakennusvuosi"
+                value={formData.rakennusvuosi}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="grid-item">
               <label>Tasearvo (€)</label>
-              <input type="number" name="tasearvo" value={formData.tasearvo} onChange={handleChange} />
+              <input
+                type="number"
+                name="tasearvo"
+                value={formData.tasearvo}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="grid-item">
               <label>Rakennus arvo (€)</label>
-              <input type="number" name="rakennusArvo" value={formData.rakennusArvo} onChange={handleChange} />
+              <input
+                type="number"
+                name="rakennusArvo"
+                value={formData.rakennusArvo}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="grid-item">
               <label>Maapohja arvo (€)</label>
-              <input type="number" name="maapohjaArvo" value={formData.maapohjaArvo} onChange={handleChange} />
+              <input
+                type="number"
+                name="maapohjaArvo"
+                value={formData.maapohjaArvo}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="grid-item">
               <label>Liittymisarvo (€)</label>
-              <input type="number" name="liittymisarvo" value={formData.liittymisarvo} onChange={handleChange} />
+              <input
+                type="number"
+                name="liittymisarvo"
+                value={formData.liittymisarvo}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="grid-item">
               <label>Suojelukohde</label>
-              <select name="suojelukohde" value={formData.suojelukohde} onChange={handleChange}>
+              <select
+                name="suojelukohde"
+                value={formData.suojelukohde}
+                onChange={handleChange}
+              >
                 <option value="Ei">Ei</option>
                 <option value="Kyllä">Kyllä</option>
               </select>
             </div>
 
             <div className="grid-item">
-              <label>Hiilijalanjälki (kg CO₂/v)</label>
-              <input type="number" name="hiilijalanjälki" value={formData.hiilijalanjalki} onChange={handleChange} />
+              <label>Hiilijalanjälki (kg CO₂)</label>
+              <input
+                type="number"
+                name="hiilijalanjalki"
+                value={formData.hiilijalanjalki}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="grid-item">
-            <label>Vuosi</label>
+              <label>Vuosi</label>
 
-            {isEditMode ? (
-              <>
-                <div className="year-row">
-                  <select
-                    className="year-select"
-                    value={selectedYear}
-                    onChange={(e) => {
-                      setYearTouched(true);
-                      setSelectedYear(Number(e.target.value));
-                    }}
-                  >
-                    {yearOptions.map((y) => (
-                      <option key={y} value={y}>
-                        {y}
-                      </option>
-                    ))}
-                  </select>
+              {isEditMode ? (
+                <>
+                  <div className="year-row">
+                    <select
+                      className="year-select"
+                      value={selectedYear}
+                      onChange={(e) => {
+                        setYearTouched(true);
+                        setSelectedYear(Number(e.target.value));
+                      }}
+                    >
+                      {yearOptions.map((y) => (
+                        <option key={y} value={y}>
+                          {y}
+                        </option>
+                      ))}
+                    </select>
 
-                  <span className="year-separator">tai</span>
+                    <span className="year-separator">tai</span>
 
-                  <input
-                    className="year-input year-input--full"
-                    type="number"
-                    value={newYear}
-                    min={1900}
-                    max={2100}
-                    style={{ width: "110px" }}
-                    onChange={(e) => setNewYear(Number(e.target.value))}
-                  />
+                    <input
+                      className="year-input year-input--full"
+                      type="number"
+                      value={newYear}
+                      min={1900}
+                      max={2100}
+                      style={{ width: "110px" }}
+                      onChange={(e) => setNewYear(Number(e.target.value))}
+                    />
 
-                  <button
-                    className="year-add-button"
-                    type="button"
-                    onClick={() => {
-                      setYearTouched(true);
-                      setSelectedYear(newYear);
-                    }}
-                  >
-                    Lisää vuosi
-                  </button>
-                </div>
+                    <button
+                      className="year-add-button"
+                      type="button"
+                      onClick={() => {
+                        setYearTouched(true);
+                        setSelectedYear(newYear);
+                      }}
+                    >
+                      Lisää vuosi
+                    </button>
+                  </div>
 
-                <small className="year-help">
-                  Valitse olemassa oleva vuosi dropdownista tai lisää uusi vuosi ja tallenna.
-                </small>
-              </>
-            ) : (
-              <input
-                className="year-input year-input--compact"
-                type="number"
-                value={selectedYear}
-                min={1900}
-                max={2100}
-                onChange={(e) => {
-                  setYearTouched(true);
-                  setSelectedYear(Number(e.target.value));
-                }}
-              />
-            )}
-          </div>
+                  <small className="year-help">
+                    Valitse olemassa oleva vuosi dropdownista tai lisää uusi
+                    vuosi ja tallenna.
+                  </small>
+                </>
+              ) : (
+                <input
+                  className="year-input year-input--compact"
+                  type="number"
+                  value={selectedYear}
+                  min={1900}
+                  max={2100}
+                  onChange={(e) => {
+                    setYearTouched(true);
+                    setSelectedYear(Number(e.target.value));
+                  }}
+                />
+              )}
+            </div>
           </div>
 
           <div className="section-title">Ylläpitokustannukset (€/v)</div>
@@ -411,27 +463,57 @@ const AddProp: React.FC = () => {
           <div className="grid-2col">
             <div className="grid-item">
               <label>Sähkökustannus</label>
-              <input name="yllapito.sahko" type="number" value={formData.yllapito.sahko} onChange={handleChange} />
+              <input
+                name="yllapito.sahko"
+                type="number"
+                value={formData.yllapito.sahko}
+                onChange={handleChange}
+              />
             </div>
             <div className="grid-item">
               <label>Lämmityskustannus</label>
-              <input name="yllapito.lammitus" type="number" value={formData.yllapito.lammitus} onChange={handleChange} />
+              <input
+                name="yllapito.lammitus"
+                type="number"
+                value={formData.yllapito.lammitus}
+                onChange={handleChange}
+              />
             </div>
             <div className="grid-item">
               <label>Vesikustannus</label>
-              <input name="yllapito.vesi" type="number" value={formData.yllapito.vesi} onChange={handleChange} />
+              <input
+                name="yllapito.vesi"
+                type="number"
+                value={formData.yllapito.vesi}
+                onChange={handleChange}
+              />
             </div>
             <div className="grid-item">
               <label>Huoltokustannus</label>
-              <input name="yllapito.huolto" type="number" value={formData.yllapito.huolto} onChange={handleChange} />
+              <input
+                name="yllapito.huolto"
+                type="number"
+                value={formData.yllapito.huolto}
+                onChange={handleChange}
+              />
             </div>
             <div className="grid-item">
               <label>Kiinteistövero</label>
-              <input name="yllapito.kiinteistovero" type="number" value={formData.yllapito.kiinteistovero} onChange={handleChange} />
+              <input
+                name="yllapito.kiinteistovero"
+                type="number"
+                value={formData.yllapito.kiinteistovero}
+                onChange={handleChange}
+              />
             </div>
             <div className="grid-item">
               <label>Lainakustannukset</label>
-              <input name="yllapito.laina" type="number" value={formData.yllapito.laina} onChange={handleChange} />
+              <input
+                name="yllapito.laina"
+                type="number"
+                value={formData.yllapito.laina}
+                onChange={handleChange}
+              />
             </div>
           </div>
 
