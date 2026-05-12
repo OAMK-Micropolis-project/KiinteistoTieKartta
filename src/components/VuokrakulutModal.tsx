@@ -156,11 +156,11 @@ export default function VuokrakulutModal({
             <input type="number" value={form.kokonaisvuokra || ""} placeholder="0"
               onChange={(e) => update("kokonaisvuokra", Number(e.target.value))} style={inputStyle} />
           </div>
-          <div>
+          {/* <div>
             <p style={labelStyle}>Vuokrausaste m² (legacy)</p>
             <input type="number" value={form.vuokrausaste_m2 || ""} placeholder="0"
               onChange={(e) => update("vuokrausaste_m2", Number(e.target.value))} style={inputStyle} />
-          </div>
+          </div> */}
         </div>
 
         {/* Derived preview */}

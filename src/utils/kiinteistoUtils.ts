@@ -32,10 +32,10 @@ export const FIXED_LABELS: Record<FixedKey, string> = {
 
 export function yllapitoTotal(data: YllapitoKulut): number {
   const fixed = FIXED_KEYS.reduce((sum, k) => sum + (data[k] ?? 0), 0);
-  const extra = data.muutKulut
-    ? Object.values(data.muutKulut).reduce((s, v) => s + v, 0)
-    : 0;
-  return Math.round(fixed + extra);
+  // const extra = data.muutKulut
+  //   ? Object.values(data.muutKulut).reduce((s, v) => s + v, 0)
+  //   : 0;
+  return Math.round(fixed);
 }
 
 // ── Toimenpiteet costs grouped by year ───────────────────────────────────────

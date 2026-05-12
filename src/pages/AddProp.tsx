@@ -146,7 +146,7 @@ const AddProp: React.FC = () => {
 
     const t = setTimeout(() => firstInputRef.current?.focus(), 0);
     return () => clearTimeout(t);    
-  }, [editId, store, selectedYear]);
+  }, [editId, selectedYear]);
   
   if (!formData) return null;
 
@@ -255,28 +255,18 @@ const AddProp: React.FC = () => {
     }
 
     store.add(uusi);
-
-    // resetoi lomake uuden lisäämistä varten
-    setFormData(makeEmptyForm());
-    setTimeout(() => firstInputRef.current?.focus(), 0);
-    navigate("/add", { replace: true });
+    navigate("/");
   };
 
   return (
     <div className="addprop-container">
+      <h2>{editId ? "Muokkaa kiinteistöä" : "Lisää uusi kiinteistö"}</h2>
+      
       <div className="card-container">
-        <h2>
-          {isEditMode
-            ? `Muokkaa kiinteistöä (${selectedYear})`
-            : `Lisää kiinteistö (${selectedYear})`}
-        </h2>
-
         <form onSubmit={handleSubmit}>
-          <div className="section-title">Perustiedot</div>
-
           <div className="grid-2col">
             <div className="grid-item">
-              <label>Kiinteistön nimi *</label>
+              <label>Kiinteistön Nimi</label>
               <input
                 ref={firstInputRef}
                 name="nimi"
@@ -313,7 +303,7 @@ const AddProp: React.FC = () => {
             <div className="grid-item">
               <label>Bruttopinta-ala (m²)</label>
               <input
-                type="number"
+                type="numeric"
                 name="bruttopintaAla"
                 value={formData.bruttopintaAla}
                 onChange={handleChange}
@@ -323,7 +313,7 @@ const AddProp: React.FC = () => {
             <div className="grid-item">
               <label>Rakennusvuosi</label>
               <input
-                type="number"
+                type="numeric"
                 name="rakennusvuosi"
                 value={formData.rakennusvuosi}
                 onChange={handleChange}
@@ -333,7 +323,7 @@ const AddProp: React.FC = () => {
             <div className="grid-item">
               <label>Tasearvo (€)</label>
               <input
-                type="number"
+                type="numeric"
                 name="tasearvo"
                 value={formData.tasearvo}
                 onChange={handleChange}
@@ -343,7 +333,7 @@ const AddProp: React.FC = () => {
             <div className="grid-item">
               <label>Rakennus arvo (€)</label>
               <input
-                type="number"
+                type="numeric"
                 name="rakennusArvo"
                 value={formData.rakennusArvo}
                 onChange={handleChange}
@@ -353,7 +343,7 @@ const AddProp: React.FC = () => {
             <div className="grid-item">
               <label>Maapohja arvo (€)</label>
               <input
-                type="number"
+                type="numeric"
                 name="maapohjaArvo"
                 value={formData.maapohjaArvo}
                 onChange={handleChange}
@@ -363,7 +353,7 @@ const AddProp: React.FC = () => {
             <div className="grid-item">
               <label>Liittymisarvo (€)</label>
               <input
-                type="number"
+                type="numeric"
                 name="liittymisarvo"
                 value={formData.liittymisarvo}
                 onChange={handleChange}
@@ -385,7 +375,7 @@ const AddProp: React.FC = () => {
             <div className="grid-item">
               <label>Hiilijalanjälki (kg CO₂)</label>
               <input
-                type="number"
+                type="numeric"
                 name="hiilijalanjalki"
                 value={formData.hiilijalanjalki}
                 onChange={handleChange}
@@ -417,7 +407,7 @@ const AddProp: React.FC = () => {
 
                     <input
                       className="year-input year-input--full"
-                      type="number"
+                      type="numeric"
                       value={newYear}
                       min={1900}
                       max={2100}
@@ -445,7 +435,7 @@ const AddProp: React.FC = () => {
               ) : (
                 <input
                   className="year-input year-input--compact"
-                  type="number"
+                  type="numeric"
                   value={selectedYear}
                   min={1900}
                   max={2100}
@@ -465,7 +455,7 @@ const AddProp: React.FC = () => {
               <label>Sähkökustannus</label>
               <input
                 name="yllapito.sahko"
-                type="number"
+                type="numeric"
                 value={formData.yllapito.sahko}
                 onChange={handleChange}
               />
@@ -474,7 +464,7 @@ const AddProp: React.FC = () => {
               <label>Lämmityskustannus</label>
               <input
                 name="yllapito.lammitus"
-                type="number"
+                type="numeric"
                 value={formData.yllapito.lammitus}
                 onChange={handleChange}
               />
@@ -483,7 +473,7 @@ const AddProp: React.FC = () => {
               <label>Vesikustannus</label>
               <input
                 name="yllapito.vesi"
-                type="number"
+                type="numeric"
                 value={formData.yllapito.vesi}
                 onChange={handleChange}
               />
@@ -492,7 +482,7 @@ const AddProp: React.FC = () => {
               <label>Huoltokustannus</label>
               <input
                 name="yllapito.huolto"
-                type="number"
+                type="numeric"
                 value={formData.yllapito.huolto}
                 onChange={handleChange}
               />
@@ -501,7 +491,7 @@ const AddProp: React.FC = () => {
               <label>Kiinteistövero</label>
               <input
                 name="yllapito.kiinteistovero"
-                type="number"
+                type="numeric"
                 value={formData.yllapito.kiinteistovero}
                 onChange={handleChange}
               />
@@ -510,7 +500,7 @@ const AddProp: React.FC = () => {
               <label>Lainakustannukset</label>
               <input
                 name="yllapito.laina"
-                type="number"
+                type="numeric"
                 value={formData.yllapito.laina}
                 onChange={handleChange}
               />

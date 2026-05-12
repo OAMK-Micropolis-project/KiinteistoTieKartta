@@ -76,7 +76,9 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
       ...Object.keys(k.yllapitokulut ?? {}).map(Number),
       ...Object.keys(k.vuokrakulut ?? {}).map(Number),
     ]);
-    return years.length > 0 ? Math.max(...years) : new Date().getFullYear();
+    const latestYear = years.length > 0 ? Math.max(...years) : new Date().getFullYear();
+    // console.log('🗓️ getLatestYear calculated:', latestYear, 'from years:', years);
+    return latestYear;
   }
 
   function calNumberOfKiinteistot() {
@@ -179,6 +181,19 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
 
   function normalizeKiinteisto(raw: any): Kiinteisto | null {
     try {
+      // 🔧 Helper function to normalize year keys from strings to numbers
+      const normalizeYearKeys = (obj: any) => {
+        if (!obj || typeof obj !== "object") return {};
+        const normalized: any = {};
+        Object.entries(obj).forEach(([key, value]) => {
+          const yearNum = Number(key);
+          if (!isNaN(yearNum)) {
+            normalized[yearNum] = value;  // Convert "2026" string → 2026 number
+          }
+        });
+        return normalized;
+      };
+
       const base: Kiinteisto = {
         id: Number(raw.id),
         nimi: String(raw.nimi ?? ""),
@@ -192,11 +207,12 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
         toimenpiteet: Array.isArray(raw.toimenpiteet)
           ? raw.toimenpiteet.map((t: any) => ({ ...t, id: t.id ?? crypto.randomUUID() }))
           : [],
-        yllapitokulut: raw.yllapitokulut && typeof raw.yllapitokulut === "object" ? raw.yllapitokulut : {},
-        vuokrakulut: raw.vuokrakulut && typeof raw.vuokrakulut === "object" ? raw.vuokrakulut : {},
+        // 🔧 CRITICAL: Normalize year keys from strings ("2026") to numbers (2026)
+        yllapitokulut: normalizeYearKeys(raw.yllapitokulut),
+        vuokrakulut: normalizeYearKeys(raw.vuokrakulut),
         painotetutPisteet: 0,
         oma_salkku: "D",
-        hiilijalanjalki: 0
+        hiilijalanjalki: Number(raw.hiilijalanjalki ?? 0)
       };
       const painotetutPisteet = calPainotutPisteet(base);
       const oma_salkku = evalSalkku({ ...base, painotetutPisteet });
@@ -218,7 +234,7 @@ export function KiinteistoProvider({ children }: { children: React.ReactNode }) 
         .filter((k): k is Kiinteisto => k !== null);
       setKiinteistot(safeData);
       setLastRefresh(new Date());
-      console.log("Data refreshed");
+      console.log("✅ Data refreshed with", safeData.length, "kiinteistot");
     } catch (err) {
       console.error("Refresh failed", err);
     }
