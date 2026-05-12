@@ -50,7 +50,20 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
   const vuokrattavissa = item.vuokrakulut?.[latestYear]?.vuokrattavissa ?? 0;
   const kokonaisvuokra = item.vuokrakulut?.[latestYear]?.kokonaisvuokra ?? 0;
 
-  const neliövuokra = vuokrattavissa > 0 ? kokonaisvuokra / vuokrattavissa : 0;
+  // const neliövuokra =
+  //   vuokrattavissa > 0
+  //     ? (kokonaisvuokra / vuokrattavissa / 12).toLocaleString("fi-FI", {
+  //       minimumFractionDigits: 2,
+  //       maximumFractionDigits: 2
+  //     })
+  //     : "0,00";
+
+      
+const neliövuokra =
+  vuokrattavissa > 0
+    ? kokonaisvuokra / vuokrattavissa / 12
+    : 0;
+
 
   return (
     <ErrorBoundary>
@@ -173,22 +186,22 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
                 unit="€"
                 tooltip={{
                   label: `Vuokratulot / v (${latestYear})`,
-                  formula: "= vuokrattu m² × neliövuokra €/m² × 12 kk",
+                  formula: "= vuokrattavissa (m²) × neliövuokra (€/m²) × 12 kk",
                 }}
                 breakdown={[
                   {
                     label: "Vuokrattavissa m²",
-                    value: item.vuokrakulut?.[latestYear]?.vuokrattavissa ?? 0,
+                    value: item.vuokrakulut?.[latestYear]?.vuokrattavissa?.toFixed(0) ?? 0,
                     unit: "m²",
                   },
                   {
                     label: "Vuokrattu m²",
-                    value: vuokrattu,
+                    value: vuokrattu.toFixed(0),
                     unit: "m²",
                   },
                   {
                     label: "Neliövuokra",
-                    value: Number(neliövuokra.toFixed(2)),
+                    value: neliövuokra,
                     unit: "€/m²",
                   },
                 ]}

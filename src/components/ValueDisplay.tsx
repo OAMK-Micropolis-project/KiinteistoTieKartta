@@ -28,7 +28,7 @@ import Tooltip from "./Tooltip";
 
 interface BreakdownItem {
   label: string;
-  value: number;
+  value: number | string;
   unit?: string; // optional unit for this item, e.g. "€", "kWh", "m²"
 }
 
@@ -121,8 +121,8 @@ export default function ValueDisplay({
               <span style={{ color: theme.colors.textMuted }}>{item.label}</span>
               <span style={{ fontWeight: 500 }}>
                 {item.value.toLocaleString("fi-FI", {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
                 })}{" "}
                 {item.unit || unit}
               </span>

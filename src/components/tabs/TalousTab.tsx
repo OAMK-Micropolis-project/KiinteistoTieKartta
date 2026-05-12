@@ -81,12 +81,10 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
   const yllapito = item.yllapitokulut?.[selectedYear];
   const vuokra = item.vuokrakulut?.[selectedYear];
 
-  const rentedM2 = (vuokra?.vuokrattu ??
-    vuokra?.vuokrausaste_m2 ??
-    0) as number;
+  const rentedM2 = (vuokra?.vuokrattu ?? vuokra?.vuokrausaste_m2 ?? 0) as number;
   const kokonaisvuokra = (vuokra?.kokonaisvuokra ?? 0) as number;
 
-  const neliovuokra = rentedM2 > 0 ? kokonaisvuokra / rentedM2 / 12 : 0;
+  const neliovuokra = rentedM2 > 0 ? kokonaisvuokra / vuokra.vuokrattavissa / 12 : 0;
 
   const kuukausitulo = Math.round(vuokratulot / 12);
   const tulosColor = tulos >= 0 ? theme.colors.accent : "#d32f2f";
@@ -322,7 +320,7 @@ export default function TalousTab({ item, latestYear, onUpdate }: Props) {
                     <TT
                       text={
                         `Neliövuokra (${selectedYear})\n` +
-                        `= ${kokonaisvuokra} / ${rentedM2} / 12`
+                        `= ${kokonaisvuokra} / ${vuokra.vuokrattavissa} / 12`
                       }
                     >
                       {`${fmtDec(neliovuokra)} /m²`}
