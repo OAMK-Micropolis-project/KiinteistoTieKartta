@@ -15,36 +15,7 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
   const { yllapitoYhteensa, vuokratulot, kayttoaste } = computeFinancials(
     item,
     latestYear,
-  );
-
-  // // === DETAILED DEBUG LOGGING ===
-  // console.group('🔍 PerustiedotTab Detailed Debug');
-  // console.log('📦 item.id:', item.id);
-  // console.log('📦 latestYear:', latestYear, typeof latestYear);
-  // console.log('---');
-  // console.log('📊 Vuokrakulut access:');
-  // console.log('  item.vuokrakulut:', item.vuokrakulut);
-  // console.log('  Object.keys:', Object.keys(item.vuokrakulut || {}));
-  // console.log('  item.vuokrakulut[latestYear]:', item.vuokrakulut?.[latestYear]);
-  // console.log('  tasearvo:', item.vuokrakulut?.[latestYear]?.tasearvo);
-  // console.log('  rakennusArvo:', item.vuokrakulut?.[latestYear]?.rakennusArvo);
-  // console.log('---');
-  // console.log('📊 Yllapitokulut access:');
-  // console.log('  item.yllapitokulut:', item.yllapitokulut);
-  // console.log('  Object.keys:', Object.keys(item.yllapitokulut || {}));
-  // console.log('  item.yllapitokulut[latestYear]:', item.yllapitokulut?.[latestYear]);
-  // console.log('---');
-  // console.log('📈 Computed values:');
-  // console.log('  yllapitoYhteensa:', yllapitoYhteensa);
-  // console.log('  vuokratulot:', vuokratulot);
-  // console.log('  kayttoaste:', kayttoaste);
-  // console.log('---');
-  // console.log('📍 Rent usage calculation:');
-  // console.log('  vuokrausaste_m2:', item.vuokrakulut?.[latestYear]?.vuokrausaste_m2);
-  // console.log('  neliovuokra:', item.vuokrakulut?.[latestYear]?.neliovuokra);
-  // console.log('  pinta_ala:', item.pinta_ala);
-  // console.groupEnd();
-  // // === END DEBUG ===
+  );  
 
   const vuokrattu = item.vuokrakulut?.[latestYear]?.vuokrattu ?? 0;
   const vuokrattavissa = item.vuokrakulut?.[latestYear]?.vuokrattavissa ?? 0;
@@ -57,13 +28,11 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
   //       maximumFractionDigits: 2
   //     })
   //     : "0,00";
-
       
 const neliövuokra =
   vuokrattavissa > 0
     ? kokonaisvuokra / vuokrattavissa / 12
     : 0;
-
 
   return (
     <ErrorBoundary>
