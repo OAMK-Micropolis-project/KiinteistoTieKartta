@@ -4,6 +4,7 @@ import { computeFinancials } from "../../utils/kiinteistoUtils";
 import DetailCard from "../DetailCard";
 import { ErrorBoundary } from "../ErrorBoundary";
 import Tooltip from "../Tooltip";
+import ValueDisplay from "../ValueDisplay";
 
 interface Props {
   item: Kiinteisto;
@@ -14,11 +15,35 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
   const { yllapitoYhteensa, vuokratulot, kayttoaste } = computeFinancials(
     item,
     latestYear,
-  );
+  );  
+
+  const vuokrattu = item.vuokrakulut?.[latestYear]?.vuokrattu ?? 0;
+  const vuokrattavissa = item.vuokrakulut?.[latestYear]?.vuokrattavissa ?? 0;
+  const kokonaisvuokra = item.vuokrakulut?.[latestYear]?.kokonaisvuokra ?? 0;
+
+  // const neliövuokra =
+  //   vuokrattavissa > 0
+  //     ? (kokonaisvuokra / vuokrattavissa / 12).toLocaleString("fi-FI", {
+  //       minimumFractionDigits: 2,
+  //       maximumFractionDigits: 2
+  //     })
+  //     : "0,00";
+      
+const neliövuokra =
+  vuokrattavissa > 0
+    ? kokonaisvuokra / vuokrattavissa / 12
+    : 0;
 
   return (
     <ErrorBoundary>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", overflow: "visible" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "20px",
+          overflow: "visible",
+        }}
+      >
         <DetailCard
           title="Kiinteistön tiedot"
           rows={[
@@ -26,7 +51,10 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
             ["Rakennusvuosi", item.rakennusvuosi ?? "Ei tietoa"],
             ["Käyttötarkoitus", item.kayttotarkoitus ?? "Ei tietoa"],
             ["Suojelukohde", item.suojelukohde ? "Kyllä" : "Ei"],
-            ["Hiilijalanjälki", `${(item.hiilijalanjalki ?? 0).toLocaleString("fi-FI")} kg CO₂/v`],
+            [
+              "Hiilijalanjälki",
+              `${(item.hiilijalanjalki ?? 0).toLocaleString("fi-FI")} kg CO₂`,
+            ],
 
             [
               "Tasearvo",
@@ -38,7 +66,10 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
                 }
               >
                 <span>
-                  {(item.vuokrakulut?.[latestYear]?.tasearvo ?? 0).toLocaleString("fi-FI")} €
+                  {(
+                    item.vuokrakulut?.[latestYear]?.tasearvo ?? 0
+                  ).toLocaleString("fi-FI")}{" "}
+                  €
                 </span>
               </Tooltip>,
             ],
@@ -46,48 +77,104 @@ export default function PerustiedotTab({ item, latestYear }: Props) {
             [
               "  - Rakennus arvo",
               <span>
-                {(item.vuokrakulut?.[latestYear]?.rakennusArvo ?? 0).toLocaleString("fi-FI")} €
+                {(
+                  item.vuokrakulut?.[latestYear]?.rakennusArvo ?? 0
+                ).toLocaleString("fi-FI")}{" "}
+                €
               </span>,
             ],
 
             [
               "  - Maapohja arvo",
               <span>
-                {(item.vuokrakulut?.[latestYear]?.maapohjaArvo ?? 0).toLocaleString("fi-FI")} €
+                {(
+                  item.vuokrakulut?.[latestYear]?.maapohjaArvo ?? 0
+                ).toLocaleString("fi-FI")}{" "}
+                €
               </span>,
             ],
 
             [
               "  - Liittymisarvo",
               <span>
-                {(item.vuokrakulut?.[latestYear]?.liittymisarvo ?? 0).toLocaleString("fi-FI")} €
+                {(
+                  item.vuokrakulut?.[latestYear]?.liittymisarvo ?? 0
+                ).toLocaleString("fi-FI")}{" "}
+                €
               </span>,
             ],
 
             [
               "Ylläpitokulut / v",
-              <Tooltip
-                label={
-                  `Ylläpitokulut (${latestYear})\n` +
-                  `= Σ yllapitokulut[${latestYear}][kululaji]\n` +
-                  `esim. sahko + lammitys + vesi + huolto + ...`
-                }
-              >
-                <span>{(yllapitoYhteensa ?? 0).toLocaleString("fi-FI")} €</span>
-              </Tooltip>,
+              <ValueDisplay
+                value={yllapitoYhteensa ?? 0}
+                unit="€"
+                tooltip={{
+                  label: `Ylläpitokulut (${latestYear})`,
+                  formula:
+                    "= sähkö + lämmitys + vesi + huolto + vero + laina + ...",
+                }}
+                breakdown={[
+                  {
+                    label: "Sähkö",
+                    value: item.yllapitokulut?.[latestYear]?.sahko ?? 0,
+                  },
+                  {
+                    label: "Lämmitys",
+                    value: item.yllapitokulut?.[latestYear]?.lammitys ?? 0,
+                  },
+                  {
+                    label: "Vesi",
+                    value: item.yllapitokulut?.[latestYear]?.vesi ?? 0,
+                  },
+                  {
+                    label: "Huolto",
+                    value: item.yllapitokulut?.[latestYear]?.huolto ?? 0,
+                  },
+                  {
+                    label: "Verot",
+                    value: item.yllapitokulut?.[latestYear]?.vero ?? 0,
+                  },
+                  {
+                    label: "Lainakulut",
+                    value: item.yllapitokulut?.[latestYear]?.laina ?? 0,
+                  },
+                  {
+                    label: "Muut",
+                    value: item.yllapitokulut?.[latestYear]?.muut ?? 0,
+                  },
+                ]}
+              />,
             ],
 
             [
               "Vuokratulot / v",
-              <Tooltip
-                label={
-                  `Vuokratulot / v (${latestYear})\n` +
-                  `= vuokrausaste_m2 * neliövuokra * 12\n` +
-                  `(jos puuttuu → 0)`
-                }
-              >
-                <span>{(vuokratulot ?? 0).toLocaleString("fi-FI")} €</span>
-              </Tooltip>,
+
+              <ValueDisplay
+                value={vuokratulot ?? 0}
+                unit="€"
+                tooltip={{
+                  label: `Vuokratulot / v (${latestYear})`,
+                  formula: "= vuokrattavissa (m²) × neliövuokra (€/m²) × 12 kk",
+                }}
+                breakdown={[
+                  {
+                    label: "Vuokrattavissa m²",
+                    value: item.vuokrakulut?.[latestYear]?.vuokrattavissa?.toFixed(0) ?? 0,
+                    unit: "m²",
+                  },
+                  {
+                    label: "Vuokrattu m²",
+                    value: vuokrattu.toFixed(0),
+                    unit: "m²",
+                  },
+                  {
+                    label: "Neliövuokra",
+                    value: neliövuokra,
+                    unit: "€/m²",
+                  },
+                ]}
+              />,
             ],
 
             [
