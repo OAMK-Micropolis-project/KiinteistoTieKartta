@@ -1,73 +1,85 @@
-# React + TypeScript + Vite
+# Kiinteistötiekartta (Micropolis / OAMK)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Desktop-sovellus kiinteistösalkun hallintaan: kiinteistöjen lisäys, muokkaus, poisto, vuositasoinen talousdata sekä analytiikka (kaaviot). Tällä sovelluksella voi käyttäjä tarkistaa kiinteistöjen elinkaarta ja siten päättää paras suunnitelma kyseiselle kiinteistölle. Ohjelman tarkoitus on korvata Excelin käyttö, missä tiedot olisivat helposti tarkastettavissa, muokattavissa ja verrattavissa.
 
-Currently, two official plugins are available:
+## Keskeneräiset ominaisuudet
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Tietojen filtteröinti PDF tuomisen vaiheessa.
+- Varmuuskopiointi, jotta käyttäjällä mahdollisuus kumota tehtyjä muutoksia.
+- Tallennetun tiedoston jakautuminen, missä jokaisella kiinteistöllä on oma JSON tiedosto.
+- Tietojen tuominen ulos Excel muodossa.
 
-## React Compiler
+## Ohjeita ja selityksiä
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Tämä sovellus käyttää paikallista JSON-tiedostoa tietolähteenä. Käyttäjä valitsee tiedoston polun sovelluksen käyttöliittymästä, ja sovellus lukee sekä tallentaa muutokset samaan tiedostoon. Synkronointiin käytettiin kehitysvaiheessa OneDrivea. Missä käyttäjät jakavat joko tiedoston tai kansion missä JSON-tiedosto sijaitsee, ja siten voivat tarkistella ja muokata tiedostoa realiaikaan.
 
-## Expanding the ESLint configuration
+### Ohjelman käyttö / toiminta (pikaohje)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. Avaa sovellus.
+2. Valitse data-tiedosto (JSON) Path/Pathfinder-napista (tai vastaavasta).
+3. Selaa kiinteistöjä toolbarissa: haku ja salkkusuodatus (A/B/C/D).
+4. Vaihda vuosi (year filter) Summary-näkymässä.
+5. Avaa kiinteistö detail-näkymään.
+6. Muokkaa kiinteistöä (Muokkaa) tai poista (Poista).
+7. Lisää uusi kiinteistö (Lisää kiinteistö).
+8. Päivitä data manuaalisesti (Päivitä).
+9. Tuominen ulos tapahtuu kun käyttäjä painaa "PDF-esikatselu"-nappia ylhäällä oikealla kiinteistö sivulla. Esikatselun jälkeen käyttäjä voi tuoda painamalla "Tallenna PDF"-nappia, jolloin käyttäjältä kysytään sijaintia missä PDF-tiedosto tallennetaan.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Miten se toimii?
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Sovellus on React-sovellus, jossa näkymät ovat reittejä (React Router). Data pidetään keskitetysti Context/Providerissa. Kun käyttäjä tekee muutoksen (lisää/muokkaa/poistaa), Provider (KiinteistoProvider.tsx) päivittää tilan ja tallentaa JSON-tiedostoon. Providerin tiedot ovat jaettavissa kaikille React Contextin avulla, sillä se on asetettu ylimmälle tasolle mistä kaikki alkaa (main.tsx).
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Dataformaatti (tiivistetty) (löydettävissä `types.ts` tiedostossa)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- `yllapitokulut` ja `vuokrakulut` ovat vuosikohtaisia avain-objekteja: `{ "2026": {...}, "2025": {...} }`
+- `pisteet` kuvaa kuntoarviota (1–5), ja käytetään salkutuksessa / pisteytyksessä.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Mitä komponentteja on luotu?
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**Näkymät / sivut**
+
+- Summary / HomePage: yhteenveto, listaus, kaaviot, vuosisuodatin
+- DetailView: kiinteistön detaljit, tabit (perustiedot/kunto/toimenpiteet/talous)
+- AddProp: lisää/muokkaa kiinteistö (myös vuositasoinen muokkaus)
+- PDF: PDF-esikatselu ja tallennus
+
+**UI-komponentit**
+
+- Toolbar: navigointi, haku, salkkusuodatus, refresh, tiedostopolku
+- Tooltip: hover-selitteet laskuille
+- Chartit: DonutChart ja PointsBarChart (portfoliojakauma ja pisteet)
+- Modals: VuokrakulutModal, YllapitokulutModal (talousdatan muokkaus)
+- Tab-komponentit: PerustiedotTab, KuntoarviointiTab, TalousTab, ToimenpiteetTab
+- InfoRow, DetailCard, ErrorBoundary jne.
+
+## Miten komponentit keskustelevat toisten kanssa?
+
+**Keskeinen idea: Context (Provider) = yhden totuuden lähde**
+
+- `KiinteistoProvider` tarjoaa store-API:n (getById, add, update, remove, refresh, laskennat).
+- Komponentit käyttävät `useKiinteistot()` hookia lukeakseen dataa ja tehdäkseen muutoksia.
+- `onUpdate(item)` callback siirtyy esim. Tab/Modal-komponenteihin, jotka kutsuvat `update()`.
+
+**Reititys (esimerkki)**
+
+- `/` -> Summary/Home
+- `/detail/:id` -> DetailView
+- `/add` -> AddProp (lisää)
+- `/add/:id` -> AddProp (muokkaa)
+- `/pdf/:id` -> PDF (esikatselu ja tallennus)
+
+## Työkalut ja kirjastot
+
+- React + TypeScript + Vite (pohja)
+- React Router (reititys)
+- Chart.js + react-chartjs-2 (kaaviot)
+- ESLint (laajennettavissa oleva ESLint-konfiguraatioon)
+- Electron (Työpöytä sovelluksen ajuri)
+  - Electron Forge (Jakaamista varten)
+
+## Kehittäjälle: käynnistys
+
+```bash
+npm install
+npm run dev
 ```
